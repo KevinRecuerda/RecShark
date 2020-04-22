@@ -1,0 +1,23 @@
+﻿<Project>
+  <PropertyGroup>
+    <Authors>Kevin Recuerda</Authors>
+    <Company>RecShark</Company>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageProjectUrl>https://github.com/KevinRecuerda/RecShark.Extensions</PackageProjectUrl>
+    <PackageTags>recshark;extensions</PackageTags>
+    <AssemblyName>RecShark.Extensions.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Workaround: Include symbol files (*.pdb) in the built .nupkg 
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    -->
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
