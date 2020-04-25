@@ -4,7 +4,7 @@ using Xunit;
 
 namespace RecShark.Extensions.Testing.FluentAssertions.Tests
 {
-    public class FluentAssertionsContainExtensionsTests
+    public class ContainExtensionsTests
     {
         private readonly ObjectForTests obj1 = new ObjectForTests(1, 3.14, DateTime.Today);
         private readonly ObjectForTests obj2 = new ObjectForTests(2, 3.15, DateTime.Today);

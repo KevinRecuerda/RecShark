@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace RecShark.Extensions.Testing.FluentAssertions
 {
-    public static class FluentAssertionsContainExtensions
+    public static class ContainExtensions
     {
         public static AndConstraint<GenericCollectionAssertions<T>> ContainEquivalentOf<T>(
             this GenericCollectionAssertions<T> assert,

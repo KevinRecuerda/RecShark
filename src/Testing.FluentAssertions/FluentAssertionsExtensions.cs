@@ -32,5 +32,22 @@ namespace RecShark.Extensions.Testing.FluentAssertions
                 return false;
             }
         }
+
+        public static EquivalencyAssertionOptions<T> ExcludingSubCollectionMember<T>(this EquivalencyAssertionOptions<T> assert, string subMemberPath)
+        {
+            assert.Excluding(x => x.SubCollectionMember() == subMemberPath);
+            return assert;
+        }
+
+        public static string SubCollectionMember(this IMemberInfo memberInfo)
+        {
+            return memberInfo.SelectedMemberPath.SubCollectionMember();
+        }
+
+        public static string SubCollectionMember(this string path)
+        {
+            var i = path.IndexOf(".", StringComparison.Ordinal);
+            return path.Substring(i + 1);
+        }
     }
 }

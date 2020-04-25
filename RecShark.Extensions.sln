@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.FluentAssertions", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.FluentAssertions.Tests", "src\Testing.FluentAssertions.Tests\Testing.FluentAssertions.Tests.csproj", "{A619F907-DD68-435F-BEDF-99B66AD5144B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute.Tests", "src\Testing.NSubstitute.Tests\Testing.NSubstitute.Tests.csproj", "{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute", "src\Testing.NSubstitute\Testing.NSubstitute.csproj", "{9978D105-4099-4A70-A3C6-96EA8FC71B32}"
+EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{A619F907-DD68-435F-BEDF-99B66AD5144B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A619F907-DD68-435F-BEDF-99B66AD5144B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A619F907-DD68-435F-BEDF-99B66AD5144B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -40,5 +40,11 @@ namespace RecShark.Extensions.Testing.FluentAssertions.Tests
 
             actual.IsEquivalentTo(expected, options => options.Excluding(x => x.Value)).Should().Be(true);
         }
+
+        [Fact]
+        public void ExcludingSubCollectionMember__Should_ignore_sub_member_path()
+        {
+            new[] {actual}.Should().ContainEquivalentOf(expected, options => options.ExcludingSubCollectionMember("Value"));
+        }
     }
 }
