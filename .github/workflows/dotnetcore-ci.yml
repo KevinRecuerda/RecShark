@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Core CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  continous-integration:
 
     runs-on: ubuntu-latest
 
@@ -20,6 +20,6 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build -c Release --no-restore
     - name: Test
-      run: dotnet test --no-build
+      run: dotnet test -c Release --no-build
