@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Provides some FluentAssertions extensions</Description>
-    <PackageTags>$(PackageTags);testing;FluentAssertions;netcore;netstandard</PackageTags>
+    <PackageTags>$(PackageTags);testing;FluentAssertions</PackageTags>
     <Version>1.0.0-beta</Version>
   </PropertyGroup>
 

@@ -31,7 +31,7 @@ namespace RecShark.Extensions.Testing.FluentAssertions.Tests
             Action action = () => items.Should().ContainEquivalentOf(obj1, obj2, obj3);
 
             action.Should().Throw<Exception>()
-                  .WithMessage("Expected collection * to contain equivalent of * Id = 2*");
+                  .WithMessage("Expected collection * to contain equivalent of 2|*");
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace RecShark.Extensions.Testing.FluentAssertions.Tests
             Action action = () => items.Should().NotContainEquivalentOf(obj1, obj2);
 
             action.Should().Throw<Exception>()
-                  .WithMessage("Expected collection * to not contain equivalent of * Id = 1*");
+                  .WithMessage("Expected collection * to not contain equivalent of 1|*");
         }
     }
 }

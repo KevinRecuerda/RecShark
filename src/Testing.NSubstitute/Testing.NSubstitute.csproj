@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Provides some NSubstitute extensions</Description>
-    <PackageTags>$(PackageTags);testing;NSubstitute;netcore;netstandard</PackageTags>
+    <PackageTags>$(PackageTags);testing;NSubstitute</PackageTags>
     <Version>1.0.0-beta</Version>
   </PropertyGroup>
 

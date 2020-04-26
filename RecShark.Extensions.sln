@@ -2,11 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.FluentAssertions", "src\Testing.FluentAssertions\Testing.FluentAssertions.csproj", "{888B1092-B809-4B10-871D-427F028AC935}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.FluentAssertions.Tests", "src\Testing.FluentAssertions.Tests\Testing.FluentAssertions.Tests.csproj", "{A619F907-DD68-435F-BEDF-99B66AD5144B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute.Tests", "src\Testing.NSubstitute.Tests\Testing.NSubstitute.Tests.csproj", "{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.FluentAssertions.Tests", "tests\Testing.FluentAssertions.Tests\Testing.FluentAssertions.Tests.csproj", "{A619F907-DD68-435F-BEDF-99B66AD5144B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute", "src\Testing.NSubstitute\Testing.NSubstitute.csproj", "{9978D105-4099-4A70-A3C6-96EA8FC71B32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute.Tests", "tests\Testing.NSubstitute.Tests\Testing.NSubstitute.Tests.csproj", "{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}"
 EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution

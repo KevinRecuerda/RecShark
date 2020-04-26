@@ -128,22 +128,22 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             CollectionData.Concat(
                 new List<object[]>
                 {
-                    new object[] {"enumerable", Enumerable.Range(0, 2).Select(i => i == 0 ? obj1 : obj2)}
+                    "enumerable".LabeledData<object>(Enumerable.Range(0, 2).Select(i => i == 0 ? obj1 : obj2))
                 });
 
         public static IEnumerable<object[]> CollectionData =>
             new List<object[]>
             {
-                new object[] {"array", new[] {obj1, obj2}},
-                new object[] {"list", new List<ObjectForTests> {obj1, obj2}}
+                "array".LabeledData<object>(new[] {obj1, obj2}),
+                "list".LabeledData<object>(new List<ObjectForTests> {obj1, obj2})
             };
 
         [Theory]
         [MemberData(nameof(EnumerableData))]
-        public void AsArg__Should_match_enumerable(string _, IEnumerable<ObjectForTests> items)
+        public void AsArg__Should_match_enumerable(Labeled<object> items)
         {
             // Arrange
-            service.DoMultiple(items);
+            service.DoMultiple((IEnumerable<ObjectForTests>) items.Data);
             var expected = new[] {obj1, obj2};
 
             // Act
@@ -157,10 +157,10 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
 
         [Theory]
         [MemberData(nameof(CollectionData))]
-        public void AsArg__Should_match_collection(string _, ICollection<ObjectForTests> items)
+        public void AsArg__Should_match_collection(Labeled<object> items)
         {
             // Arrange
-            service.DoMultipleCollection(items);
+            service.DoMultipleCollection((ICollection<ObjectForTests>) items.Data);
             var expected = new[] {obj1, obj2};
 
             // Act

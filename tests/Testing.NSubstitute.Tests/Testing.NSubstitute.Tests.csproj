@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Testing.FluentAssertions.Tests\Testing.FluentAssertions.Tests.csproj" />
-    <ProjectReference Include="..\Testing.NSubstitute\Testing.NSubstitute.csproj" />
+    <ProjectReference Include="..\..\src\Testing.NSubstitute\Testing.NSubstitute.csproj" />
   </ItemGroup>
 
 </Project>
