@@ -1,4 +1,4 @@
-name: .NET Core CI
+name: .NET Core - CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  continous-integration:
+  build:
 
     runs-on: ubuntu-latest
 
