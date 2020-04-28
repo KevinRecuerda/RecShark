@@ -1,12 +1,17 @@
 ﻿<Project>
   <PropertyGroup>
+    <AssemblyName>RecShark.Extensions.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    
     <Authors>Kevin Recuerda</Authors>
     <Company>RecShark</Company>
     <Copyright>Copyright 2020</Copyright>
-    <PackageProjectUrl>https://github.com/KevinRecuerda/RecShark.Extensions</PackageProjectUrl>
+    <PackageLicenseExpression>	Apache-2.0</PackageLicenseExpression>
+    <PackageIconUrl>https://github.githubassets.com/images/icons/emoji/unicode/1f988.png</PackageIconUrl>
+
     <PackageTags>recshark;extensions</PackageTags>
-    <AssemblyName>RecShark.Extensions.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <PackageProjectUrl>https://github.com/KevinRecuerda/RecShark.Extensions</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
