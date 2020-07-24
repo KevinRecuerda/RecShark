@@ -62,53 +62,49 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void LoggedMatching__Should_receive_log()
+        public void Logged__Should_receive_log_when_wildcard_is_used()
         {
             // Arrange
-            var pattern = ".*ror.*";
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            logger.LoggedMatching(LogLevel.Error, pattern);
-            logger.LoggedMatching(null,           pattern);
+            this.logger.Logged(LogLevel.Error, "*ror*");
+            this.logger.Logged(null,           "*ror*");
         }
 
         [Fact]
-        public void LoggedMatching__Should_receive_log_correct_count()
+        public void Logged__Should_receive_log_correct_count_when_wildcard_is_used()
         {
             // Arrange
-            var pattern = ".*ror.*";
             logger.Log(LogLevel.Error, "error!");
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            logger.LoggedMatching(LogLevel.Error, pattern, 2);
+            this.logger.Logged(LogLevel.Error, "*ror*", 2);
         }
 
         [Fact]
-        public void LoggedMatching__Should_throw_exception_displaying_message()
+        public void Logged__Should_throw_exception_displaying_message_when_wildcard_is_used()
         {
             // Arrange
-            var pattern = ".*ror.*";
 
             // Act
-            Action action = () => logger.LoggedMatching(LogLevel.Error, pattern, 2);
+            Action action = () => this.logger.Logged(LogLevel.Error, "*ror*", 2);
 
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage("*Log<Object>(Error, any EventId, .*ror.*, <null>, any Func<Object, Exception, String>)*");
+                  .WithMessage("*Log<Object>(Error, any EventId, *ror*, <null>, any Func<Object, Exception, String>)*");
         }
 
         [Fact]
-        public void LoggedMatching__Should_throw_exception_when_count_is_incorrect()
+        public void Logged__Should_throw_exception_when_count_is_incorrect_when_wildcard_is_used()
         {
             // Arrange
-            var pattern = ".*ror.*";
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            Action action = () => logger.LoggedMatching(LogLevel.Error, pattern, 2);
+            Action action = () => this.logger.Logged(LogLevel.Error, "*ror*", 2);
 
             // Assert
             action.Should()
@@ -146,32 +142,29 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void DidNotLogMatching__Should_not_receive_log()
+        public void DidNotLog__Should_not_receive_log_when_wildcard_is_used()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            logger.DidNotLogMatching(LogLevel.Error,       "o.*er");
-            logger.DidNotLogMatching(LogLevel.Information, "e[0-9]or!");
-            logger.DidNotLogMatching(null,                 "other");
-            logger.DidNotLogMatching(LogLevel.Information, null);
+            logger.DidNotLog(LogLevel.Error,       "o*er");
         }
 
         [Fact]
-        public void DidNotLogMatching__Should_throw_exception_displaying_message()
+        public void DidNotLog__Should_throw_exception_displaying_message_when_wildcard_is_used()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            Action action = () => logger.DidNotLogMatching(LogLevel.Error, "e.*or!");
+            Action action = () => logger.DidNotLog(LogLevel.Error, "e*or!");
 
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
                   .WithMessage(
-                       "Expected to receive no calls matching*Log<Object>(Error, any EventId, e.*or!, <null>, any Func<Object, Exception, String>)*");
+                       "Expected to receive no calls matching*Log<Object>(Error, any EventId, e*or!, <null>, any Func<Object, Exception, String>)*");
         }
     }
 }
