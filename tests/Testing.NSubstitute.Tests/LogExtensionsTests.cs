@@ -68,8 +68,8 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            this.logger.Logged(LogLevel.Error, "*ror*");
-            this.logger.Logged(null,           "*ror*");
+            logger.Logged(LogLevel.Error, "*ror*");
+            logger.Logged(null,           "*ror*");
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            this.logger.Logged(LogLevel.Error, "*ror*", 2);
+            logger.Logged(LogLevel.Error, "*ror*", 2);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             // Arrange
 
             // Act
-            Action action = () => this.logger.Logged(LogLevel.Error, "*ror*", 2);
+            Action action = () => logger.Logged(LogLevel.Error, "*ror*", 2);
 
             // Assert
             action.Should()
@@ -104,7 +104,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            Action action = () => this.logger.Logged(LogLevel.Error, "*ror*", 2);
+            Action action = () => logger.Logged(LogLevel.Error, "*ror*", 2);
 
             // Assert
             action.Should()
