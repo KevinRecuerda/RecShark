@@ -85,6 +85,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Logged(LogLevel.Error, "*ror*", 2);
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void Logged__Should_throw_exception_displaying_message_when_use_wildcard()
         {
