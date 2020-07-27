@@ -1,12 +1,11 @@
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
 
 namespace RecShark.Extensions.Testing.NSubstitute
 {
-    using System.Text.RegularExpressions;
-
     public static class LogExtensions
     {
         public static void Logged(this ILogger logger, LogLevel? level = null, string wildcardExpression = null, int count = 1)
