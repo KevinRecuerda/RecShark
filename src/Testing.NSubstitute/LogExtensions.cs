@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
@@ -7,51 +8,63 @@ namespace RecShark.Extensions.Testing.NSubstitute
 {
     public static class LogExtensions
     {
-        public static void Logged(this ILogger logger, LogLevel? level = null, string message = null, int count = 1)
+        public static void Logged(this ILogger logger, LogLevel? level = null, string wildcardExpression = null, int count = 1)
         {
-            logger.Logged(null, level, message, count);
+            logger.Logged(null, level, wildcardExpression, count);
         }
 
-        public static void Logged(this ILogger logger, Exception exception, LogLevel? level = null,
-            string message = null, int count = 1)
+        public static void DidNotLog(
+            this ILogger logger,
+            LogLevel?    level              = null,
+            string       wildcardExpression = null,
+            Exception    exception          = null)
+        {
+            logger.Logged(exception, level, wildcardExpression, 0);
+        }
+
+        private static void Logged(
+            this ILogger logger,
+            Exception    exception,
+            LogLevel?    level              = null,
+            string       wildcardExpression = null,
+            int          count              = 1)
         {
             logger.Received(count)
-                .Log(
-                    level ?? Arg.Any<LogLevel>(),
-                    Arg.Any<EventId>(),
-                    message != null ? new FormattedLogValuesComparable(message) : Arg.Any<object>(),
-                    exception,
-                    Arg.Any<Func<object, Exception, string>>());
-        }
-
-        public static void DidNotLog(this ILogger logger, LogLevel? level = null, string message = null,
-            Exception exception = null)
-        {
-            logger.Logged(exception, level, message, 0);
+                  .Log(
+                       level ?? Arg.Any<LogLevel>(),
+                       Arg.Any<EventId>(),
+                       wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>(),
+                       exception,
+                       Arg.Any<Func<object, Exception, string>>());
         }
 
         private class FormattedLogValuesComparable
         {
-            public FormattedLogValuesComparable(string message)
+            public FormattedLogValuesComparable(string wildcardExpression)
             {
-                Message = message;
+                this.WildcardExpression = wildcardExpression;
             }
 
-            public string Message { get; }
+            public string WildcardExpression { get; }
 
             public override bool Equals(object obj)
             {
-                return obj is FormattedLogValues other && other.ToString() == Message;
+                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(this.WildcardExpression));
             }
 
             public override int GetHashCode()
             {
-                return Message.GetHashCode();
+                return this.WildcardExpression.GetHashCode();
             }
 
             public override string ToString()
             {
-                return Message;
+                return this.WildcardExpression;
+            }
+
+            private static string ConvertWildcardToRegEx(string wildcardExpression)
+            {
+                return "^" + Regex.Escape(wildcardExpression).Replace("\\*", ".*").Replace("\\?", ".") + "$";
             }
         }
     }

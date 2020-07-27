@@ -19,7 +19,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
 
             // Act
             logger.Logged(LogLevel.Error, "error!");
-            logger.Logged(null, "error!");
+            logger.Logged(null,           "error!");
             logger.Logged(LogLevel.Error, null);
         }
 
@@ -29,7 +29,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             // Arrange
             logger.Log(LogLevel.Error, "error!");
             logger.Log(LogLevel.Error, "error!");
-            
+
             // Act
             logger.Logged(LogLevel.Error, "error!", 2);
         }
@@ -39,10 +39,11 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         {
             // Act
             Action action = () => logger.Logged(LogLevel.Error, "error!", 2);
-            
+
             // Assert
-            action.Should().Throw<ReceivedCallsException>()
-                .WithMessage("*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage("*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
         }
 
         [Fact]
@@ -50,13 +51,69 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
-            
+
             // Act
             Action action = () => logger.Logged(LogLevel.Error, "error!", 2);
-            
+
             // Assert
-            action.Should().Throw<ReceivedCallsException>()
-                .WithMessage("*Expected to receive exactly 2 calls matching*");
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage("*Expected to receive exactly 2 calls matching*");
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void Logged__Should_receive_log_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            logger.Logged(LogLevel.Error, "*ror*");
+            logger.Logged(null,           "*ror*");
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void Logged__Should_receive_correct_count_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "error!");
+            logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            logger.Logged(LogLevel.Error, "*ror*", 2);
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void Logged__Should_throw_exception_displaying_message_when_use_wildcard()
+        {
+            // Arrange
+
+            // Act
+            Action action = () => logger.Logged(LogLevel.Error, "*ror*", 2);
+
+            // Assert
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage("*Log<Object>(Error, any EventId, *ror*, <null>, any Func<Object, Exception, String>)*");
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void Logged__Should_throw_exception_when_count_is_incorrect_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            Action action = () => logger.Logged(LogLevel.Error, "*ror*", 2);
+
+            // Assert
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage("*Expected to receive exactly 2 calls matching*");
         }
 
         [Fact]
@@ -66,9 +123,9 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Error, "error!");
 
             // Act
-            logger.DidNotLog(LogLevel.Error, "other");
+            logger.DidNotLog(LogLevel.Error,       "other");
             logger.DidNotLog(LogLevel.Information, "error!");
-            logger.DidNotLog(null, "other");
+            logger.DidNotLog(null,                 "other");
             logger.DidNotLog(LogLevel.Information, null);
         }
 
@@ -77,13 +134,43 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
-            
+
             // Act
             Action action = () => logger.DidNotLog(LogLevel.Error, "error!");
-            
+
             // Assert
-            action.Should().Throw<ReceivedCallsException>()
-                .WithMessage("Expected to receive no calls matching*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage(
+                       "Expected to receive no calls matching*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void DidNotLog__Should_not_receive_log_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            logger.DidNotLog(LogLevel.Error,       "o*er");
+        }
+
+        [Trait("category", "wildcard")]
+        [Fact]
+        public void DidNotLog__Should_throw_exception_displaying_message_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            Action action = () => logger.DidNotLog(LogLevel.Error, "e*or!");
+
+            // Assert
+            action.Should()
+                  .Throw<ReceivedCallsException>()
+                  .WithMessage(
+                       "Expected to receive no calls matching*Log<Object>(Error, any EventId, e*or!, <null>, any Func<Object, Exception, String>)*");
         }
     }
 }
