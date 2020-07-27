@@ -62,7 +62,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void Logged__Should_receive_log_when_wildcard_is_used()
+        public void Logged__Should_receive_log_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
@@ -73,7 +73,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void Logged__Should_receive_log_correct_count_when_wildcard_is_used()
+        public void Logged__Should_receive_log_correct_count_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
@@ -84,7 +84,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void Logged__Should_throw_exception_displaying_message_when_wildcard_is_used()
+        public void Logged__Should_throw_exception_displaying_message_when_use_wildcard()
         {
             // Arrange
 
@@ -98,7 +98,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void Logged__Should_throw_exception_when_count_is_incorrect_when_wildcard_is_used()
+        public void Logged__Should_throw_exception_when_count_is_incorrect_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
@@ -142,7 +142,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void DidNotLog__Should_not_receive_log_when_wildcard_is_used()
+        public void DidNotLog__Should_not_receive_log_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
@@ -152,7 +152,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void DidNotLog__Should_throw_exception_displaying_message_when_wildcard_is_used()
+        public void DidNotLog__Should_throw_exception_displaying_message_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
