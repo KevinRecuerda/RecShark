@@ -13,16 +13,7 @@ namespace RecShark.Extensions.Testing.NSubstitute
             logger.Logged(null, level, wildcardExpression, count);
         }
 
-        public static void DidNotLog(
-            this ILogger logger,
-            LogLevel?    level              = null,
-            string       wildcardExpression = null,
-            Exception    exception          = null)
-        {
-            logger.Logged(exception, level, wildcardExpression, 0);
-        }
-
-        private static void Logged(
+        public static void Logged(
             this ILogger logger,
             Exception    exception,
             LogLevel?    level              = null,
@@ -36,8 +27,17 @@ namespace RecShark.Extensions.Testing.NSubstitute
                        wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>(),
                        exception,
                        Arg.Any<Func<object, Exception, string>>());
+        }        
+        
+        public static void DidNotLog(
+            this ILogger logger,
+            LogLevel?    level              = null,
+            string       wildcardExpression = null,
+            Exception    exception          = null)
+        {
+            logger.Logged(exception, level, wildcardExpression, 0);
         }
-
+        
         private class FormattedLogValuesComparable
         {
             public FormattedLogValuesComparable(string wildcardExpression)
