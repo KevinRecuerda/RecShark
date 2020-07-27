@@ -61,6 +61,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
                   .WithMessage("*Expected to receive exactly 2 calls matching*");
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void Logged__Should_receive_log_when_use_wildcard()
         {
@@ -72,6 +73,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.Logged(null,           "*ror*");
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void Logged__Should_receive_correct_count_when_use_wildcard()
         {
@@ -97,6 +99,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
                   .WithMessage("*Log<Object>(Error, any EventId, *ror*, <null>, any Func<Object, Exception, String>)*");
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void Logged__Should_throw_exception_when_count_is_incorrect_when_use_wildcard()
         {
@@ -141,6 +144,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
                        "Expected to receive no calls matching*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void DidNotLog__Should_not_receive_log_when_use_wildcard()
         {
@@ -151,6 +155,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
             logger.DidNotLog(LogLevel.Error,       "o*er");
         }
 
+        [Trait("category", "wildcard")]
         [Fact]
         public void DidNotLog__Should_throw_exception_displaying_message_when_use_wildcard()
         {
