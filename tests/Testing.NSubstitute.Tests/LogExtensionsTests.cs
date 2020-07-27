@@ -73,7 +73,7 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
         }
 
         [Fact]
-        public void Logged__Should_receive_log_correct_count_when_use_wildcard()
+        public void Logged__Should_receive_correct_count_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
