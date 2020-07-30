@@ -115,6 +115,21 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
                   .Throw<ReceivedCallsException>()
                   .WithMessage("*Expected to receive exactly 2 calls matching*");
         }
+        
+        [Trait("category", "arg params")]
+        [Fact]
+        public void Logged__Should_receive_log_when_use_arg_params()
+        {
+            // Arrange
+            var exception = new Exception("an error occured!");
+            logger.Log(LogLevel.Error, exception, "error!");
+
+            // Act
+            logger.Logged(Arg.Any<Exception>(), LogLevel.Error, "error!", 1);
+            logger.Logged(Arg.Any<Exception>());
+            logger.Logged(Arg.Is<Exception>(e => e.Message.Contains("error")), LogLevel.Error, "error!", 1);
+            logger.Logged(Arg.Is<Exception>(e => e.Message.Contains("error")));
+        }
 
         [Fact]
         public void DidNotLog__Should_not_receive_log()

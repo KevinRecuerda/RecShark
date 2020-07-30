@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
+using NSubstitute.Core;
 
 namespace RecShark.Extensions.Testing.NSubstitute
 {
@@ -20,11 +22,19 @@ namespace RecShark.Extensions.Testing.NSubstitute
             string       wildcardExpression = null,
             int          count              = 1)
         {
+            var argException = SubstitutionContext.Current.ThreadContext.DequeueAllArgumentSpecifications().FirstOrDefault(x => x.ForType == typeof(Exception));
+
+            var lvl = level ?? Arg.Any<LogLevel>();
+            var eventId = Arg.Any<EventId>();
+            var state = wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>();
+            if (argException != null)
+                SubstitutionContext.Current.ThreadContext.EnqueueArgumentSpecification(argException);
+            
             logger.Received(count)
                   .Log(
-                       level ?? Arg.Any<LogLevel>(),
-                       Arg.Any<EventId>(),
-                       wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>(),
+                       lvl,
+                       eventId,
+                       state,
                        exception,
                        Arg.Any<Func<object, Exception, string>>());
         }        
