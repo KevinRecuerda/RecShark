@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Provides some NSubstitute extensions</Description>
     <PackageTags>$(PackageTags);testing;NSubstitute</PackageTags>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

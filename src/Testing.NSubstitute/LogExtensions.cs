@@ -59,7 +59,7 @@ namespace RecShark.Extensions.Testing.NSubstitute
 
             public override bool Equals(object obj)
             {
-                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(this.WildcardExpression));
+                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(this.WildcardExpression), RegexOptions.Singleline);
             }
 
             public override int GetHashCode()

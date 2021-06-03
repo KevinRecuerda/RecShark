@@ -61,12 +61,57 @@ namespace RecShark.Extensions.Testing.NSubstitute.Tests
                   .WithMessage("*Expected to receive exactly 2 calls matching*");
         }
 
+        [Trait("category", "multiline")]
+        [Fact]
+        public void Logged__Should_handle_multiline()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, @"error!
+... details ...");
+
+            // Act
+            logger.Logged(LogLevel.Error, $"error!{Environment.NewLine}... details ...");
+            logger.Logged(null,           $"error!{Environment.NewLine}... details ...");
+            logger.Logged(LogLevel.Error, null);
+        }
+
+        [Trait("category", "multiline")]
+        [Fact]
+        public void Logged__Should_throw_exception_When_multiline_does_not_match()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, @"error!
+... details ...");
+            
+            // Act
+            Action action = () => logger.Logged(LogLevel.Error, "error!");
+
+            // Assert
+            action.Should()
+                .Throw<ReceivedCallsException>()
+                .WithMessage("*Log<Object>(Error, any EventId, error!, <null>, any Func<Object, Exception, String>)*");
+        }
+
         [Trait("category", "wildcard")]
         [Fact]
         public void Logged__Should_receive_log_when_use_wildcard()
         {
             // Arrange
             logger.Log(LogLevel.Error, "error!");
+
+            // Act
+            logger.Logged(LogLevel.Error, "*ror*");
+            logger.Logged(null,           "*ror*");
+        }
+
+        [Trait("category", "wildcard")]
+        [Trait("category", "multiline")]
+        [Fact]
+        public void Logged__Should_handle_multiline_when_use_wildcard()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, @"error!
+... details ...");
 
             // Act
             logger.Logged(LogLevel.Error, "*ror*");
