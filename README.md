@@ -8,8 +8,8 @@
 - testing extensions
 
 ### Packages
-- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.FluentAssertions?label=RecShark.Extensions.Testing.FluentAssertions)](https://www.nuget.org/packages/RecShark.Testing.FluentAssertions/)
-- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.NSubstitute?label=RecShark.Extensions.Testing.NSubstitute)](https://www.nuget.org/packages/RecShark.Testing.NSubstitute/)
+- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.FluentAssertions?label=RecShark.Testing.FluentAssertions)](https://www.nuget.org/packages/RecShark.Testing.FluentAssertions/)
+- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.NSubstitute?label=RecShark.Testing.NSubstitute)](https://www.nuget.org/packages/RecShark.Testing.NSubstitute/)
 
 
 
