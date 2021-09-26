@@ -8,6 +8,7 @@
 - testing extensions
 
 ### Packages
+- [![Nuget](https://img.shields.io/nuget/v/RecShark.ExpressionEvaluator?label=RecShark.ExpressionEvaluator)](https://www.nuget.org/packages/RecShark.ExpressionEvaluator/)
 - [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.FluentAssertions?label=RecShark.Testing.FluentAssertions)](https://www.nuget.org/packages/RecShark.Testing.FluentAssertions/)
 - [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.NSubstitute?label=RecShark.Testing.NSubstitute)](https://www.nuget.org/packages/RecShark.Testing.NSubstitute/)
 
