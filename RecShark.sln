@@ -8,6 +8,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.NSubstitute.Tests", "tests\Testing.NSubstitute.Tests\Testing.NSubstitute.Tests.csproj", "{A21BAFA0-A8AD-4C9C-9591-F3B37792CE86}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionEvaluator", "src\ExpressionEvaluator\ExpressionEvaluator.csproj", "{4C8C756B-E76B-4485-9B21-31DE7E44F9AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionEvaluator.Grammar", "src\ExpressionEvaluator.Grammar\ExpressionEvaluator.Grammar.csproj", "{B7216131-B4F8-4453-8E3C-3576FA2D2E5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionEvaluator.Tests", "tests\ExpressionEvaluator.Tests\ExpressionEvaluator.Tests.csproj", "{23BDBE49-998B-4896-AD1D-5AABA394C1B7}"
+EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +36,17 @@ Global
 		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9978D105-4099-4A70-A3C6-96EA8FC71B32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C8C756B-E76B-4485-9B21-31DE7E44F9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C8C756B-E76B-4485-9B21-31DE7E44F9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C8C756B-E76B-4485-9B21-31DE7E44F9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C8C756B-E76B-4485-9B21-31DE7E44F9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7216131-B4F8-4453-8E3C-3576FA2D2E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7216131-B4F8-4453-8E3C-3576FA2D2E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7216131-B4F8-4453-8E3C-3576FA2D2E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7216131-B4F8-4453-8E3C-3576FA2D2E5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23BDBE49-998B-4896-AD1D-5AABA394C1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23BDBE49-998B-4896-AD1D-5AABA394C1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23BDBE49-998B-4896-AD1D-5AABA394C1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23BDBE49-998B-4896-AD1D-5AABA394C1B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
