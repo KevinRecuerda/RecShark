@@ -1,8 +1,8 @@
-﻿ using System.Linq;
- using NSubstitute;
- using NSubstitute.Exceptions;
+﻿using System.Linq;
+using NSubstitute;
+using NSubstitute.Exceptions;
 
- namespace RecShark.Extensions.Testing.NSubstitute
+namespace RecShark.Testing.NSubstitute
 {
     public static class CallExtensions
     {

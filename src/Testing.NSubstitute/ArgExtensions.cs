@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using FluentAssertions.Equivalency;
 using NSubstitute;
-using RecShark.Extensions.Testing.FluentAssertions;
+using RecShark.Testing.FluentAssertions;
 
-namespace RecShark.Extensions.Testing.NSubstitute
+namespace RecShark.Testing.NSubstitute
 {
     public static class ArgExtensions
     {

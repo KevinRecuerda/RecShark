@@ -2,7 +2,7 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace RecShark.Extensions.Testing.FluentAssertions.Tests
+namespace RecShark.Testing.FluentAssertions.Tests
 {
     public class FluentAssertionsExtensionsTests
     {

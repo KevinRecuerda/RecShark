@@ -4,11 +4,11 @@ using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Exceptions;
-using RecShark.Extensions.Testing.FluentAssertions;
-using RecShark.Extensions.Testing.FluentAssertions.Tests;
+using RecShark.Testing.FluentAssertions;
+using RecShark.Testing.FluentAssertions.Tests;
 using Xunit;
 
-namespace RecShark.Extensions.Testing.NSubstitute.Tests
+namespace RecShark.Testing.NSubstitute.Tests
 {
     public class ArgExtensionsTests
     {

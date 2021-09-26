@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using FluentAssertions.Equivalency;
-using System;
 
-namespace RecShark.Extensions.Testing.FluentAssertions
+namespace RecShark.Testing.FluentAssertions
 {
     public static class FluentAssertionsExtensions
     {

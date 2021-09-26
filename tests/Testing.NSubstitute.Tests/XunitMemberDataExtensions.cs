@@ -1,4 +1,4 @@
-namespace RecShark.Extensions.Testing.NSubstitute.Tests
+namespace RecShark.Testing.NSubstitute.Tests
 {
     public class Labeled<T>
     {

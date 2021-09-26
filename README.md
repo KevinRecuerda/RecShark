@@ -1,13 +1,15 @@
-# :shark: RecShark.Extensions
+# :shark: RecShark
 
-![.NET Core - CI](https://github.com/KevinRecuerda/RecShark.Extensions/workflows/.NET%20Core%20-%20CI/badge.svg)
-![.NET Core - CD](https://github.com/KevinRecuerda/RecShark.Extensions/workflows/.NET%20Core%20-%20CD/badge.svg)
+![.NET Core - CI](https://github.com/KevinRecuerda/RecShark/workflows/.NET%20Core%20-%20CI/badge.svg)
+![.NET Core - CD](https://github.com/KevinRecuerda/RecShark/workflows/.NET%20Core%20-%20CD/badge.svg)
 
-**TODO**
+**Provdes some C# tools**
+- expression evaluator
+- testing extensions
 
 ### Packages
-- [![Nuget](https://img.shields.io/nuget/v/RecShark.Extensions.Testing.FluentAssertions?label=RecShark.Extensions.Testing.FluentAssertions)](https://www.nuget.org/packages/RecShark.Extensions.Testing.FluentAssertions/)
-- [![Nuget](https://img.shields.io/nuget/v/RecShark.Extensions.Testing.NSubstitute?label=RecShark.Extensions.Testing.NSubstitute)](https://www.nuget.org/packages/RecShark.Extensions.Testing.NSubstitute/)
+- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.FluentAssertions?label=RecShark.Extensions.Testing.FluentAssertions)](https://www.nuget.org/packages/RecShark.Testing.FluentAssertions/)
+- [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing.NSubstitute?label=RecShark.Extensions.Testing.NSubstitute)](https://www.nuget.org/packages/RecShark.Testing.NSubstitute/)
 
 
 

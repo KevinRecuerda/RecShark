@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace RecShark.Extensions.Testing.FluentAssertions.Tests
+namespace RecShark.Testing.FluentAssertions.Tests
 {
     [DebuggerDisplay("{ToString()}")]
     public class ObjectForTests

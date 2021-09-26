@@ -1,12 +1,12 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace RecShark.Extensions.Testing.FluentAssertions
+namespace RecShark.Testing.FluentAssertions
 {
     public static class ContainExtensions
     {

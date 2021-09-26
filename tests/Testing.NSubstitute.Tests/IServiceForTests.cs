@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using RecShark.Extensions.Testing.FluentAssertions.Tests;
+using RecShark.Testing.FluentAssertions.Tests;
 
-namespace RecShark.Extensions.Testing.NSubstitute.Tests
+namespace RecShark.Testing.NSubstitute.Tests
 {
     public interface IServiceForTests
     {
