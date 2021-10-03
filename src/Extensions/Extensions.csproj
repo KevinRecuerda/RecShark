@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>Provides some extensions</Description>
+    <PackageTags>$(PackageTags);extensions</PackageTags>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DeepCopy" Version="1.0.3" />
+    <PackageReference Include="FluentDateTime" Version="2.0.0" />
+  </ItemGroup>
+
+</Project>
