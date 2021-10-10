@@ -35,8 +35,7 @@ namespace RecShark.Testing.FluentAssertions
 
         public static EquivalencyAssertionOptions<T> ExcludingSubCollectionMember<T>(this EquivalencyAssertionOptions<T> assert, string subMemberPath)
         {
-            assert.Excluding(x => x.SubCollectionMember() == subMemberPath);
-            return assert;
+            return assert.Excluding(x => x.SubCollectionMember() == subMemberPath);
         }
 
         public static string SubCollectionMember(this IMemberInfo memberInfo)

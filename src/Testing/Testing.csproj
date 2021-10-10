@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>Provide some tools for testing.</Description>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Testing.FluentAssertions\Testing.FluentAssertions.csproj" />
+    <ProjectReference Include="..\Testing.NSubstitute\Testing.NSubstitute.csproj" />
+  </ItemGroup>
+
+</Project>
