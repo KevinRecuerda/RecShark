@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using FluentDate;
 using FluentDateTime;
 
@@ -42,17 +43,17 @@ namespace RecShark.Extensions
             };
         }
 
-        public static DateTime PreviousWeekDay(this DateTime date)
-        {
-            return date.PreviousDay().LastWeekDay();
-        }
-
         public static DateTime FirstDay(this DateTime date, DayOfWeek day)
         {
             while (date.DayOfWeek != day)
                 date = date.NextDay();
 
             return date;
+        }
+
+        public static DateTime PreviousWeekDay(this DateTime date)
+        {
+            return date.PreviousDay().LastWeekDay();
         }
 
         public static DateTime WeekDayEarlier(this DateTime date, int n)
@@ -90,6 +91,27 @@ namespace RecShark.Extensions
             return firstDayOf.LastWeekDayOfMonth();
         }
 
+        public static string ToIso(this DateTime dateTime)
+        {
+            return dateTime.ToString(IsoFormat);
+        }
+
+        public static string ToIso(this DateTime? dateTime)
+        {
+            return dateTime.HasValue ? dateTime.Value.ToIso() : "";
+        }
+
+        public static ICollection<DateTime> ToDates(this IEnumerable<object> values, string format = IsoFormat)
+        {
+            return values.Select(x => x is DateTime date ? date : (x as string).ToDate(format))
+                .ToList();
+        }
+
+        public static ICollection<DateTime> ToDates(this IEnumerable<string> values, string format = IsoFormat)
+        {
+            return values.Select(x => x.ToDate(format)).ToList();
+        }
+
         public static DateTime ToDate(this string str, string format = IsoFormat)
         {
             return DateTime.ParseExact(str, format, CultureInfo.InvariantCulture);
@@ -103,16 +125,6 @@ namespace RecShark.Extensions
             return DateTime.TryParseExact(str, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
                 ? date
                 : defaultValue;
-        }
-
-        public static string ToIso(this DateTime dateTime)
-        {
-            return dateTime.ToString(IsoFormat);
-        }
-
-        public static string ToIso(this DateTime? dateTime)
-        {
-            return dateTime.HasValue ? dateTime.Value.ToIso() : "";
         }
 
         public static DateTime RemoveMilliseconds(this DateTime dateTime)
