@@ -1,0 +1,3 @@
+﻿Id,LongId,NullableLong,Description,Amount,NullableDouble,NonNullableDate,NullableDate,NonNullableBool,NullableBool
+1,210000,3,Record number 1,11.11,222.222,2019-06-25,2019-07-31,1,1
+2,220000,,Record number 2,66666.66, ,2019-06-26,,1,
