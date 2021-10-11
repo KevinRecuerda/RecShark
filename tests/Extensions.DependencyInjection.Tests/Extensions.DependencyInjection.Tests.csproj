@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Extensions.DependencyInjection.Testing\Extensions.DependencyInjection.Testing.csproj" />
+    <ProjectReference Include="..\..\src\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Testing.SpecFlow\Testing.SpecFlow.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="SpecFlow" Version="3.9.22" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.22" />
+    <PackageReference Include="SpecFlow.xUnit" Version="3.9.22" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="**/*.feature" />
+  </ItemGroup>
+
+  <Target Name="AfterUpdateFeatureFilesInProject">
+    <!-- include any generated SpecFlow files in the compilation of the project if not included yet -->
+    <ItemGroup>
+      <Compile Include="**\*.feature.cs" Exclude="@(Compile)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
