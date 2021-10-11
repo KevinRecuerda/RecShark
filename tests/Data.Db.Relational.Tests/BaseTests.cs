@@ -26,6 +26,6 @@ namespace RecShark.Data.Db.Relational.Tests
     {
         public SampleBaseDataAccess(IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory) { }
 
-        protected override string Name => "TODO";
+        protected override string Name => "sample";
     }
 }

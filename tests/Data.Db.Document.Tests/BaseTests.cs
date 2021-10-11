@@ -33,7 +33,7 @@ namespace RecShark.Data.Db.Document.Tests
 
     public class SampleConnectionString : ConnectionString
     {
-        public SampleConnectionString(IConfiguration configuration) : base("TODO", configuration) { }
+        public SampleConnectionString(IConfiguration configuration) : base("sample", configuration) { }
     }
 
     public class DocumentStoreFactory : BaseDocumentStoreFactory
