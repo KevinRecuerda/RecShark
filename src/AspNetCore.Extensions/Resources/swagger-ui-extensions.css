@@ -1,0 +1,62 @@
+﻿.badge {
+    display: inline-block;
+    padding: .4em;
+    font-size: 90%;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
+.badge-discreet-mako {
+    color: rgb(68, 72, 82);
+    background-color: rgba(68, 72, 82, 0.1);
+}
+
+.badge-discreet-copper-rust {
+    color: rgb(151, 74, 90);
+    background-color: rgba(151, 74, 90, 0.1);
+}
+
+.badge-discreet-east-bay {
+    color: rgb(74, 88, 133);
+    background-color: rgba(74, 88, 133, 0.1);
+}
+
+.badge-discreet-faded-jade {
+    color: rgb(64, 129, 130);
+    background-color: rgba(64, 129, 130, 0.1);
+}
+
+/* top */
+.swagger-ui .topbar .api-code {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+/* info */
+.information-container .info { margin: 0; padding-top: 10px; }
+.swagger-ui .info > div { margin: 0; }
+.swagger-ui .info a { color: gray; }
+
+.renderedMarkdown blockquote {
+    border-left: .25em solid #dfe2e5;
+    color: #8b8e90;
+    padding: 0 1em;
+    margin: 0.5em 0;
+    font-size: 12px;
+}
+.renderedMarkdown blockquote * {
+    font-size: inherit !important;
+    margin: 0;
+}
+.swagger-ui .info__contact a,
+.swagger-ui .info__extdocs {
+    font-size: 12px;
+}
+.swagger-ui .scheme-container {
+    padding: 0 0 10px 0;
+    margin-bottom: 10px;
+}
