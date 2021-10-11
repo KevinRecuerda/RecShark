@@ -26,6 +26,6 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
     {
         public Views(StoreOptions options) : base(options) { }
 
-        public override string Filename => @"Initialization\views.sql";
+        public override string Filename => @"Initialization/views.sql";
     }
 }

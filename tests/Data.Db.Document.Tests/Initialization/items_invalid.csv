@@ -1,3 +1,0 @@
-﻿Id,LongId,NullableLong,Description,Amount,NullableDouble,NonNullableDate,NullableDate,NonNullableBool,NullableBool
-1,210000,3,Record number 1,11.11,this value should be a double,2019-06-25,2019-07-31,1,
-2,220000,,Record number 2,66666.66, ,2019-06-26,,Should be a bool,

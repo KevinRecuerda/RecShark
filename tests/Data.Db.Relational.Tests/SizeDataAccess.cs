@@ -7,14 +7,14 @@ namespace RecShark.Data.Db.Relational.Tests
 {
     public interface ISizeDataAccess
     {
-        Task<ICollection<SizeObject>> GetSchemaSize();
+        Task<ICollection<SizeObject>> GetSchemaSizes();
     }
 
     public class SizeDataAccess : SampleBaseDataAccess, ISizeDataAccess
     {
         public SizeDataAccess(IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory) { }
 
-        public async Task<ICollection<SizeObject>> GetSchemaSize()
+        public async Task<ICollection<SizeObject>> GetSchemaSizes()
         {
             const string query = @"
 select 

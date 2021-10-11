@@ -14,11 +14,10 @@ namespace RecShark.Data.Db.Relational.Tests
             var sizeDataAccess = this.Hooks.Provider.GetService<ISizeDataAccess>();
 
             // Act
-            var actual = await sizeDataAccess.GetSchemaSize();
+            var actual = await sizeDataAccess.GetSchemaSizes();
 
             // Assert
             actual.Should().NotBeEmpty();
-            actual.Should().Contain(x => x.Id == "public");
         }
     }
 }

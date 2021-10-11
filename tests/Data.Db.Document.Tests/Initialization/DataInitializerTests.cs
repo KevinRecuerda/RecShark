@@ -36,6 +36,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             await dataInitializer.Init();
 
             // Assert
+            logger.DidNotLog(LogLevel.Error);
             Received.InOrder(
                 async () =>
                 {
