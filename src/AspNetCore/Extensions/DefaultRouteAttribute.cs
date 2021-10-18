@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace RecShark.AspNetCore.Extensions.Extensions
+namespace RecShark.AspNetCore.Extensions
 {
     public class DefaultRouteAttribute : RouteAttribute
     {

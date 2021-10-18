@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AspNetCore.Extensions\AspNetCore.Extensions.csproj" />
+    <ProjectReference Include="..\..\src\AspNetCore\AspNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

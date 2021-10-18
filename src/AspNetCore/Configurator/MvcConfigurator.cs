@@ -17,7 +17,7 @@ using RecShark.Extensions;
 using JsonConverter = Newtonsoft.Json.JsonConverter;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
-namespace RecShark.AspNetCore.Extensions.Configurator
+namespace RecShark.AspNetCore.Configurator
 {
     public static class MvcConfigurator
     {

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RecShark.AspNetCore.Extensions.Configurator;
-using RecShark.AspNetCore.Extensions.Options;
+using RecShark.AspNetCore.Configurator;
+using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Sample
 {

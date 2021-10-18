@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RecShark.AspNetCore.Extensions.Extensions;
+using RecShark.AspNetCore.Extensions;
 
 namespace RecShark.AspNetCore.Sample.Controllers
 {

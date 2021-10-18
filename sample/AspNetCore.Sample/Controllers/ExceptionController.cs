@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using RecShark.AspNetCore.Extensions.Extensions;
-using RecShark.AspNetCore.Extensions.Options;
+using RecShark.AspNetCore.Extensions;
+using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Sample.Controllers
 {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace RecShark.AspNetCore.Extensions.Options
+namespace RecShark.AspNetCore.Options
 {
     public class ExceptionOption
     {

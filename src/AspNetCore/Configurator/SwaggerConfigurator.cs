@@ -16,7 +16,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Swashbuckle.Swagger;
 
-namespace RecShark.AspNetCore.Extensions.Configurator
+namespace RecShark.AspNetCore.Configurator
 {
     using IDocumentFilter = Swashbuckle.AspNetCore.SwaggerGen.IDocumentFilter;
     using ISchemaFilter = Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter;

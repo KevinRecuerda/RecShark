@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.DependencyInjection;
-using RecShark.AspNetCore.Extensions.Extensions;
+using RecShark.AspNetCore.Extensions;
 
-namespace RecShark.AspNetCore.Extensions.Configurator
+namespace RecShark.AspNetCore.Configurator
 {
     /// <remarks>See also <seealso cref="DefaultRouteAttribute"/></remarks>
     public static class RoutingConfigurator

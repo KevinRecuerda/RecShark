@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace RecShark.AspNetCore.Extensions.Extensions
+namespace RecShark.AspNetCore.Extensions
 {
     public static class SwaggerTagBadgeDefault
     {

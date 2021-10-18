@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RecShark.AspNetCore.Extensions.Extensions;
+using RecShark.AspNetCore.Extensions;
 
 namespace RecShark.AspNetCore.Sample.Controllers
 {

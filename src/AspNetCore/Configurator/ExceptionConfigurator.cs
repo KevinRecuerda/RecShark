@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RecShark.AspNetCore.Extensions.Options;
+using RecShark.AspNetCore.Options;
 
-namespace RecShark.AspNetCore.Extensions.Configurator
+namespace RecShark.AspNetCore.Configurator
 {
     public static class ExceptionConfigurator
     {
