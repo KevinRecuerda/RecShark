@@ -11,5 +11,11 @@
     <ProjectReference Include="..\..\src\AspNetCore.Extensions\AspNetCore.Extensions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="data\sample.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>
