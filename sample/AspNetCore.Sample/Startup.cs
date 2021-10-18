@@ -21,7 +21,8 @@ namespace RecShark.AspNetCore.Sample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<SwaggerConfigurator.ApiInfo>(Configuration.GetSection("ApiInfo"));
+            var apiInfo = Configuration.GetSection("ApiInfo").Get<SwaggerConfigurator.ApiInfo>();
+            services.AddSingleton(apiInfo);
             
             services.AddOptions()
                 .AddHttpContextAccessor()

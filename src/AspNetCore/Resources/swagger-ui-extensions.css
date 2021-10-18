@@ -6,7 +6,7 @@
 }
 
 /* info */
-.information-container .info { margin: 0; padding-top: 10px; }
+.information-container .info { margin: 0 auto; padding-top: 10px; }
 .swagger-ui .info > div { margin: 0; }
 .swagger-ui .info a { color: gray; }
 
@@ -43,22 +43,22 @@
     font-family: "Segoe UI", sans-serif;
 }
 
-.badge-mako {
+.badge-discreet-mako {
     color: rgb(68, 72, 82);
     background-color: rgba(68, 72, 82, 0.1);
 }
 
-.badge-copper-rust {
+.badge-discreet-copper-rust {
     color: rgb(151, 74, 90);
     background-color: rgba(151, 74, 90, 0.1);
 }
 
-.badge-east-bay {
+.badge-discreet-east-bay {
     color: rgb(74, 88, 133);
     background-color: rgba(74, 88, 133, 0.1);
 }
 
-.badge-faded-jade {
+.badge-discreet-faded-jade {
     color: rgb(64, 129, 130);
     background-color: rgba(64, 129, 130, 0.1);
 }

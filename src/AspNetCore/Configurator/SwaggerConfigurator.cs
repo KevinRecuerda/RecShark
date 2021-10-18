@@ -33,13 +33,19 @@ namespace RecShark.AspNetCore.Configurator
 
         public static IServiceCollection AddOA3Swagger(this IServiceCollection services)
         {
-            services.AddSwaggerGen();
+            services.AddSwaggerGen()
+                .AddOA3SwaggerOptions<ConfigureSwaggerOptions>();
+            return services;
+        }
+
+        public static void AddOA3SwaggerOptions<T>(this IServiceCollection services)
+            where T : class, IConfigureOptions<SwaggerGenOptions>, IConfigureOptions<SwaggerUIOptions>
+        {
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerExamplesFromAssemblies(Assembly.GetEntryAssembly());
 
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-            services.AddTransient<IConfigureOptions<SwaggerUIOptions>, ConfigureSwaggerOptions>();
-            return services;
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, T>();
+            services.AddTransient<IConfigureOptions<SwaggerUIOptions>, T>();
         }
 
         public static void ConfigureSwaggerGen(SwaggerGenOptions options)
@@ -74,8 +80,13 @@ namespace RecShark.AspNetCore.Configurator
             uiOptions.ConfigObject.AdditionalItems["apiCode"] = apiInfo.Code;
             uiOptions.ConfigObject.AdditionalItems["useUnsafeMarkdown"] = true;
 
-            // Add custom js/css
-            var assembly = typeof(SwaggerConfigurator).Assembly;
+            LoadAssemblyResources(typeof(SwaggerConfigurator), uiOptions);
+        }
+
+        /// <summary> add custom js/css </summary>
+        public static void LoadAssemblyResources(Type type, SwaggerUIOptions uiOptions)
+        {
+            var assembly = type.Assembly;
             var resources = assembly.GetManifestResourceNames();
             foreach (var name in resources)
             {
@@ -84,58 +95,79 @@ namespace RecShark.AspNetCore.Configurator
                     continue;
 
                 using var reader = new StreamReader(stream);
-                var type = name.Split(".").Last() == "js" ? "script" : "style";
-                uiOptions.HeadContent += $"<{type}>{reader.ReadToEnd()}</{type}>";
+                var contentType = name.Split(".").Last() == "js" ? "script" : "style";
+                uiOptions.HeadContent += $"<{contentType}>{reader.ReadToEnd()}</{contentType}>";
             }
         }
 
-        public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>, IConfigureOptions<SwaggerUIOptions>
+        public class ConfigureSwaggerOptions : ConfigureSwaggerVersions
         {
-            private readonly IApiVersionDescriptionProvider provider;
-            private readonly ApiInfo apiInfo;
-
-            public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, IOptions<ApiInfo> apiInfo)
+            public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, ApiInfo apiInfo) : base(provider, apiInfo)
             {
-                this.provider = provider;
-                this.apiInfo = apiInfo.Value;
             }
 
-            public void Configure(SwaggerGenOptions options)
+            public override void Configure(SwaggerGenOptions options)
             {
                 ConfigureSwaggerGen(options);
-                foreach (var description in provider.ApiVersionDescriptions)
-                    options.SwaggerGeneratorOptions.SwaggerDocs[description.GroupName] = BuildApiInfo(description);
+                base.Configure(options);
             }
 
-            public void Configure(SwaggerUIOptions uiOptions)
+            public override void Configure(SwaggerUIOptions uiOptions)
             {
-                ConfigureSwaggerUi(uiOptions, apiInfo);
-                foreach (var description in provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
-                {
-                    var name = description.GroupName;
-                    if (description.IsDeprecated)
-                        name += " - deprecated";
-                    uiOptions.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", name);
-                }
+                ConfigureSwaggerUi(uiOptions, ApiInfo);
+                base.Configure(uiOptions);
+            }
+        }
+
+        public class ConfigureSwaggerVersions : IConfigureOptions<SwaggerGenOptions>, IConfigureOptions<SwaggerUIOptions>
+        {
+            private readonly IApiVersionDescriptionProvider provider;
+            protected readonly ApiInfo ApiInfo;
+
+            public ConfigureSwaggerVersions(IApiVersionDescriptionProvider provider, ApiInfo apiInfo)
+            {
+                this.provider = provider;
+                ApiInfo = apiInfo;
             }
 
-            protected OpenApiInfo BuildApiInfo(ApiVersionDescription description)
+            public virtual void Configure(SwaggerGenOptions options)
+            {
+                options.SwaggerGeneratorOptions.SwaggerDocs = provider.ApiVersionDescriptions
+                    .OrderByDescending(x => x.ApiVersion)
+                    .ToDictionary(x => x.GroupName, BuildApiInfo);
+            }
+
+            public virtual void Configure(SwaggerUIOptions uiOptions)
+            {
+                uiOptions.ConfigObject.Urls = provider.ApiVersionDescriptions
+                    .OrderByDescending(x => x.ApiVersion)
+                    .Select(x =>
+                    {
+                        var name = x.GroupName;
+                        if (x.IsDeprecated)
+                            name += " - deprecated";
+                        return new UrlDescriptor() { Name = name, Url = $"/swagger/{x.GroupName}/swagger.json" };
+                    })
+                    .ToList();
+            }
+
+            protected virtual OpenApiInfo BuildApiInfo(ApiVersionDescription description)
             {
                 var version = description.IsDeprecated
                     ? description.ApiVersion.MajorVersion + ".0"
-                    : apiInfo.Version;
+                    : ApiInfo.Version;
 
                 var info = new OpenApiInfo
                 {
-                    Title = apiInfo.Title,
+                    Title = ApiInfo.Title,
                     Version = version,
-                    Description = apiInfo.Description,
-                    Contact = apiInfo.Contact,
+                    Description = ApiInfo.Description,
+                    Contact = ApiInfo.Contact,
                     Extensions =
                     {
                         ["x-versionDeprecated"] = new OpenApiBoolean(description.IsDeprecated),
                         ["x-health"] = new OpenApiString("/health"),
-                        ["x-code"] = new OpenApiString(apiInfo.Code)
+                        ["x-code"] = new OpenApiString(ApiInfo.Code)
                     }
                 };
 

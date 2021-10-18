@@ -63,7 +63,7 @@ namespace RecShark.AspNetCore.Extensions
 
         private static string BuildDescription(string name, int order, BadgeColor color)
         {
-            return $"<div order='{order}-{name}' class='badge badge-{ToKebabCase(color.ToString())}'>{name}</div>";
+            return $"<div order='{order}-{name}' class='badge badge-discreet-{ToKebabCase(color.ToString())}'>{name}</div>";
         }
 
         private static string ToKebabCase(string value)
