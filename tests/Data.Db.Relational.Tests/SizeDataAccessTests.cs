@@ -8,7 +8,7 @@ namespace RecShark.Data.Db.Relational.Tests
     public class SizeDataAccessTests : BaseRelTests
     {
         [Fact]
-        public async Task Should_return_public_schema_size()
+        public async Task Should_return_schema_size()
         {
             // Arrange
             var sizeDataAccess = Hooks.Provider.GetService<ISizeDataAccess>();
