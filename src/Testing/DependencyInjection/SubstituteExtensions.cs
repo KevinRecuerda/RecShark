@@ -3,9 +3,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection.Testing
+namespace RecShark.Testing.DependencyInjection
 {
-    public static class DependencyInjectionSubstituteExtensions
+    public static class SubstituteExtensions
     {
         public static IServiceCollection Substitute(this IServiceCollection services, params ServiceDescriptor[] serviceDescriptors)
         {
@@ -56,7 +56,7 @@ namespace RecShark.Extensions.DependencyInjection.Testing
         private static T Substitute<T>()
             where T : class
         {
-            return NSubstitute.Substitute.For<T>();
+            return global::NSubstitute.Substitute.For<T>();
         }
     }
 }

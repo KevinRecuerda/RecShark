@@ -9,12 +9,12 @@ namespace RecShark.ExpressionEvaluator
 
         public ExpressionEvaluatorListener()
         {
-            this.Variables = new HashSet<string>();
+            Variables = new HashSet<string>();
         }
 
         public override void EnterVariable(ExpressionEvaluatorParser.VariableContext context)
         {
-            this.Variables.Add(context.GetText());
+            Variables.Add(context.GetText());
             base.EnterVariable(context);
         } 
     }

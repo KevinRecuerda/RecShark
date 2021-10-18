@@ -19,11 +19,11 @@ namespace RecShark.Data.Db.Document.Initialization
         {
             return new DataChangeLog
             {
-                Id            = this.Id,
-                Version       = this.Version,
-                PatchVersion  = this.PatchVersion,
-                RunAlways     = this.RunAlways,
-                ExecutionMode = this.ExecutionMode
+                Id            = Id,
+                Version       = Version,
+                PatchVersion  = PatchVersion,
+                RunAlways     = RunAlways,
+                ExecutionMode = ExecutionMode
             };
         }
     }

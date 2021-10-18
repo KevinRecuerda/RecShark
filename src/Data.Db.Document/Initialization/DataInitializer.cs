@@ -21,43 +21,43 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public async Task Init()
         {
-            this.logger.LogInformation("Initializing store for schema {schema} ...", this.factory.Schema);
-            var store = this.factory.CreateDocumentStore();
+            logger.LogInformation("Initializing store for schema {schema} ...", factory.Schema);
+            var store = factory.CreateDocumentStore();
 
-            var locker = this.CreateDataLocker(store);
-            this.logger.LogInformation("awaiting lock ...");
+            var locker = CreateDataLocker(store);
+            logger.LogInformation("awaiting lock ...");
             await locker.AcquireLock();
 
             try
             {
-                await this.ApplyChanges(store, this.factory.DataChanges, ExecutionMode.PreSchemaChanges);
+                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges);
 
-                this.logger.LogInformation("applying auto schema change ...");
+                logger.LogInformation("applying auto schema change ...");
                 store.Schema.ApplyAllConfiguredChangesToDatabase();
 
-                await this.ApplyChanges(store, this.factory.DataChanges, ExecutionMode.PostSchemaChanges);
+                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges);
             }
             catch (Exception exception)
             {
                 var message = exception is MartenSchemaException && exception.InnerException != null
                                   ? exception.InnerException.Message
                                   : exception.Message;
-                this.logger.LogError(exception, $"error occured: {message}");
+                logger.LogError(exception, $"error occured: {message}");
             }
             finally
             {
-                this.logger.LogInformation("releasing lock ...");
+                logger.LogInformation("releasing lock ...");
                 await locker.ReleaseLock();
             }
         }
 
         public virtual async Task ApplyChanges(IDocumentStore store, DataChange[] dataChanges, ExecutionMode executionMode)
         {
-            var changesToExecute = await this.GetChangesToExecute(store, dataChanges, executionMode);
+            var changesToExecute = await GetChangesToExecute(store, dataChanges, executionMode);
 
             foreach (var change in changesToExecute)
             {
-                this.logger.LogInformation("applying change {changeId} ...", change.Id);
+                logger.LogInformation("applying change {changeId} ...", change.Id);
                 using (var session = store.OpenSession())
                 {
                     change.Run(session, store);
@@ -75,7 +75,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
             var historicalChanges = (await GetDataChanges(store)).ToDictionary(x => x.Id);
 
-            return dataChangesMatchingMode.Where(x => this.MustExecuteChange(x, historicalChanges.GetValueOrDefault(x.Id)))
+            return dataChangesMatchingMode.Where(x => MustExecuteChange(x, historicalChanges.GetValueOrDefault(x.Id)))
                                           .ToArray();
         }
 

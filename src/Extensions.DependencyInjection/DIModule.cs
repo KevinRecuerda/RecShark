@@ -4,7 +4,7 @@ namespace RecShark.Extensions.DependencyInjection
 {
     public abstract class DIModule
     {
-        public string Name => this.GetType().FullName;
+        public string Name => GetType().FullName;
 
         public virtual DIModule[] Dependencies => new DIModule[] { };
 
@@ -15,12 +15,12 @@ namespace RecShark.Extensions.DependencyInjection
             if (!(obj is DIModule other))
                 return false;
 
-            return this.Name == other.Name;
+            return Name == other.Name;
         }
 
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode();
+            return Name.GetHashCode();
         }
     }
 }

@@ -113,7 +113,7 @@ namespace RecShark.AspNetCore.Configurator
             writer.WriteStartObject();
 
             var dictionary = (IDictionary)value;
-            var raws = this.BuildKVRaw(dictionary);
+            var raws = BuildKVRaw(dictionary);
             var line = string.Join(",", raws);
             writer.WriteRaw(line);
 
@@ -131,7 +131,7 @@ namespace RecShark.AspNetCore.Configurator
 
             foreach (var (jKey, jValue) in jObject)
             {
-                var key = JsonConvert.DeserializeObject($"\"{jKey}\"", innerTypes[0], this.settings);
+                var key = JsonConvert.DeserializeObject($"\"{jKey}\"", innerTypes[0], settings);
                 var value = jValue.ToObject(innerTypes[1], serializer);
                 dictionary.Add(key, value);
             }
@@ -152,8 +152,8 @@ namespace RecShark.AspNetCore.Configurator
         {
             foreach (DictionaryEntry entry in dictionary)
             {
-                var propertyName = JsonConvert.SerializeObject(entry.Key, this.settings);
-                var propertyValue = JsonConvert.SerializeObject(entry.Value, this.settings);
+                var propertyName = JsonConvert.SerializeObject(entry.Key, settings);
+                var propertyValue = JsonConvert.SerializeObject(entry.Value, settings);
 
                 var raw = $"{propertyName}:{propertyValue}";
                 yield return raw;

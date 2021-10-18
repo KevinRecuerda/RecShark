@@ -103,14 +103,14 @@ namespace RecShark.AspNetCore.Configurator
             public void Configure(SwaggerGenOptions options)
             {
                 ConfigureSwaggerGen(options);
-                foreach (var description in this.provider.ApiVersionDescriptions)
-                    options.SwaggerGeneratorOptions.SwaggerDocs[description.GroupName] = this.BuildApiInfo(description);
+                foreach (var description in provider.ApiVersionDescriptions)
+                    options.SwaggerGeneratorOptions.SwaggerDocs[description.GroupName] = BuildApiInfo(description);
             }
 
             public void Configure(SwaggerUIOptions uiOptions)
             {
-                ConfigureSwaggerUi(uiOptions, this.apiInfo);
-                foreach (var description in this.provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
+                ConfigureSwaggerUi(uiOptions, apiInfo);
+                foreach (var description in provider.ApiVersionDescriptions.OrderByDescending(x => x.ApiVersion))
                 {
                     var name = description.GroupName;
                     if (description.IsDeprecated)
@@ -123,19 +123,19 @@ namespace RecShark.AspNetCore.Configurator
             {
                 var version = description.IsDeprecated
                     ? description.ApiVersion.MajorVersion + ".0"
-                    : this.apiInfo.Version;
+                    : apiInfo.Version;
 
                 var info = new OpenApiInfo
                 {
-                    Title = this.apiInfo.Title,
+                    Title = apiInfo.Title,
                     Version = version,
-                    Description = this.apiInfo.Description,
-                    Contact = this.apiInfo.Contact,
+                    Description = apiInfo.Description,
+                    Contact = apiInfo.Contact,
                     Extensions =
                     {
                         ["x-versionDeprecated"] = new OpenApiBoolean(description.IsDeprecated),
                         ["x-health"] = new OpenApiString("/health"),
-                        ["x-code"] = new OpenApiString(this.apiInfo.Code)
+                        ["x-code"] = new OpenApiString(apiInfo.Code)
                     }
                 };
 

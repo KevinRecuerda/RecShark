@@ -15,14 +15,14 @@ namespace RecShark.ExpressionEvaluator
 
         public Expression(string expression, EvaluatorOption option = null)
         {
-            this.Description = expression;
+            Description = expression;
             this.option      = option ?? new EvaluatorOption();
 
-            this.parser = CreateParser(expression);
-            var errorListener = CreateErrorListener(this.parser);
-            this.tree = Parse(this.parser, errorListener);
+            parser = CreateParser(expression);
+            var errorListener = CreateErrorListener(parser);
+            tree = Parse(parser, errorListener);
 
-            this.Variables = ExtractVariables(this.tree);
+            Variables = ExtractVariables(tree);
         }
 
         public string Description { get; }
@@ -31,14 +31,14 @@ namespace RecShark.ExpressionEvaluator
 
         public object Evaluate(Dictionary<string, object> parameters = null)
         {
-            return this.Evaluate<object>(parameters);
+            return Evaluate<object>(parameters);
         }
 
         public T Evaluate<T>(Dictionary<string, object> parameters = null)
         {
-            var visitor = new ExpressionEvaluatorVisitor(parameters, this.option);
+            var visitor = new ExpressionEvaluatorVisitor(parameters, option);
 
-            var result = visitor.Visit(this.tree);
+            var result = visitor.Visit(tree);
 
             if (typeof(T) == typeof(object))
                 return (T) result;
@@ -57,7 +57,7 @@ namespace RecShark.ExpressionEvaluator
 
         public string ToStringTree()
         {
-            return this.tree.ToStringTree(this.parser);
+            return tree.ToStringTree(parser);
         }
 
         private static ExpressionEvaluatorParser CreateParser(string expression)

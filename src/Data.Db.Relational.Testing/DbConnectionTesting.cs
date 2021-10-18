@@ -32,7 +32,7 @@ namespace RecShark.Data.Db.Relational.Testing
             }
         }
 
-        public IDbConnection InnerConnection => this.dbConnection;
+        public IDbConnection InnerConnection => dbConnection;
 
         public readonly  IDbConnection  dbConnection;
         private readonly IDbTransaction dbTransaction;
@@ -42,13 +42,13 @@ namespace RecShark.Data.Db.Relational.Testing
             this.dbConnection = ProfiledDbConnectionFactory.CreateProfiledDbConnectionForDapper(dbConnection);
             this.dbConnection.Open();
 
-            this.dbTransaction = this.dbConnection.BeginTransaction(IsolationLevel.ReadCommitted);
+            dbTransaction = this.dbConnection.BeginTransaction(IsolationLevel.ReadCommitted);
         }
 
         public void ForceDispose()
         {
-            this.dbTransaction.Rollback();
-            this.dbConnection.Dispose();
+            dbTransaction.Rollback();
+            dbConnection.Dispose();
         }
 
         // Do nothing
@@ -63,26 +63,26 @@ namespace RecShark.Data.Db.Relational.Testing
         public IDbTransaction BeginTransaction(IsolationLevel il) =>  new DbTransactionTesting();
 
         // Just call real connection
-        public void ChangeDatabase(string databaseName) => this.dbConnection.ChangeDatabase(databaseName);
+        public void ChangeDatabase(string databaseName) => dbConnection.ChangeDatabase(databaseName);
 
         public IDbCommand CreateCommand()
         {
-            var command         = this.dbConnection.CreateCommand();
-            command.Transaction = this.dbTransaction;
+            var command         = dbConnection.CreateCommand();
+            command.Transaction = dbTransaction;
             return command;
         }
 
         public string ConnectionString
         {
-            get => this.dbConnection.ConnectionString;
-            set => this.dbConnection.ConnectionString = value;
+            get => dbConnection.ConnectionString;
+            set => dbConnection.ConnectionString = value;
         }
 
-        public int ConnectionTimeout => this.dbConnection.ConnectionTimeout;
+        public int ConnectionTimeout => dbConnection.ConnectionTimeout;
 
-        public string Database => this.dbConnection.Database;
+        public string Database => dbConnection.Database;
 
-        public ConnectionState State => this.dbConnection.State;
+        public ConnectionState State => dbConnection.State;
     }
 
     public class DbTransactionTesting : IDbTransaction

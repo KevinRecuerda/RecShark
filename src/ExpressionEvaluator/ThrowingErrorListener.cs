@@ -9,7 +9,7 @@ namespace RecShark.ExpressionEvaluator
 
         public ThrowingErrorListener()
         {
-            this.Errors = new List<string>();
+            Errors = new List<string>();
         }
 
         public override void SyntaxError(
@@ -20,7 +20,7 @@ namespace RecShark.ExpressionEvaluator
             string               msg,
             RecognitionException e)
         {
-            this.Errors.Add($"line {line}:{charPositionInLine} {msg}");
+            Errors.Add($"line {line}:{charPositionInLine} {msg}");
         }
     }
 }

@@ -17,7 +17,7 @@ namespace RecShark.Data.Db.Relational
 
         protected IDbConnection Open()
         {
-            var dbConnection = this.dbConnectionFactory.CreateDbConnection(this.Type, this.Name);
+            var dbConnection = dbConnectionFactory.CreateDbConnection(Type, Name);
             dbConnection.Open();
             return dbConnection;
         }
@@ -26,7 +26,7 @@ namespace RecShark.Data.Db.Relational
         {
             if (!OrmConfiguration.GetDefaultEntityMapping<T>().IsFrozen)
             {
-                OrmConfiguration.GetDefaultEntityMapping<T>().SetDialect(this.dbConnectionFactory.GetSqlDialect(this.Type));
+                OrmConfiguration.GetDefaultEntityMapping<T>().SetDialect(dbConnectionFactory.GetSqlDialect(Type));
             }
         }
     }

@@ -18,7 +18,7 @@ namespace RecShark.Data.Db
 
         public virtual IConnectionString Get(string name)
         {
-            return new ConnectionString(name, this.configuration);
+            return new ConnectionString(name, configuration);
         }
     }
 }

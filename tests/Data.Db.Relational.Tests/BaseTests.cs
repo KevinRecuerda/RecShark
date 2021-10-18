@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Relational.Testing;
 using RecShark.Extensions.DependencyInjection;
-using RecShark.Extensions.DependencyInjection.Testing;
+using RecShark.Testing;
 
 namespace RecShark.Data.Db.Relational.Tests
 {

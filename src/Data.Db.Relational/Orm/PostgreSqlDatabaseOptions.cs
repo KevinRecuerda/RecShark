@@ -6,8 +6,8 @@ namespace RecShark.Data.Db.Relational.Orm
     {
         public PostgreSqlDatabaseOptions()
         {
-            this.StartDelimiter = this.EndDelimiter = string.Empty;
-            this.IsUsingSchemas = true;
+            StartDelimiter = EndDelimiter = string.Empty;
+            IsUsingSchemas = true;
         }
     }
 }

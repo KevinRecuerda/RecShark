@@ -16,8 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Data.Db.Document.Testing\Data.Db.Document.Testing.csproj" />
     <ProjectReference Include="..\..\src\Data.Db.Document\Data.Db.Document.csproj" />
-    <ProjectReference Include="..\..\src\Extensions.DependencyInjection.Testing\Extensions.DependencyInjection.Testing.csproj" />
-    <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

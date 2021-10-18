@@ -21,10 +21,10 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public Control(DateTime date, string itemId, int result, params Log[] logs)
         {
-            this.Date   = date;
-            this.ItemId = itemId;
-            this.Result = result;
-            this.Logs   = logs;
+            Date   = date;
+            ItemId = itemId;
+            Result = result;
+            Logs   = logs;
         }
 
         public Guid     Id     { get; set; }
@@ -39,7 +39,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
     {
         public Log(string description)
         {
-            this.Description = description;
+            Description = description;
         }
 
         public string Description { get; set; }

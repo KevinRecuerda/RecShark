@@ -17,7 +17,7 @@ namespace RecShark.Data.Db.Relational
 
         public IDbConnection CreateDbConnection(string type, string name)
         {
-            var connectionString = this.connectionStrings.Get(name);
+            var connectionString = connectionStrings.Get(name);
 
             switch (type)
             {

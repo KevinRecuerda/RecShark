@@ -11,7 +11,7 @@ namespace RecShark.Extensions.DependencyInjection.Sorter
                 $@"Cyclic dependency found between following module ids
 {string.Join(Environment.NewLine, modules.Select(m => m.Name))}")
         {
-            this.Modules = modules;
+            Modules = modules;
         }
 
         public ICollection<DIModule> Modules { get; }

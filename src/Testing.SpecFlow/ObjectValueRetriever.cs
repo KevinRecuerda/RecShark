@@ -1,7 +1,7 @@
 using RecShark.Extensions;
 using TechTalk.SpecFlow.Assist.ValueRetrievers;
 
-namespace RecShark.Testing.SpecFlow
+namespace RecShark.Testing.SpecFlow.Extensions
 {
     public class ObjectValueRetriever : ClassRetriever<object>
     {

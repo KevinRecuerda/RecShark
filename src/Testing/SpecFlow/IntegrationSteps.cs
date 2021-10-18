@@ -1,4 +1,5 @@
-﻿using RecShark.Extensions.DependencyInjection.Testing;
+﻿using RecShark.Testing.DependencyInjection;
+using RecShark.Testing.SpecFlow.Extensions;
 using TechTalk.SpecFlow;
 
 namespace RecShark.Testing.SpecFlow
@@ -16,7 +17,7 @@ namespace RecShark.Testing.SpecFlow
 
         protected IntegrationSteps(Hooks hooks = null)
         {
-            this.Hooks = HooksFactory.BuildHooks<T>(hooks);
+            Hooks = HooksFactory.BuildHooks<T>(hooks);
 
             Tests.OverrideCultureInfo();
         }

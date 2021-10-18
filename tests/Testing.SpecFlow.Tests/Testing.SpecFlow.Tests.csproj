@@ -14,14 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Data.Db.Relational.Testing\Data.Db.Relational.Testing.csproj" />
-    <ProjectReference Include="..\..\src\Data.Db.Relational\Data.Db.Relational.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
+    <ProjectReference Include="..\Extensions.DependencyInjection.Tests\Extensions.DependencyInjection.Tests.csproj" />
   </ItemGroup>
 
 </Project>

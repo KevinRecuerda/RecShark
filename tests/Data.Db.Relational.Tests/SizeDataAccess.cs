@@ -25,7 +25,7 @@ from (
 	from pg_tables
 ) n
 group by schemaname";
-            using (var db = this.Open())
+            using (var db = Open())
             {
                 var sizes = await db.QueryAsync<SizeObject>(query);
                 return sizes.ToList();

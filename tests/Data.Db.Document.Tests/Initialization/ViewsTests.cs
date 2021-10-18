@@ -12,14 +12,14 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
 
         public ViewsTests(DocHooks hooks = null) : base(hooks)
         {
-            this.docStore = (DocumentStore)this.Hooks.Provider.GetService<IDocumentStore>();
+            docStore = (DocumentStore)Hooks.Provider.GetService<IDocumentStore>();
         }
 
         [Fact]
-        public void Should_contains_views() => FeatureSchemaViewsTests<Views>.Should_contains_views(this.docStore, 1);
+        public void Should_contains_views() => FeatureSchemaViewsTests<Views>.Should_contains_views(docStore, 1);
 
         [Fact]
-        public void Should_not_reapply_twice() => FeatureSchemaViewsTests<Views>.Should_not_reapply_twice(this.docStore);
+        public void Should_not_reapply_twice() => FeatureSchemaViewsTests<Views>.Should_not_reapply_twice(docStore);
     }
 
     public class Views : FeatureSchemaViews

@@ -8,7 +8,7 @@ namespace RecShark.Data.Db.Document
 
         protected BaseDocumentDataAccess(IDocumentStore documentStore)
         {
-            this.DocumentStore = documentStore;
+            DocumentStore = documentStore;
         }
     }
 }

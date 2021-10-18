@@ -6,12 +6,12 @@ namespace RecShark.Extensions.DependencyInjection.Sorter
     {
         public Node(string id, T item)
         {
-            this.Id = id;
-            this.Item = item;
+            Id = id;
+            Item = item;
 
-            this.Parents = new List<Node<T>>();
-            this.Children = new List<Node<T>>();
-            this.Depth = 0;
+            Parents = new List<Node<T>>();
+            Children = new List<Node<T>>();
+            Depth = 0;
         }
 
         public string Id { get; }
@@ -27,12 +27,12 @@ namespace RecShark.Extensions.DependencyInjection.Sorter
             if (!(obj is Node<T> other))
                 return false;
 
-            return this.Id == other.Id;
+            return Id == other.Id;
         }
 
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

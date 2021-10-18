@@ -12,21 +12,21 @@ namespace RecShark.Data.Db.Relational.Extensions
 
         public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null)
         {
-            this.dynamicParameters.Add(name, value, dbType, direction, size);
+            dynamicParameters.Add(name, value, dbType, direction, size);
         }
 
         public void Add(string name, OracleDbType oracleDbType, ParameterDirection direction)
         {
             var oracleParameter = new OracleParameter(name, oracleDbType, direction);
-            this.oracleParameters.Add(oracleParameter);
+            oracleParameters.Add(oracleParameter);
         }
 
         public void AddParameters(IDbCommand command, SqlMapper.Identity identity)
         {
-            ((SqlMapper.IDynamicParameters) this.dynamicParameters).AddParameters(command, identity);
+            ((SqlMapper.IDynamicParameters) dynamicParameters).AddParameters(command, identity);
 
             var oracleCommand = command as OracleCommand;
-            oracleCommand?.Parameters.AddRange(this.oracleParameters.ToArray());
+            oracleCommand?.Parameters.AddRange(oracleParameters.ToArray());
         }
     }
 }
