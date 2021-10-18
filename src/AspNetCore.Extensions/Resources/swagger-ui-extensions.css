@@ -1,35 +1,4 @@
-﻿.badge {
-    display: inline-block;
-    padding: .4em;
-    font-size: 90%;
-    font-weight: 600;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-}
-
-.badge-discreet-mako {
-    color: rgb(68, 72, 82);
-    background-color: rgba(68, 72, 82, 0.1);
-}
-
-.badge-discreet-copper-rust {
-    color: rgb(151, 74, 90);
-    background-color: rgba(151, 74, 90, 0.1);
-}
-
-.badge-discreet-east-bay {
-    color: rgb(74, 88, 133);
-    background-color: rgba(74, 88, 133, 0.1);
-}
-
-.badge-discreet-faded-jade {
-    color: rgb(64, 129, 130);
-    background-color: rgba(64, 129, 130, 0.1);
-}
-
-/* top */
+﻿/* top */
 .swagger-ui .topbar .api-code {
     font-size: 20px;
     font-weight: bold;
@@ -59,4 +28,37 @@
 .swagger-ui .scheme-container {
     padding: 0 0 10px 0;
     margin-bottom: 10px;
+}
+
+/* badge tag */
+.badge {
+    display: inline-block;
+    padding: .4em;
+    font-size: 90%;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.badge-discreet-mako {
+    color: rgb(68, 72, 82);
+    background-color: rgba(68, 72, 82, 0.1);
+}
+
+.badge-discreet-copper-rust {
+    color: rgb(151, 74, 90);
+    background-color: rgba(151, 74, 90, 0.1);
+}
+
+.badge-discreet-east-bay {
+    color: rgb(74, 88, 133);
+    background-color: rgba(74, 88, 133, 0.1);
+}
+
+.badge-discreet-faded-jade {
+    color: rgb(64, 129, 130);
+    background-color: rgba(64, 129, 130, 0.1);
 }
