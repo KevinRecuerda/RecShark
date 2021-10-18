@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using RecShark.Extensions.DependencyInjection.Sorter;
+using RecShark.DependencyInjection.Sorter;
 using Xunit;
 
-namespace RecShark.Extensions.DependencyInjection.Tests.Sorter
+namespace RecShark.DependencyInjection.Tests.Sorter
 {
     public class DIModuleSorterTests
     {

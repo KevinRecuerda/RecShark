@@ -1,5 +1,4 @@
 ﻿using RecShark.Testing.DependencyInjection;
-using RecShark.Testing.SpecFlow.Extensions;
 using TechTalk.SpecFlow;
 
 namespace RecShark.Testing.SpecFlow

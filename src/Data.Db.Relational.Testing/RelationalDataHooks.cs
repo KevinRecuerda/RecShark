@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 using RecShark.Testing;
 using RecShark.Testing.DependencyInjection;
 using StackExchange.Profiling;

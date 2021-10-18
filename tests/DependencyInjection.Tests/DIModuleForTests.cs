@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection.Tests
+namespace RecShark.DependencyInjection.Tests
 {
     public class DIModuleForTests : DIModule
     {

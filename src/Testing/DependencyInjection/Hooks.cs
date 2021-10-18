@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 
 namespace RecShark.Testing.DependencyInjection
 {

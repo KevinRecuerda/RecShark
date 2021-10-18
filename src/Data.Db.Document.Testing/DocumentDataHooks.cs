@@ -3,7 +3,7 @@ using Marten;
 using Marten.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Document.Initialization;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 using RecShark.Testing;
 using RecShark.Testing.DependencyInjection;
 

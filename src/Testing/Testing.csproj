@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
     <ProjectReference Include="..\Testing.FluentAssertions\Testing.FluentAssertions.csproj" />
     <ProjectReference Include="..\Testing.NSubstitute\Testing.NSubstitute.csproj" />
     <ProjectReference Include="..\Testing.SpecFlow\Testing.SpecFlow.csproj" />

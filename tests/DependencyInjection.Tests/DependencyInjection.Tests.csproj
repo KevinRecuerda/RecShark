@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\DependencyInjection\DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
   </ItemGroup>
 

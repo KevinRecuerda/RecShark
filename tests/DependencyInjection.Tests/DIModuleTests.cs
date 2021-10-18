@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace RecShark.Extensions.DependencyInjection.Tests
+namespace RecShark.DependencyInjection.Tests
 {
     public class DIModuleTests
     {

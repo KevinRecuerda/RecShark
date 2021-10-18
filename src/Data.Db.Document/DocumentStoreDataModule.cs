@@ -1,7 +1,7 @@
 ﻿using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Document.Initialization;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 
 namespace RecShark.Data.Db.Document
 {

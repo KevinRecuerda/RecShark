@@ -1,4 +1,4 @@
-namespace RecShark.Extensions.DependencyInjection.Tests
+namespace RecShark.DependencyInjection.Tests
 {
     public class Sample : ISample, IOther
     {

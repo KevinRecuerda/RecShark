@@ -11,7 +11,7 @@
 | ------ | -------- |
 | data | [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Document?label=RecShark.Data.Db.Document)](https://www.nuget.org/packages/RecShark.Data.Db.Document/) [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Document.Testing?label=RecShark.Data.Db.Document.Testing)](https://www.nuget.org/packages/RecShark.Data.Db.Document.Testing/)|
 | | [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Relational?label=RecShark.Data.Db.Relational)](https://www.nuget.org/packages/RecShark.Data.Db.Relational/) [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Relational.Testing?label=RecShark.Data.Db.Relational.Testing)](https://www.nuget.org/packages/RecShark.Data.Db.Relational.Testing/)|
-| dependency injection | [![Nuget](https://img.shields.io/nuget/v/RecShark.Extensions.DependencyInjection?label=RecShark.Extensions.DependencyInjection)](https://www.nuget.org/packages/RecShark.Extensions.DependencyInjection/)|
+| dependency injection | [![Nuget](https://img.shields.io/nuget/v/RecShark.DependencyInjection?label=RecShark.DependencyInjection)](https://www.nuget.org/packages/RecShark.DependencyInjection/)|
 | expression evaluator | [![Nuget](https://img.shields.io/nuget/v/RecShark.ExpressionEvaluator?label=RecShark.ExpressionEvaluator)](https://www.nuget.org/packages/RecShark.ExpressionEvaluator/) |
 | extensions | [![Nuget](https://img.shields.io/nuget/v/RecShark.Extensions?label=RecShark.Extensions)](https://www.nuget.org/packages/RecShark.Extensions/) |
 | testing | [![Nuget](https://img.shields.io/nuget/v/RecShark.Testing?label=RecShark.Testing)](https://www.nuget.org/packages/RecShark.Testing/) |

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection
+namespace RecShark.DependencyInjection
 {
     public abstract class DIModule
     {

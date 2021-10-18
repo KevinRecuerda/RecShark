@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection
+namespace RecShark.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {

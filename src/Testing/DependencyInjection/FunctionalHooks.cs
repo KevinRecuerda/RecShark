@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 
 namespace RecShark.Testing.DependencyInjection
 {

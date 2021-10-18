@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace RecShark.Extensions.DependencyInjection.Tests
+namespace RecShark.DependencyInjection.Tests
 {
     public class DIModuleLoaderTests
     {

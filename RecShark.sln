@@ -20,11 +20,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extensions.Tests", "tests\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "src\Testing\Testing.csproj", "{C104BE89-E6EB-40CA-ADBE-6083523C393C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extensions.DependencyInjection", "src\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj", "{3699BF91-97BB-4C35-B84B-382034697291}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection", "src\DependencyInjection\DependencyInjection.csproj", "{3699BF91-97BB-4C35-B84B-382034697291}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.SpecFlow", "src\Testing.SpecFlow\Testing.SpecFlow.csproj", "{5294A31F-E474-4DE7-9548-429DD41FCE16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extensions.DependencyInjection.Tests", "tests\Extensions.DependencyInjection.Tests\Extensions.DependencyInjection.Tests.csproj", "{86ED0338-4FB7-4FCF-823F-27072397D6F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection.Tests", "tests\DependencyInjection.Tests\DependencyInjection.Tests.csproj", "{86ED0338-4FB7-4FCF-823F-27072397D6F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Db.Document", "src\Data.Db.Document\Data.Db.Document.csproj", "{16D24D4F-0A44-423E-9FE5-1F35C38435A5}"
 EndProject

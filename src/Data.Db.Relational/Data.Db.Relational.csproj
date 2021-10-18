@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Data.Db\Data.Db.csproj" />
     <ProjectReference Include="..\Extensions\Extensions.csproj" />
-    <ProjectReference Include="..\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>

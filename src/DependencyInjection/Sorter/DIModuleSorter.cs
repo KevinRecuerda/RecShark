@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace RecShark.Extensions.DependencyInjection.Sorter
+namespace RecShark.DependencyInjection.Sorter
 {
     public static class DIModuleSorter
     {

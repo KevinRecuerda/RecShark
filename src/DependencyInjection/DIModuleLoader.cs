@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using RecShark.Extensions.DependencyInjection.Sorter;
+using RecShark.DependencyInjection.Sorter;
 
-namespace RecShark.Extensions.DependencyInjection
+namespace RecShark.DependencyInjection
 {
     public static class DIModuleLoader
     {

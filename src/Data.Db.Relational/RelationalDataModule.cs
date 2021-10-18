@@ -1,7 +1,7 @@
 ﻿using Dapper.FastCrud;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Relational.Orm;
-using RecShark.Extensions.DependencyInjection;
+using RecShark.DependencyInjection;
 
 namespace RecShark.Data.Db.Relational
 {

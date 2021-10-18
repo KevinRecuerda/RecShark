@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RecShark.Extensions.DependencyInjection.Sorter
+namespace RecShark.DependencyInjection.Sorter
 {
     public class Node<T>
     {
