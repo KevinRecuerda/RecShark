@@ -18,22 +18,22 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
 
         public DataLockerTests()
         {
-            this.dataLocker = (DataLocker) this.Hooks.Provider.GetService<IDataLocker>();
+            dataLocker = (DataLocker) Hooks.Provider.GetService<IDataLocker>();
 
-            this.dataLocker.SleepTime = 0;
+            dataLocker.SleepTime = 0;
         }
 
         public override void Dispose()
         {
-            this.Hooks.Cleaner.CompletelyRemove(typeof(DataLock));
+            Hooks.Cleaner.CompletelyRemove(typeof(DataLock));
         }
 
         [Fact]
         public async Task AcquireLock__Should_add_lock()
         {
-            await this.dataLocker.AcquireLock();
+            await dataLocker.AcquireLock();
 
-            var actual = await this.dataLocker.GetLock();
+            var actual = await dataLocker.GetLock();
             actual.Should().NotBeNull();
             actual.Id.Should().Be(1);
             actual.Host.Should().Be(Environment.MachineName);
@@ -43,10 +43,10 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public async Task AcquireLock__Should_throw_exception_When_cannot_acquire_lock()
         {
             // Arrange
-            await this.dataLocker.AcquireLock();
+            await dataLocker.AcquireLock();
 
             // Act
-            Task Action() => this.dataLocker.AcquireLock();
+            Task Action() => dataLocker.AcquireLock();
 
             // Assert
             var exception = await Assert.ThrowsAsync<DataLockException>(Action);
@@ -56,32 +56,32 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         [Fact]
         public async Task TryLock__Should_lock()
         {
-            (await this.dataLocker.TryLock()).Should().BeTrue();
-            (await this.dataLocker.TryLock()).Should().BeFalse();
+            (await dataLocker.TryLock()).Should().BeTrue();
+            (await dataLocker.TryLock()).Should().BeFalse();
         }
 
         [Fact]
         public async Task ReleaseLock__Should_delete_lock()
         {
             // Arrange
-            await this.dataLocker.AcquireLock();
+            await dataLocker.AcquireLock();
 
             // Act
-            await this.dataLocker.ReleaseLock();
+            await dataLocker.ReleaseLock();
 
             // Assert
-            var actual = await this.dataLocker.GetLock();
+            var actual = await dataLocker.GetLock();
             actual.Should().BeNull();
         }
 
         [Fact]
         public async Task DataLocker__Should_chain_correctly()
         {
-            await this.dataLocker.AcquireLock();
-            await this.dataLocker.ReleaseLock();
+            await dataLocker.AcquireLock();
+            await dataLocker.ReleaseLock();
 
-            await this.dataLocker.AcquireLock();
-            await this.dataLocker.ReleaseLock();
+            await dataLocker.AcquireLock();
+            await dataLocker.ReleaseLock();
         }
     }
 }

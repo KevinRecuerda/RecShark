@@ -14,20 +14,20 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public async Task AcquireLock()
         {
-            for (var retry = 0; retry < this.MaxRetry; retry++)
+            for (var retry = 0; retry < MaxRetry; retry++)
             {
-                if (await this.TryLock())
+                if (await TryLock())
                     return;
 
-                Thread.Sleep(this.SleepTime);
+                Thread.Sleep(SleepTime);
             }
 
-            throw new DataLockException(this.MaxRetry);
+            throw new DataLockException(MaxRetry);
         }
 
         public async Task ReleaseLock()
         {
-            using (var session = this.DocumentStore.OpenSession())
+            using (var session = DocumentStore.OpenSession())
             {
                 session.DeleteWhere<DataLock>(x => x.Host == Environment.MachineName);
                 await session.SaveChangesAsync();
@@ -40,7 +40,7 @@ namespace RecShark.Data.Db.Document.Initialization
             {
                 var @lock = new DataLock {Host = Environment.MachineName};
 
-                using (var session = this.DocumentStore.OpenSession())
+                using (var session = DocumentStore.OpenSession())
                 {
                     session.Insert(@lock);
                     await session.SaveChangesAsync();
@@ -56,7 +56,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public async Task<DataLock> GetLock()
         {
-            using (var session = this.DocumentStore.OpenSession())
+            using (var session = DocumentStore.OpenSession())
             {
                 return await session.Query<DataLock>().SingleOrDefaultAsync();
             }

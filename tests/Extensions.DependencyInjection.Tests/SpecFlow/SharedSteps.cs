@@ -14,7 +14,7 @@ namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
         [Given(@"a sentence ""(.*)""")]
         public void GivenASentence(string sentence)
         {
-            var sample = this.Hooks.Provider.GetService<ISample>();
+            var sample = Hooks.Provider.GetService<ISample>();
             sample.Hello().Returns(sentence);
         }
     }

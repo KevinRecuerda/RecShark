@@ -6,7 +6,7 @@ namespace RecShark.Data.Db.Document.Initialization
     {
         public override void Run(IDocumentSession session, IDocumentStore store)
         {
-            var items = this.BuildItems();
+            var items = BuildItems();
             session.Store(items);
         }
 

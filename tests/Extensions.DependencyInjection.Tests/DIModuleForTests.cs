@@ -6,7 +6,7 @@ namespace RecShark.Extensions.DependencyInjection.Tests
     {
         public override void Load(IServiceCollection services)
         {
-            this.CallCount++;
+            CallCount++;
         }
 
         public int CallCount { get; private set; }

@@ -17,19 +17,19 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public FeatureSchemaViews(StoreOptions options) : base($"{options.DatabaseSchemaName}._views", options)
         {
-            this.schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(this.Identifier, this.Options.DatabaseSchemaName, this.BuildViews()));
+            schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(Identifier, Options.DatabaseSchemaName, BuildViews()));
         }
 
         public abstract string Filename { get; }
 
         protected override IEnumerable<ISchemaObject> schemaObjects()
         {
-            yield return this.schemaViews.Value;
+            yield return schemaViews.Value;
         }
 
         private Dictionary<string, string> BuildViews()
         {
-            var filepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, this.Filename);
+            var filepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             var lines    = File.ReadAllText(filepath);
 
             var matches = Regex.Matches(
@@ -53,9 +53,9 @@ namespace RecShark.Data.Db.Document.Initialization
     {
         public SchemaViews(string identifier, string schema, Dictionary<string, string> views)
         {
-            this.Identifier = new DbObjectName(identifier);
-            this.Schema     = schema;
-            this.Views      = views;
+            Identifier = new DbObjectName(identifier);
+            Schema     = schema;
+            Views      = views;
         }
 
         public DbObjectName Identifier { get; }
@@ -66,12 +66,12 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public IEnumerable<DbObjectName> AllNames()
         {
-            return this.Views.Keys.Select(v => new DbObjectName(this.Schema, v)).ToList();
+            return Views.Keys.Select(v => new DbObjectName(Schema, v)).ToList();
         }
 
         public void ConfigureQueryCommand(CommandBuilder builder)
         {
-            var schema = builder.AddParameter(this.Schema).ParameterName;
+            var schema = builder.AddParameter(Schema).ParameterName;
 
             builder.Append(
                 $@"
@@ -83,11 +83,11 @@ where schemaname = :{schema};
 
         public SchemaPatchDifference CreatePatch(DbDataReader reader, SchemaPatch patch, AutoCreate autoCreate)
         {
-            var diff = this.CheckDifference(reader);
+            var diff = CheckDifference(reader);
             if (diff != SchemaPatchDifference.None)
             {
-                this.Write(patch.Rules, patch.UpWriter);
-                this.WriteDropStatement(patch.Rules, patch.DownWriter);
+                Write(patch.Rules, patch.UpWriter);
+                WriteDropStatement(patch.Rules, patch.DownWriter);
             }
 
             return diff;
@@ -95,8 +95,8 @@ where schemaname = :{schema};
 
         public void Write(DdlRules rules, StringWriter writer)
         {
-            var drops   = this.Views.Keys.Reverse().Select(this.ToDrop).ToList();
-            var creates = this.Views.Select(x => this.ToCreate(x.Key, x.Value)).ToList();
+            var drops   = Views.Keys.Reverse().Select(ToDrop).ToList();
+            var creates = Views.Select(x => ToCreate(x.Key, x.Value)).ToList();
 
             var statements = drops.Union(creates).ToList();
             var sql        = string.Join(Environment.NewLine, statements);
@@ -105,7 +105,7 @@ where schemaname = :{schema};
 
         public void WriteDropStatement(DdlRules rules, StringWriter writer)
         {
-            var drops = this.Views.Keys.Reverse().Select(this.ToDrop).ToList();
+            var drops = Views.Keys.Reverse().Select(ToDrop).ToList();
             var sql   = string.Join(Environment.NewLine, drops);
             writer.WriteLine(sql);
         }
@@ -120,7 +120,7 @@ where schemaname = :{schema};
                 views[name] = definition;
             }
 
-            foreach (var item in this.Views)
+            foreach (var item in Views)
             {
                 if (!views.TryGetValue(item.Key, out var definition))
                     return SchemaPatchDifference.Create;
@@ -136,14 +136,14 @@ where schemaname = :{schema};
 
         private string ToCreate(string name, string body)
         {
-            var sql = $@"CREATE VIEW {this.Schema}.{name} AS 
+            var sql = $@"CREATE VIEW {Schema}.{name} AS 
 {body};";
             return sql;
         }
 
         private string ToDrop(string name)
         {
-            var sql = $@"DROP VIEW IF EXISTS {this.Schema}.{name};";
+            var sql = $@"DROP VIEW IF EXISTS {Schema}.{name};";
             return sql;
         }
     }

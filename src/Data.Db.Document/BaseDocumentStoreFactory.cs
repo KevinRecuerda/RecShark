@@ -19,14 +19,14 @@ namespace RecShark.Data.Db.Document
 
         public IDocumentStore CreateDocumentStore()
         {
-            var store = DocumentStore.For(this.ConfigureDocumentStore);
+            var store = DocumentStore.For(ConfigureDocumentStore);
             return store;
         }
 
         public void ConfigureDocumentStore(StoreOptions options)
         {
-            options.Connection(this.connectionString.Value);
-            options.DatabaseSchemaName = this.Schema;
+            options.Connection(connectionString.Value);
+            options.DatabaseSchemaName = Schema;
 
             options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
             options.Linq.MethodCallParsers.Add(new ContainsAny());
@@ -38,10 +38,10 @@ namespace RecShark.Data.Db.Document
 
             options.PLV8Enabled = false;
 
-            options.Schema.For<DataChangeLog>().DatabaseSchemaName(this.Schema);
-            options.Schema.For<DataLock>().DatabaseSchemaName(this.Schema);
+            options.Schema.For<DataChangeLog>().DatabaseSchemaName(Schema);
+            options.Schema.For<DataLock>().DatabaseSchemaName(Schema);
 
-            this.Configure(options);
+            Configure(options);
         }
 
         protected abstract void Configure(StoreOptions options);

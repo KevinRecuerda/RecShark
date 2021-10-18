@@ -50,9 +50,9 @@ namespace RecShark.AspNetCore.Extensions
         public SwaggerTagBadgeAttribute(string name, int order, BadgeColor color)
             : base(BuildDescription(name, order, color))
         {
-            this.Name  = name;
-            this.Order = order;
-            this.Color = color;
+            Name  = name;
+            Order = order;
+            Color = color;
         }
 
         public string Name { get; }

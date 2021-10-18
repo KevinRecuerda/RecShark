@@ -14,7 +14,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public override void Dispose()
         {
-            this.Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
+            Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Item {Id = "30", Name = "test 3", Type = ItemType.B},
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             await session.SaveChangesAsync();

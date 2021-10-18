@@ -16,8 +16,8 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public override void Dispose()
         {
-            this.Hooks.Cleaner.DeleteDocumentsFor(typeof(Control));
-            this.Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
+            Hooks.Cleaner.DeleteDocumentsFor(typeof(Control));
+            Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
 
             base.Dispose();
         }
@@ -38,7 +38,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control() {Date = new DateTime(2000, 12, 30), ItemId = "2", Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -74,7 +74,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control() {Date = new DateTime(2000, 12, 30), ItemId = "2", Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -112,7 +112,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control() {Date = new DateTime(2000, 12, 30), ItemId = "2", Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -144,7 +144,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control {Date = new DateTime(2000, 12, 30), Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(controls);
             await session.SaveChangesAsync();
@@ -176,7 +176,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control(new DateTime(2000, 12, 30), "2", 30)
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -215,7 +215,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control() {ItemId = "3", Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -253,7 +253,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control() {ItemId = "3", Result = 30}
             };
 
-            var       documentStore = this.Hooks.Provider.GetService<IDocumentStore>();
+            var       documentStore = Hooks.Provider.GetService<IDocumentStore>();
             using var session       = documentStore.OpenSession();
             session.Store(items);
             session.Store(controls);
@@ -286,7 +286,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control(new DateTime(2000, 12, 30), null, 30, new Log("FR001"), new Log("FR004"))
             };
 
-            using var session = this.Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
             session.Store(controls);
             await session.SaveChangesAsync();
 
@@ -309,7 +309,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                 new Control(new DateTime(2000, 12, 30), null, 30, new Log("FR001"), new Log("FR004"))
             };
 
-            using var session = this.Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
             session.Store(controls);
             await session.SaveChangesAsync();
 

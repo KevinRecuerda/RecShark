@@ -52,24 +52,24 @@ namespace RecShark.Testing.NSubstitute
         {
             public FormattedLogValuesComparable(string wildcardExpression)
             {
-                this.WildcardExpression = wildcardExpression;
+                WildcardExpression = wildcardExpression;
             }
 
             public string WildcardExpression { get; }
 
             public override bool Equals(object obj)
             {
-                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(this.WildcardExpression), RegexOptions.Singleline);
+                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(WildcardExpression), RegexOptions.Singleline);
             }
 
             public override int GetHashCode()
             {
-                return this.WildcardExpression.GetHashCode();
+                return WildcardExpression.GetHashCode();
             }
 
             public override string ToString()
             {
-                return this.WildcardExpression;
+                return WildcardExpression;
             }
 
             private static string ConvertWildcardToRegEx(string wildcardExpression)

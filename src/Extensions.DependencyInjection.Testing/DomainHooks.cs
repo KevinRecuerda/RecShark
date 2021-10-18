@@ -13,8 +13,8 @@ namespace RecShark.Extensions.DependencyInjection.Testing
             // data.db.relational
             // data.db.document
             // data.api
-            this.Services.Substitute(x => x.InheritedFrom("BaseDataAccess", "BaseDocumentDataAccess", "BaseApiClient"));
-            this.Services.Substitute(x => this.SubstitutedServices.Contains(x.ServiceType));
+            Services.Substitute(x => x.InheritedFrom("BaseDataAccess", "BaseDocumentDataAccess", "BaseApiClient"));
+            Services.Substitute(x => SubstitutedServices.Contains(x.ServiceType));
         }
     }
 }

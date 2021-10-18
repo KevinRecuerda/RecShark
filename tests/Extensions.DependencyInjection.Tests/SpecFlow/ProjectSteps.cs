@@ -20,7 +20,7 @@ namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
         [Then(@"the result should be ""(.*)""")]
         public void ThenTheResultShouldBe(string sentence)
         {
-            var sample = this.Hooks.Provider.GetService<ISample>();
+            var sample = Hooks.Provider.GetService<ISample>();
             sample.Hello().Should().Be(sentence);
         }
     }

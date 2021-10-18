@@ -12,8 +12,8 @@ namespace RecShark.Data.Db
     {
         public ConnectionString(string name, IConfiguration configuration)
         {
-            this.Name  = name;
-            this.Value = configuration.GetConnectionString(this.Name);
+            Name  = name;
+            Value = configuration.GetConnectionString(Name);
         }
 
         public string Name  { get; set; }

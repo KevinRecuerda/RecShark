@@ -15,25 +15,25 @@ namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
         [When(@"I create instance from")]
         public void WhenICreateInstanceFrom(Table table)
         {
-            this.instance = table.CreateInstance<ObjectToInstantiate>();
+            instance = table.CreateInstance<ObjectToInstantiate>();
         }
 
         [When(@"I create set from")]
         public void WhenICreateSetFrom(Table table)
         {
-            this.set = table.CreateSet<ObjectToInstantiate>().ToArray();
+            set = table.CreateSet<ObjectToInstantiate>().ToArray();
         }
 
         [Then(@"value should be of type (.*)")]
         public void ThenValueShouldBeOfTypeDouble(string type)
         {
-            this.instance.Value.GetType().Name.Should().Be(type);
+            instance.Value.GetType().Name.Should().Be(type);
         }
 
         [Then(@"value should not be null")]
         public void ThenValueShouldNotBeNull()
         {
-            foreach (var item in this.set)
+            foreach (var item in set)
                 item.Value.Should().NotBe(null);
         }
     }

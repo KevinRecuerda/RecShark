@@ -32,7 +32,7 @@ namespace RecShark.ExpressionEvaluator
 
         public ExpressionEvaluatorVisitor(Dictionary<string, object> parameters = null, EvaluatorOption option = null)
         {
-            this.Parameters = parameters ?? new Dictionary<string, object>();
+            Parameters = parameters ?? new Dictionary<string, object>();
 
             this.option = option ?? new EvaluatorOption();
         }
@@ -42,70 +42,70 @@ namespace RecShark.ExpressionEvaluator
         public override object VisitSafeExpr(ExpressionEvaluatorParser.SafeExprContext context)
         {
             // Just visit expr, ignoring <EOF>
-            return this.Visit(context.expr());
+            return Visit(context.expr());
         }
 
         #region Operations
 
         public override object VisitPowerExpr(ExpressionEvaluatorParser.PowerExprContext context)
         {
-            return this.VisitBinaryOperation(context, ExpressionEvaluatorParser.POW);
+            return VisitBinaryOperation(context, ExpressionEvaluatorParser.POW);
         }
 
         public override object VisitSquareExpr(ExpressionEvaluatorParser.SquareExprContext context)
         {
-            var value = this.Visit(context.expr()).AsDouble(context);
+            var value = Visit(context.expr()).AsDouble(context);
             return value * value;
         }
 
         public override object VisitChangeSignExpr(ExpressionEvaluatorParser.ChangeSignExprContext context)
         {
-            return -1 * this.Visit(context.expr()).AsDouble(context);
+            return -1 * Visit(context.expr()).AsDouble(context);
         }
 
         public override object VisitNotExpr(ExpressionEvaluatorParser.NotExprContext context)
         {
-            return !this.Visit(context.expr()).AsBool(context);
+            return !Visit(context.expr()).AsBool(context);
         }
 
         public override object VisitMultOrDivOrModExpr(ExpressionEvaluatorParser.MultOrDivOrModExprContext context)
         {
-            return this.VisitBinaryOperation(context, context.op.Type);
+            return VisitBinaryOperation(context, context.op.Type);
         }
 
         public override object VisitPlusOrMinusExpr(ExpressionEvaluatorParser.PlusOrMinusExprContext context)
         {
-            return this.VisitBinaryOperation(context, context.op.Type);
+            return VisitBinaryOperation(context, context.op.Type);
         }
 
         public override object VisitRelationalExpr(ExpressionEvaluatorParser.RelationalExprContext context)
         {
-            return this.VisitRelationalExpr(context, context.op.Type);
+            return VisitRelationalExpr(context, context.op.Type);
         }
 
         public override object VisitMatchingExpr(ExpressionEvaluatorParser.MatchingExprContext context)
         {
-            return this.VisitMatchingExpr(context, context.op.Type);
+            return VisitMatchingExpr(context, context.op.Type);
         }
 
         public override object VisitEqualityExpr(ExpressionEvaluatorParser.EqualityExprContext context)
         {
-            return this.VisitEqualityExpr(context, context.op.Type);
+            return VisitEqualityExpr(context, context.op.Type);
         }
 
         public override object VisitInExpr(ExpressionEvaluatorParser.InExprContext context)
         {
-            return this.VisitInExpr(context, context.op.Type);
+            return VisitInExpr(context, context.op.Type);
         }
 
         public override object VisitAndExpr(ExpressionEvaluatorParser.AndExprContext context)
         {
-            return this.VisitConditionalExpr(context, ExpressionEvaluatorParser.AND);
+            return VisitConditionalExpr(context, ExpressionEvaluatorParser.AND);
         }
 
         public override object VisitOrExpr(ExpressionEvaluatorParser.OrExprContext context)
         {
-            return this.VisitConditionalExpr(context, ExpressionEvaluatorParser.OR);
+            return VisitConditionalExpr(context, ExpressionEvaluatorParser.OR);
         }
 
         private double VisitBinaryOperation(ParserRuleContext context, int op)
@@ -268,7 +268,7 @@ namespace RecShark.ExpressionEvaluator
 
         public override object VisitParameters(ExpressionEvaluatorParser.ParametersContext context)
         {
-            return context.expr().Select(this.Visit).ToList();
+            return context.expr().Select(Visit).ToList();
         }
 
         #endregion
@@ -277,7 +277,7 @@ namespace RecShark.ExpressionEvaluator
 
         public override object VisitBraces(ExpressionEvaluatorParser.BracesContext context)
         {
-            return this.Visit(context.expr());
+            return Visit(context.expr());
         }
 
         public override object VisitNumber(ExpressionEvaluatorParser.NumberContext context)
@@ -293,10 +293,10 @@ namespace RecShark.ExpressionEvaluator
         public override object VisitVariable(ExpressionEvaluatorParser.VariableContext context)
         {
             var variableName = context.var().GetText();
-            if (this.Parameters.TryGetValue(variableName, out var value))
+            if (Parameters.TryGetValue(variableName, out var value))
                 return value;
 
-            if (this.option?.IgnoreMissingVariables == true)
+            if (option?.IgnoreMissingVariables == true)
                 return ObjectExtensions.Default;
 
             throw new EvaluationException($"Cannot find variable '{variableName}'");

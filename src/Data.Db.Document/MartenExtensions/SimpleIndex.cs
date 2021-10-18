@@ -7,16 +7,16 @@ namespace RecShark.Data.Db.Document.MartenExtensions
     {
         public SimpleIndex(IQueryableDocument mapping, string shortName, string column, IndexMethod method, string op = "")
         {
-            this.IndexName = $"{mapping.Table.Name}_idx_{shortName}";
-            this.Table     = mapping.Table;
-            this.Column    = column;
-            this.Method    = method;
-            this.Op        = op;
+            IndexName = $"{mapping.Table.Name}_idx_{shortName}";
+            Table     = mapping.Table;
+            Column    = column;
+            Method    = method;
+            Op        = op;
         }
 
         public string ToDDL()
         {
-            return $"CREATE INDEX {this.IndexName} ON {this.Table.QualifiedName} USING {this.Method} (({this.Column}) {this.Op});";
+            return $"CREATE INDEX {IndexName} ON {Table.QualifiedName} USING {Method} (({Column}) {Op});";
         }
 
         public bool Matches(ActualIndex index)

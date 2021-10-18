@@ -48,15 +48,15 @@ namespace RecShark.Data.Db.Document.Tests
 
         protected override void Configure(StoreOptions options)
         {
-            this.ConfigureCalled = true;
+            ConfigureCalled = true;
 
-            options.Schema.For<ObjectForTests>().DatabaseSchemaName(this.Schema);
+            options.Schema.For<ObjectForTests>().DatabaseSchemaName(Schema);
 
-            options.Schema.For<Item>().DatabaseSchemaName(this.Schema);
+            options.Schema.For<Item>().DatabaseSchemaName(Schema);
             options.Schema.For<Control>()
                    .ForeignKey<Item>(c => c.ItemId)
                    .Index(c => c.Date)
-                   .DatabaseSchemaName(this.Schema);
+                   .DatabaseSchemaName(Schema);
 
             options.Storage.Add<Views>();
         }

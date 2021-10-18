@@ -7,7 +7,7 @@ namespace RecShark.Data.Db.Relational.Extensions
     {
         public NpgsqlDbTypeAttribute(NpgsqlDbType npgsqlType)
         {
-            this.NpgsqlType = npgsqlType;
+            NpgsqlType = npgsqlType;
         }
 
         public NpgsqlDbType NpgsqlType { get; }

@@ -12,33 +12,33 @@ namespace RecShark.Extensions.DependencyInjection.Testing
     {
         public Hooks(params DIModule[] modules)
         {
-            this.Services = new ServiceCollection();
-            this.Services.Load(modules);
+            Services = new ServiceCollection();
+            Services.Load(modules);
 
             var configuration = new ConfigurationBuilder()
                                .AddJsonFile("appsettings.json",             true)
                                .AddJsonFile("appsettings.Development.json", true)
                                .Build();
             
-            this.Services.AddSingleton<IConfiguration>(configuration);
+            Services.AddSingleton<IConfiguration>(configuration);
 
-            if (this.Services.Count(x => x.ServiceType == typeof(ILoggerFactory)) == 0)
+            if (Services.Count(x => x.ServiceType == typeof(ILoggerFactory)) == 0)
             {
                 var factory = new SubstituteLoggerFactory();
-                this.Services.AddSingleton<ILoggerFactory>(factory);
+                Services.AddSingleton<ILoggerFactory>(factory);
             }
 
-            if (this.Services.Count(x => x.ServiceType == typeof(ILogger<>)) == 0)
+            if (Services.Count(x => x.ServiceType == typeof(ILogger<>)) == 0)
             {
-                this.Services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+                Services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             }
 
-            this.BuildProvider();
+            BuildProvider();
         }
 
         public void BuildProvider()
         {
-            this.Provider = this.Services.BuildServiceProvider();
+            Provider = Services.BuildServiceProvider();
         }
 
         public IServiceCollection Services { get; set; }
@@ -46,7 +46,7 @@ namespace RecShark.Extensions.DependencyInjection.Testing
 
         public ILogger GetLogger<T>()
         {
-            var factory = this.Provider.GetService<ILoggerFactory>();
+            var factory = Provider.GetService<ILoggerFactory>();
             var logger  = factory.CreateLogger(typeof(T));
             return logger;
         }
@@ -60,17 +60,17 @@ namespace RecShark.Extensions.DependencyInjection.Testing
 
         public ILogger CreateLogger(string categoryName)
         {
-            if (!this.Loggers.ContainsKey(categoryName))
-                this.Loggers[categoryName] = Substitute.For<ILogger>();
+            if (!Loggers.ContainsKey(categoryName))
+                Loggers[categoryName] = Substitute.For<ILogger>();
 
-            return this.Loggers[categoryName];
+            return Loggers[categoryName];
         }
 
         public void AddProvider(ILoggerProvider provider) { }
 
         public void Dispose()
         {
-            this.Loggers.Clear();
+            Loggers.Clear();
         }
     }
 }

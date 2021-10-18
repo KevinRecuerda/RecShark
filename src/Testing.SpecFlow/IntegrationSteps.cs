@@ -16,7 +16,7 @@ namespace RecShark.Testing.SpecFlow
 
         protected IntegrationSteps(Hooks hooks = null)
         {
-            this.Hooks = HooksFactory.BuildHooks<T>(hooks);
+            Hooks = HooksFactory.BuildHooks<T>(hooks);
 
             Tests.OverrideCultureInfo();
         }

@@ -10,9 +10,9 @@ namespace RecShark.Extensions.DependencyInjection.Testing
 
         protected IntegrationTests(Hooks hooks = null)
         {
-            this.Hooks = HooksFactory.BuildHooks<T>(hooks);
+            Hooks = HooksFactory.BuildHooks<T>(hooks);
         }
 
-        public virtual void Dispose() { this.Hooks.Dispose();}
+        public virtual void Dispose() { Hooks.Dispose();}
     }
 }

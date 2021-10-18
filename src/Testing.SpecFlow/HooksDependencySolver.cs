@@ -17,8 +17,8 @@ namespace RecShark.Testing.SpecFlow
         [BeforeScenario]
         public void MergeHooks()
         {
-            foreach (var dependency in this.dependencies)
-                dependency.Services = this.hooks.Services;
+            foreach (var dependency in dependencies)
+                dependency.Services = hooks.Services;
         }
     }
 }

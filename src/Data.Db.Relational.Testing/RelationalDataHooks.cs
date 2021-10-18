@@ -15,10 +15,10 @@ namespace RecShark.Data.Db.Relational.Testing
 
         protected RelationalDataHooks(params DIModule[] modules) : base(modules)
         {
-            var factory = this.Provider.GetService<IDbConnectionFactory>();
-            this.testingFactory = new DbConnectionFactoryTesting(factory);
+            var factory = Provider.GetService<IDbConnectionFactory>();
+            testingFactory = new DbConnectionFactoryTesting(factory);
 
-            this.Services.Reset(ServiceDescriptor.Singleton<IDbConnectionFactory>(this.testingFactory));
+            Services.Reset(ServiceDescriptor.Singleton<IDbConnectionFactory>(testingFactory));
 
             InitMiniProfiler();
         }
@@ -26,7 +26,7 @@ namespace RecShark.Data.Db.Relational.Testing
         public override void Dispose()
         {
             DisposeMiniProfiler();
-            this.testingFactory.Dispose();
+            testingFactory.Dispose();
             base.Dispose();
         }
 

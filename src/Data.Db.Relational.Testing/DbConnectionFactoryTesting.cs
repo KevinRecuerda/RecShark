@@ -11,28 +11,28 @@ namespace RecShark.Data.Db.Relational.Testing
 
         public DbConnectionFactoryTesting(IDbConnectionFactory innerFactory)
         {
-            this.InnerFactory = innerFactory;
+            InnerFactory = innerFactory;
         }
 
         public IDbConnectionFactory InnerFactory { get; }
 
         public IDbConnection CreateDbConnection(string type, string name)
         {
-            if (!this.testingConnections.ContainsKey(name))
+            if (!testingConnections.ContainsKey(name))
             {
-                var innerConnection = this.InnerFactory.CreateDbConnection(type, name);
-                this.testingConnections[name] = new DbConnectionTesting(innerConnection);
+                var innerConnection = InnerFactory.CreateDbConnection(type, name);
+                testingConnections[name] = new DbConnectionTesting(innerConnection);
             }
 
-            return this.testingConnections[name];
+            return testingConnections[name];
         }
 
-        public SqlDialect GetSqlDialect(string type) => this.InnerFactory.GetSqlDialect(type);
+        public SqlDialect GetSqlDialect(string type) => InnerFactory.GetSqlDialect(type);
 
         public void Dispose()
         {
             // Rollback transaction
-            foreach (var testingConnection in this.testingConnections.Values)
+            foreach (var testingConnection in testingConnections.Values)
                 testingConnection.ForceDispose();
         }
     }

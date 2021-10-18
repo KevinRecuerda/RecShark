@@ -12,38 +12,38 @@ namespace RecShark.Data.Db.Document.Testing
     {
         protected DocumentDataHooks(params DIModule[] modules) : base(modules)
         {
-            var factory        = (BaseDocumentStoreFactory) this.Provider.GetService<IDocumentStoreFactory>();
+            var factory        = (BaseDocumentStoreFactory) Provider.GetService<IDocumentStoreFactory>();
             var testingFactory = new DocumentStoreFactoryTesting(factory);
 
-            this.Services.Reset(ServiceDescriptor.Singleton<IDocumentStoreFactory>(testingFactory));
+            Services.Reset(ServiceDescriptor.Singleton<IDocumentStoreFactory>(testingFactory));
         }
 
-        public IDocumentCleaner Cleaner => this.Provider.GetService<IDocumentStore>().Advanced.Clean;
+        public IDocumentCleaner Cleaner => Provider.GetService<IDocumentStore>().Advanced.Clean;
     }
 
     public class DocumentStoreFactoryTesting : IDocumentStoreFactory
     {
         public DocumentStoreFactoryTesting(BaseDocumentStoreFactory innerFactory)
         {
-            this.InnerFactory = innerFactory;
+            InnerFactory = innerFactory;
 
-            this.InnerFactory.Schema += "_tests";
+            InnerFactory.Schema += "_tests";
         }
 
         public BaseDocumentStoreFactory InnerFactory { get; }
 
-        public string       Schema      => this.InnerFactory.Schema;
-        public DataChange[] DataChanges => this.InnerFactory.DataChanges;
+        public string       Schema      => InnerFactory.Schema;
+        public DataChange[] DataChanges => InnerFactory.DataChanges;
 
         public IDocumentStore CreateDocumentStore()
         {
-            var store = DocumentStore.For(this.ConfigureDocumentStore);
+            var store = DocumentStore.For(ConfigureDocumentStore);
             return store;
         }
 
         private void ConfigureDocumentStore(StoreOptions options)
         {
-            this.InnerFactory.ConfigureDocumentStore(options);
+            InnerFactory.ConfigureDocumentStore(options);
 
             options.AutoCreateSchemaObjects = AutoCreate.All;
 

@@ -18,14 +18,14 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
     {
         public override void Dispose()
         {
-            this.Hooks.Cleaner.CompletelyRemoveAll();
+            Hooks.Cleaner.CompletelyRemoveAll();
         }
 
         [Fact]
         public async Task Init__Should_lock_before_apply_changes()
         {
             // Arrange
-            var factory         = this.Hooks.Provider.GetService<IDocumentStoreFactory>();
+            var factory         = Hooks.Provider.GetService<IDocumentStoreFactory>();
             var logger          = Substitute.For<ILogger<DataInitializer>>();
             var dataInitializer = Substitute.For<DataInitializer>(factory, logger);
 
@@ -81,8 +81,8 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public async Task Init__Should_initialize_changes()
         {
             // Arrange
-            var store           = this.Hooks.Provider.GetService<IDocumentStore>();
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>();
+            var store           = Hooks.Provider.GetService<IDocumentStore>();
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>();
 
             // Act
             await dataInitializer.Init();
@@ -99,8 +99,8 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public async Task ApplyChanges__Should_save_changes()
         {
             // Arrange
-            var store           = this.Hooks.Provider.GetService<IDocumentStore>();
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var store           = Hooks.Provider.GetService<IDocumentStore>();
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
 
             var change1 = new ObjectDataChange();
             var change2 = new AnotherObjectDataChange();
@@ -122,7 +122,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public async Task ApplyChanges__Should_do_nothing_if_no_changes()
         {
             // Arrange
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
             var store           = Substitute.For<IDocumentStore>();
 
             // Act
@@ -136,7 +136,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public async Task GetChangesToExecute__Should_only_return_changes_with_matching_execution_mode_and_not_yet_executed()
         {
             // Arrange
-            var factory         = this.Hooks.Provider.GetService<IDocumentStoreFactory>();
+            var factory         = Hooks.Provider.GetService<IDocumentStoreFactory>();
             var logger          = Substitute.For<ILogger<DataInitializer>>();
             var dataInitializer = Substitute.For<DataInitializer>(factory, logger);
 
@@ -162,7 +162,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         public void MustExecuteChange__Should_return_true_if_change_has_never_been_executed()
         {
             // Arrange
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
 
             var change = new DataChangeLog {Version = 2, PatchVersion = 3, RunAlways = false, ExecutionMode = ExecutionMode.PostSchemaChanges};
 
@@ -181,7 +181,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             int historicalPatchVersion)
         {
             // Arrange
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
 
             var change           = new DataChangeLog {Version = 2, PatchVersion                 = 3};
             var historicalChange = new DataChangeLog {Version = historicalVersion, PatchVersion = historicalPatchVersion};
@@ -202,7 +202,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             int historicalPatchVersion)
         {
             // Arrange
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
 
             var change           = new DataChangeLog {Version = 2, PatchVersion                 = 3};
             var historicalChange = new DataChangeLog {Version = historicalVersion, PatchVersion = historicalPatchVersion};
@@ -223,7 +223,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             int historicalPatchVersion)
         {
             // Arrange
-            var dataInitializer = this.Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
+            var dataInitializer = Hooks.Provider.GetService<IDataInitializer>() as DataInitializer;
 
             var change = new DataChangeLog
                 {Version = 2, PatchVersion = 3, RunAlways = true, ExecutionMode = ExecutionMode.PostSchemaChanges};
