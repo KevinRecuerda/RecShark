@@ -1,7 +1,7 @@
 using System;
-using RecShark.Testing;
+using RecShark.Testing.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection.Testing
+namespace RecShark.Testing
 {
     public class IntegrationTests<T> : Tests, IDisposable
         where T : Hooks, new()
@@ -13,6 +13,9 @@ namespace RecShark.Extensions.DependencyInjection.Testing
             Hooks = HooksFactory.BuildHooks<T>(hooks);
         }
 
-        public virtual void Dispose() { Hooks.Dispose();}
+        public virtual void Dispose()
+        {
+            Hooks.Dispose();
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using TechTalk.SpecFlow.Assist;
 
-namespace RecShark.Testing.SpecFlow
+namespace RecShark.Testing.SpecFlow.Extensions
 {
     public static class SpecFlowExtensions
     {

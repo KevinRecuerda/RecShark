@@ -1,7 +1,8 @@
-using RecShark.Testing.SpecFlow;
+using RecShark.Extensions.DependencyInjection.Tests;
+using RecShark.Testing.SpecFlow.DependencyInjection;
 using TechTalk.SpecFlow;
 
-namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
+namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
 {
     [Binding]
     public class HooksSolver : HooksDependencySolver

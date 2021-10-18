@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Linq;
+using RecShark.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection.Testing
+namespace RecShark.Testing.DependencyInjection
 {
-    public class DomainHooks : Hooks
+    public class FunctionalHooks : Hooks
     {
-        public virtual Type[] SubstitutedServices => new Type[0];
+        public virtual Type[] SubstitutedServices => Type.EmptyTypes;
 
-        public DomainHooks(params DIModule[] modules) : base(modules)
+        public FunctionalHooks(params DIModule[] modules) : base(modules)
         {
-            // TODO: create common interface
+            // TODO: create common interface to mock all external call (db/api)
             // data.db.relational
             // data.db.document
             // data.api

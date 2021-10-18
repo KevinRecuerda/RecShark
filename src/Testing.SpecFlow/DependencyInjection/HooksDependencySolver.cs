@@ -1,7 +1,7 @@
-﻿using RecShark.Extensions.DependencyInjection.Testing;
+﻿using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 
-namespace RecShark.Testing.SpecFlow
+namespace RecShark.Testing.SpecFlow.DependencyInjection
 {
     public abstract class HooksDependencySolver : Steps
     {

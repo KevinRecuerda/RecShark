@@ -6,7 +6,7 @@ using RecShark.Data.Db.Document.Testing;
 using RecShark.Data.Db.Document.Tests.Initialization;
 using RecShark.Data.Db.Document.Tests.MartenExtensions;
 using RecShark.Extensions.DependencyInjection;
-using RecShark.Extensions.DependencyInjection.Testing;
+using RecShark.Testing;
 using Xunit;
 
 namespace RecShark.Data.Db.Document.Tests

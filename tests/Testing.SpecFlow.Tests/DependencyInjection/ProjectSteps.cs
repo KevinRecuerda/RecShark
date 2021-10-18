@@ -1,13 +1,14 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using RecShark.Extensions.DependencyInjection.Testing;
-using RecShark.Testing.SpecFlow;
+using RecShark.Extensions.DependencyInjection;
+using RecShark.Extensions.DependencyInjection.Tests;
+using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 
-namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
+namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
 {
     [Binding]
-    public class ProjectSteps : IntegrationSteps<ProjectHooks>
+    public class ProjectSteps : FunctionalSteps<ProjectHooks>
     {
         public ProjectSteps(ProjectHooks hooks) : base(hooks) { }
 
@@ -25,7 +26,7 @@ namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
         }
     }
 
-    public class ProjectHooks : DomainHooks
+    public class ProjectHooks : FunctionalHooks
     {
         public ProjectHooks() : base(new ProjectModule()) { }
     }

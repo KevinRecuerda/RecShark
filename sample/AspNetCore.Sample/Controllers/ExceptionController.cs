@@ -12,29 +12,29 @@ namespace RecShark.AspNetCore.Sample.Controllers
     public class ExceptionController : ControllerBase
     {
         /// <summary> ArgumentException => 400 bad request </summary>
-        [HttpGet("argument")]
-        public void Argument()
+        [HttpGet("badrequest")]
+        public void BadRequestCode()
         {
             throw new ArgumentException("arg");
         }
 
         /// <summary> UnauthorizedAccessException => 403 forbidden  </summary>
         [HttpGet("forbidden")]
-        public void Forbidden()
+        public void ForbiddenCode()
         {
             throw new UnauthorizedAccessException();
         }
 
         /// <summary> NotFoundException => 404 not found  </summary>
         [HttpGet("notfound")]
-        public void NotFound()
+        public void NotFoundCode()
         {
             throw new NotFoundException();
         }
 
         /// <summary> Internal exception => 500 internal error  </summary>
         [HttpGet("internal")]
-        public void Internal()
+        public void InternalCode()
         {
             throw new InternalException();
         }

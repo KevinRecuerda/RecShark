@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Extensions.DependencyInjection.Testing\Extensions.DependencyInjection.Testing.csproj" />
     <ProjectReference Include="..\..\src\Extensions.DependencyInjection\Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
     <ProjectReference Include="..\..\src\Testing.SpecFlow\Testing.SpecFlow.csproj" />
   </ItemGroup>
 
@@ -27,6 +27,16 @@
 
   <ItemGroup>
     <None Include="**/*.feature" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="SpecFlow\Extensions.feature" />
+    <UpToDateCheckInput Remove="SpecFlow\Solver.feature" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckBuild Remove="SpecFlow\Extensions.feature.cs" />
+    <UpToDateCheckBuild Remove="SpecFlow\Solver.feature.cs" />
   </ItemGroup>
 
   <Target Name="AfterUpdateFeatureFilesInProject">

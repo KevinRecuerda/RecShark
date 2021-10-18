@@ -1,13 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using RecShark.Extensions.DependencyInjection.Testing;
-using RecShark.Testing.SpecFlow;
+using RecShark.Extensions.DependencyInjection;
+using RecShark.Extensions.DependencyInjection.Tests;
+using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 
-namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
+namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
 {
     [Binding]
-    public class SharedSteps : IntegrationSteps<SharedHooks>
+    public class SharedSteps : FunctionalSteps<SharedHooks>
     {
         public SharedSteps(SharedHooks hooks) : base(hooks) { }
 
@@ -19,7 +20,7 @@ namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
         }
     }
 
-    public class SharedHooks : DomainHooks
+    public class SharedHooks : FunctionalHooks
     {
         public SharedHooks() : base(new SharedModule()) { }
     }

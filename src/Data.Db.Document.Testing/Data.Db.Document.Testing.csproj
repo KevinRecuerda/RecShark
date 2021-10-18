@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Data.Db.Document\Data.Db.Document.csproj" />
-    <ProjectReference Include="..\Extensions.DependencyInjection.Testing\Extensions.DependencyInjection.Testing.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
 

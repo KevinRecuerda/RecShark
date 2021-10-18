@@ -3,7 +3,8 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RecShark.Extensions.DependencyInjection;
-using RecShark.Extensions.DependencyInjection.Testing;
+using RecShark.Testing;
+using RecShark.Testing.DependencyInjection;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Internal;
 

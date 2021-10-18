@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
+using RecShark.Extensions.DependencyInjection;
 
-namespace RecShark.Extensions.DependencyInjection.Testing
+namespace RecShark.Testing.DependencyInjection
 {
     public class Hooks : IDisposable
     {
@@ -52,25 +51,5 @@ namespace RecShark.Extensions.DependencyInjection.Testing
         }
 
         public virtual void Dispose() { }
-    }
-
-    public class SubstituteLoggerFactory : ILoggerFactory
-    {
-        public ConcurrentDictionary<string, ILogger> Loggers { get; set; } = new ConcurrentDictionary<string, ILogger>();
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            if (!Loggers.ContainsKey(categoryName))
-                Loggers[categoryName] = Substitute.For<ILogger>();
-
-            return Loggers[categoryName];
-        }
-
-        public void AddProvider(ILoggerProvider provider) { }
-
-        public void Dispose()
-        {
-            Loggers.Clear();
-        }
     }
 }

@@ -1,4 +1,4 @@
-namespace RecShark.Extensions.DependencyInjection.Testing
+namespace RecShark.Testing.DependencyInjection
 {
     public static class HooksFactory
     {
@@ -13,12 +13,12 @@ namespace RecShark.Extensions.DependencyInjection.Testing
         private static T BuildHooksInner<T>(Hooks hooks)
             where T : Hooks, new()
         {
-            switch (hooks)
+            return hooks switch
             {
-                case null:   return new T();
-                case T same: return same;
-                default:     return new T() {Services = hooks.Services};
-            }
+                null => new T(),
+                T same => same,
+                _ => new T() { Services = hooks.Services }
+            };
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using RecShark.Testing.SpecFlow;
+using RecShark.Testing.SpecFlow.Tests.DependencyInjection;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Assist;
 
-namespace RecShark.Extensions.DependencyInjection.Tests.SpecFlow
+namespace RecShark.Testing.SpecFlow.Tests.Extensions
 {
     [Binding]
     public class ExtensionsSteps : IntegrationSteps<SharedHooks>
