@@ -32,10 +32,7 @@ namespace RecShark.Data.Db.Document.Initialization
             var filepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             var lines    = File.ReadAllText(filepath);
 
-            var matches = Regex.Matches(
-                lines,
-                @"-- (?<name>\w+)
-(?<sql>[^;]+);");
+            var matches = Regex.Matches(lines, @"-- (?<name>\w+)[\n\r]+(?<sql>[^;]+);");
 
             var views = new Dictionary<string, string>();
             foreach (Match match in matches)
