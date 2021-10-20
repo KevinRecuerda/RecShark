@@ -8,7 +8,7 @@ namespace RecShark.Extensions
     {
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
         {
-            return CombineBinaryExpr(Expression.And, left, right);
+            return CombineBinaryExpr(Expression.AndAlso, left, right);
         }
 
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
