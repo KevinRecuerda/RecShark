@@ -9,6 +9,7 @@
 
 | domain | packages |
 | ------ | -------- |
+| algo | [![Nuget](https://img.shields.io/nuget/v/RecShark.Algorithm?label=RecShark.Algorithm)](https://www.nuget.org/packages/RecShark.Algorithm/) |
 | api | [![Nuget](https://img.shields.io/nuget/v/RecShark.AspNetCore?label=RecShark.AspNetCore)](https://www.nuget.org/packages/RecShark.AspNetCore/) |
 | data | [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Document?label=RecShark.Data.Db.Document)](https://www.nuget.org/packages/RecShark.Data.Db.Document/) [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Document.Testing?label=RecShark.Data.Db.Document.Testing)](https://www.nuget.org/packages/RecShark.Data.Db.Document.Testing/)|
 | | [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Relational?label=RecShark.Data.Db.Relational)](https://www.nuget.org/packages/RecShark.Data.Db.Relational/) [![Nuget](https://img.shields.io/nuget/v/RecShark.Data.Db.Relational.Testing?label=RecShark.Data.Db.Relational.Testing)](https://www.nuget.org/packages/RecShark.Data.Db.Relational.Testing/)|
