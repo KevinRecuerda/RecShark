@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
-using RecShark.DependencyInjection.Sorter;
+using RecShark.Algorithm;
 using Xunit;
 
-namespace RecShark.DependencyInjection.Tests.Sorter
+namespace RecShark.DependencyInjection.Tests
 {
     public class DIModuleSorterTests
     {
@@ -35,8 +34,8 @@ namespace RecShark.DependencyInjection.Tests.Sorter
             Func<Dictionary<int, List<DIModule>>> action = () => DIModuleSorter.Sort(modules);
 
             // Assert
-            var exception = action.Should().Throw<CyclicDependencyException>();
-            exception.And.Modules.Should().BeEquivalentTo(modules.Cast<object>().ToArray());
+            var exception = action.Should().Throw<CyclicDependencyException<DIModule>>();
+            exception.And.Nodes.Should().HaveCount(1);
         }
 
         [Fact]
@@ -49,8 +48,8 @@ namespace RecShark.DependencyInjection.Tests.Sorter
             Func<Dictionary<int, List<DIModule>>> action = () => DIModuleSorter.Sort(modules);
 
             // Assert
-            var exception = action.Should().Throw<CyclicDependencyException>();
-            exception.And.Modules.Should().BeEquivalentTo(modules.Cast<object>().ToArray());
+            var exception = action.Should().Throw<CyclicDependencyException<DIModule>>();
+            exception.And.Nodes.Should().HaveCount(2);
         }
 
         [Fact]
@@ -63,8 +62,8 @@ namespace RecShark.DependencyInjection.Tests.Sorter
             Func<Dictionary<int, List<DIModule>>> action = () => DIModuleSorter.Sort(modules);
 
             // Assert
-            var exception = action.Should().Throw<CyclicDependencyException>();
-            exception.And.Modules.Should().BeEquivalentTo(modules.Cast<object>().ToArray());
+            var exception = action.Should().Throw<CyclicDependencyException<DIModule>>();
+            exception.And.Nodes.Should().HaveCount(3);
         }
     }
 
