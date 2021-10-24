@@ -1,21 +1,21 @@
 ﻿using System.Collections.Generic;
 
-namespace RecShark.DependencyInjection.Sorter
+namespace RecShark.Algorithm
 {
     public class Node<T>
     {
-        public Node(string id, T item)
+        public Node(T value)
         {
-            Id = id;
-            Item = item;
+            Id = value.GetHashCode();
+            Value = value;
 
             Parents = new List<Node<T>>();
             Children = new List<Node<T>>();
             Depth = 0;
         }
 
-        public string Id { get; }
-        public T Item { get; }
+        public int Id { get; }
+        public T Value { get; }
 
         public List<Node<T>> Parents { get; }
         public List<Node<T>> Children { get; }

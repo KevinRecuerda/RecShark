@@ -46,6 +46,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Sample", "sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing.SpecFlow.Tests", "tests\Testing.SpecFlow.Tests\Testing.SpecFlow.Tests.csproj", "{509DB488-330C-4D5F-B870-489D50DB45CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algorithm", "src\Algorithm\Algorithm.csproj", "{47C8BFE3-2612-40BB-A08D-A0BA249E65BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algorithm.Tests", "tests\Algorithm.Tests\Algorithm.Tests.csproj", "{71D83900-87DE-418E-A32B-158C25282254}"
+EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,5 +148,13 @@ Global
 		{509DB488-330C-4D5F-B870-489D50DB45CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{509DB488-330C-4D5F-B870-489D50DB45CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{509DB488-330C-4D5F-B870-489D50DB45CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47C8BFE3-2612-40BB-A08D-A0BA249E65BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C8BFE3-2612-40BB-A08D-A0BA249E65BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C8BFE3-2612-40BB-A08D-A0BA249E65BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C8BFE3-2612-40BB-A08D-A0BA249E65BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71D83900-87DE-418E-A32B-158C25282254}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71D83900-87DE-418E-A32B-158C25282254}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71D83900-87DE-418E-A32B-158C25282254}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71D83900-87DE-418E-A32B-158C25282254}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
