@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Antlr4.Runtime;
+using RecShark.ExpressionEvaluator.Extensions;
 using RecShark.ExpressionEvaluator.Generated;
 
 namespace RecShark.ExpressionEvaluator

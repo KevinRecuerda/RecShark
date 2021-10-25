@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using RecShark.ExpressionEvaluator.Extensions;
 using Xunit;
 
 namespace RecShark.ExpressionEvaluator.Tests

@@ -1,7 +1,7 @@
-﻿﻿using Antlr4.Runtime;
- using Antlr4.Runtime.Tree;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 
- namespace RecShark.ExpressionEvaluator.Extensions
+namespace RecShark.ExpressionEvaluator.Extensions
 {
     public static class VisitorExtensions
     {

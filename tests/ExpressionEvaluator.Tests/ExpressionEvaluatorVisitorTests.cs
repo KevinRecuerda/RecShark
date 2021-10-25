@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using FluentAssertions;
+using RecShark.ExpressionEvaluator.Extensions;
 using RecShark.ExpressionEvaluator.Generated;
 using Xunit;
 

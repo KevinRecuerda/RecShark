@@ -1,9 +1,9 @@
-﻿﻿using System;
- using System.Collections.Generic;
- using FluentAssertions;
- using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using FluentAssertions;
+using Xunit;
 
- namespace RecShark.Extensions.Tests
+namespace RecShark.Extensions.Tests
 {
     public class RangeExtensionsTests
     {
@@ -16,12 +16,12 @@
 
                 return new[]
                 {
-                    new object[] {new DateTime(2000, 12, 15), min, max, true},
-                    new object[] {min, min, max, true},
-                    new object[] {max, min, max, true},
-                    new object[] {max, max, max, true},
-                    new object[] {new DateTime(2000, 11, 15), min, max, false},
-                    new object[] {new DateTime(2001, 01, 15), min, max, false}
+                    new object[] { new DateTime(2000, 12, 15), min, max, true },
+                    new object[] { min, min, max, true },
+                    new object[] { max, min, max, true },
+                    new object[] { max, max, max, true },
+                    new object[] { new DateTime(2000, 11, 15), min, max, false },
+                    new object[] { new DateTime(2001, 01, 15), min, max, false }
                 };
             }
         }
@@ -36,10 +36,10 @@
         }
 
         [Theory]
-        [InlineData(1, 0, 2, true)]  // In
-        [InlineData(1, 1, 2, true)]  // = Min
-        [InlineData(1, 0, 1, true)]  // = Max
-        [InlineData(1, 1, 1, true)]  // = Min = Max
+        [InlineData(1, 0, 2, true)] // In
+        [InlineData(1, 1, 2, true)] // = Min
+        [InlineData(1, 0, 1, true)] // = Max
+        [InlineData(1, 1, 1, true)] // = Min = Max
         [InlineData(1, 2, 4, false)] // < Min
         [InlineData(5, 2, 4, false)] // > Max
         public void IsInRange__Should_manage_int(int item, int min, int max, bool expected)
@@ -50,7 +50,7 @@
         }
 
         [Theory]
-        [InlineData(1, 0, 2, true)]  // In
+        [InlineData(1, 0, 2, true)] // In
         [InlineData(1, 1, 2, false)] // = Min
         [InlineData(1, 0, 1, false)] // = Max
         [InlineData(1, 1, 1, false)] // = Min = Max
@@ -64,9 +64,9 @@
         }
 
         [Theory]
-        [InlineData(1, 0, 2, true)]  // In
+        [InlineData(1, 0, 2, true)] // In
         [InlineData(1, 1, 2, false)] // = Min
-        [InlineData(1, 0, 1, true)]  // = Max
+        [InlineData(1, 0, 1, true)] // = Max
         [InlineData(1, 1, 1, false)] // = Min = Max
         [InlineData(1, 2, 4, false)] // < Min
         [InlineData(5, 2, 4, false)] // > Max
@@ -78,8 +78,8 @@
         }
 
         [Theory]
-        [InlineData(1, 0, 2, true)]  // In
-        [InlineData(1, 1, 2, true)]  // = Min
+        [InlineData(1, 0, 2, true)] // In
+        [InlineData(1, 1, 2, true)] // = Min
         [InlineData(1, 0, 1, false)] // = Max
         [InlineData(1, 1, 1, false)] // = Min = Max
         [InlineData(1, 2, 4, false)] // < Min
