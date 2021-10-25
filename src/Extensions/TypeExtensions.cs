@@ -33,5 +33,10 @@ namespace RecShark.Extensions
                 .Select(f => f.GetRawConstantValue().ToString())
                 .ToArray();
         }
+
+        public static void RunStaticConstructor(this Type type)
+        {
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+        }
     }
 }
