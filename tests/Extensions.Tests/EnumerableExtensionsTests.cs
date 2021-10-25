@@ -6,12 +6,12 @@ using Xunit;
 
 namespace RecShark.Extensions.Tests
 {
-    public class EnumerableExtensionsTests
+    public partial class EnumerableExtensionsTests
     {
         [Fact]
         public void IsNullOrEmpty__Should_return_true_When_list_is_null()
         {
-            ((IEnumerable<string>) null).IsNullOrEmpty().Should().Be(true);
+            ((IEnumerable<string>)null).IsNullOrEmpty().Should().Be(true);
         }
 
         [Fact]
@@ -88,76 +88,57 @@ namespace RecShark.Extensions.Tests
             lists.Flatten().Should().BeEmpty();
         }
 
-        [Theory]
-        [InlineData(false, -1, 9)]
-        [InlineData(true, -1, -1)]
-        public void MaxOrDefault__Should_return_max(bool isEmpty, int defaultValue, int expected)
+        [Fact]
+        public void IntersectAll__Should_intersect_with_all_lists()
         {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(0, 10);
-            list.MaxOrDefault(defaultValue).Should().Be(expected);
+            // Arrange
+            var lists = new[]
+            {
+                Enumerable.Range(0, 3),
+                Enumerable.Range(1, 4),
+                Enumerable.Range(1, 5),
+                Enumerable.Range(0, 6)
+            };
+
+            // Act
+            var actual = lists.IntersectAll();
+
+            // Assert
+            actual.Should().BeEquivalentTo(Enumerable.Range(1, 2));
         }
 
-        [Theory]
-        [InlineData(false, -1, 9)]
-        [InlineData(true, -1, -1)]
-        public void MaxOrDefault__Should_return_max_with_selector(bool isEmpty, int defaultValue, int expected)
+        [Fact]
+        public void Partition__Should_partition_list_according_to_conditions()
         {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(0, 10);
-            list.MaxOrDefault(x => x, defaultValue).Should().Be(expected);
+            // Arrange
+            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
+
+            // Act
+            var actual = items.Partition(
+                x => x > 10,
+                x => x >= 0,
+                x => x <= -10);
+            
+            // Assert
+            actual.Should().HaveCount(4);
+            actual[0].Should().ContainInOrder(15);
+            actual[1].Should().ContainInOrder(0, 5, 10);
+            actual[2].Should().ContainInOrder(-15, -10);
+            actual[3].Should().ContainInOrder(-5);
         }
 
-        [Theory]
-        [InlineData(false, 9)]
-        [InlineData(true, null)]
-        public void MaxOrNull__Should_return_max(bool isEmpty, int? expected)
+        [Fact]
+        public void Partition__Should_manage_no_conditions()
         {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(0, 10);
-            list.MaxOrNull().Should().Be(expected);
-        }
+            // Arrange
+            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
 
-        [Theory]
-        [InlineData(false, 9)]
-        [InlineData(true, null)]
-        public void MaxOrNull__Should_return_max_with_selector(bool isEmpty, int? expected)
-        {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(0, 10);
-            list.MaxOrNull(x => x).Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData(false, -1, 10)]
-        [InlineData(true, -1, -1)]
-        public void MinOrDefault__Should_return_min(bool isEmpty, int defaultValue, int expected)
-        {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(10, 10);
-            list.MinOrDefault(defaultValue).Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData(false, -1, 10)]
-        [InlineData(true, -1, -1)]
-        public void MinOrDefault__Should_return_min_with_selector(bool isEmpty, int defaultValue, int expected)
-        {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(10, 10);
-            list.MinOrDefault(x => x, defaultValue).Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData(false, 10)]
-        [InlineData(true, null)]
-        public void MinOrNull__Should_return_min(bool isEmpty, int? expected)
-        {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(10, 10);
-            list.MinOrNull().Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData(false, 10)]
-        [InlineData(true, null)]
-        public void MinOrNull__Should_return_min_with_selector(bool isEmpty, int? expected)
-        {
-            var list = isEmpty ? Enumerable.Empty<int>() : Enumerable.Range(10, 10);
-            list.MinOrNull(x => x).Should().Be(expected);
+            // Act
+            var actual = items.Partition();
+            
+            // Assert
+            actual.Should().HaveCount(1);
+            actual[0].Should().BeEquivalentTo(items);
         }
     }
 }

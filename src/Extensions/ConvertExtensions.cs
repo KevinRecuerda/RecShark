@@ -29,6 +29,12 @@ namespace RecShark.Extensions
             }
         }
 
+        public static T ConvertSafelyTo<T>(this object value, T defaultValue = default(T))
+        {
+            value.TryConvertTo(out var result, defaultValue);
+            return result;
+        }
+
         public static bool TryConvertTo<T>(this object value, out T result, T defaultValue = default(T))
         {
             try
