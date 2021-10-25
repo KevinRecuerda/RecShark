@@ -1,4 +1,4 @@
-﻿﻿using System.Globalization;
+﻿using System.Globalization;
  using RecShark.Testing.FluentAssertions;
 
  namespace RecShark.Testing
@@ -6,11 +6,6 @@
     public class Tests
     {
         static Tests()
-        {
-            Setup();
-        }
-
-        public static void Setup()
         {
             FluentAssertionsExtensions.UsePrecision();
             OverrideCultureInfo();

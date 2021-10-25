@@ -1,4 +1,5 @@
-﻿using RecShark.Testing.DependencyInjection;
+﻿using RecShark.Extensions;
+using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 
 namespace RecShark.Testing.SpecFlow
@@ -8,7 +9,7 @@ namespace RecShark.Testing.SpecFlow
     {
         static IntegrationSteps()
         {
-            Tests.Setup();
+            typeof(Tests).RunStaticConstructor();
             SpecFlowExtensions.UseObjectConverter();
         }
 

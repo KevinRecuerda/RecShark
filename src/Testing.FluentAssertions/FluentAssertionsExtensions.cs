@@ -23,7 +23,7 @@ namespace RecShark.Testing.FluentAssertions
         {
             try
             {
-                config = config ?? (x => x);
+                config ??= (x => x);
                 actual.Should().BeEquivalentTo(expected, config);
                 return true;
             }

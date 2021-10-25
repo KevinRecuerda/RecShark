@@ -1,4 +1,4 @@
-﻿﻿grammar ExpressionEvaluator;
+﻿grammar ExpressionEvaluator;
  
 @parser::header 
 {

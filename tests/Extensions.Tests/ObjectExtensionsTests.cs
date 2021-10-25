@@ -1,7 +1,7 @@
-﻿﻿using FluentAssertions;
- using Xunit;
+﻿using FluentAssertions;
+using Xunit;
 
- namespace RecShark.Extensions.Tests
+namespace RecShark.Extensions.Tests
 {
     public class ObjectExtensionsTests
     {
@@ -10,7 +10,7 @@
         {
             // Arrange
             var expected = new ObjectToClone { Index = 1, Message = "Hello World !" };
-            
+
             // Act
             var actual = expected.Clone();
             expected.Message = "Message changed !";
@@ -19,10 +19,10 @@
             actual.Should().NotBeEquivalentTo(expected);
             actual.Message.Should().Be("Hello World !");
         }
-        
+
         private class ObjectToClone
         {
-            public int    Index   { get; set; }
+            public int Index { get; set; }
             public string Message { get; set; }
         }
     }
