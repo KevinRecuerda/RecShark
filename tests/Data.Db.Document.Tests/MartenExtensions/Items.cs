@@ -13,6 +13,9 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         public string   Id   { get; set; }
         public string   Name { get; set; }
         public ItemType Type { get; set; }
+
+        public Guid FirstControlId { get; set; }
+        public Guid LastControlId  { get; set; }
     }
 
     public class Control

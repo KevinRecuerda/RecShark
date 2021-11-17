@@ -87,7 +87,8 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
         public static IQueryable<TSource> Where<TSource, TInclude>(
             this IQueryable<TSource>         source,
             Expression<Func<TInclude, bool>> predicate,
-            IQuerySession                    session)
+            IQuerySession                    session,
+            int                              includeIndex = 0)
         {
             var command    = session.Query<TInclude>().Where(predicate).ToCommand();
             var parameters = command.Parameters.Select(p => p.Value).ToArray();
@@ -96,7 +97,8 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             var whereClause = query.Substring(query.IndexOf("where ") + 5);
 
             var executor = source.As<MartenQueryable<TSource>>().Executor;
-            var include  = executor.Includes.OfType<IncludeJoin<TInclude>>().First();
+            var includes = executor.Includes.OfType<IncludeJoin<TInclude>>().ToArray();
+            var include  = includes[includeIndex];
 
             whereClause = whereClause.Replace("d.", include.TableAlias + ".");
             whereClause = Regex.Replace(whereClause, @":arg(\d+)", "?");
@@ -163,7 +165,7 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             findMembers.Visit(selector);
             var members = findMembers.Members.ToArray();
 
-            var mapping = ((DocumentStore) session.DocumentStore).Options.Storage.MappingFor(typeof(T));
+            var mapping = ((DocumentStore)session.DocumentStore).Options.Storage.MappingFor(typeof(T));
             var field   = mapping.FieldFor(members);
             return field;
         }
