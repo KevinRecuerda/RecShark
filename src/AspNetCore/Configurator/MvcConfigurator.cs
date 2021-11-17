@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -21,31 +22,50 @@ namespace RecShark.AspNetCore.Configurator
 {
     public static class MvcConfigurator
     {
-        public static IMvcBuilder AddOA3Mvc(this IServiceCollection services,
-            Action<MvcOptions> configureMvc = null,
-            Action<JsonOptions> configureJson = null,
+        public static IMvcBuilder AddOA3MvcSecured(
+            this IServiceCollection          services,
+            Action<MvcOptions>               configureMvc        = null,
+            Action<JsonOptions>              configureJson       = null,
+            Action<MvcNewtonsoftJsonOptions> configureNewtonsoft = null)
+        {
+            void ConfigureMvcSecured(MvcOptions options)
+            {
+                options.Filters.Add(new AuthorizeFilter());
+                configureMvc?.Invoke(options);
+            }
+
+            return services.AddOA3Mvc(ConfigureMvcSecured, configureJson, configureNewtonsoft);
+        }
+
+        public static IMvcBuilder AddOA3Mvc(
+            this IServiceCollection          services,
+            Action<MvcOptions>               configureMvc        = null,
+            Action<JsonOptions>              configureJson       = null,
             Action<MvcNewtonsoftJsonOptions> configureNewtonsoft = null)
         {
             return services
-                .AddControllers(options =>
-                {
-                    ConfigureMvc(options);
-                    configureMvc?.Invoke(options);
-                })
-                .AddJsonOptions(options =>
-                {
-                    ConfigureJson(options);
-                    configureJson?.Invoke(options);
-                })
+                  .AddControllers(
+                       options =>
+                       {
+                           ConfigureMvc(options);
+                           configureMvc?.Invoke(options);
+                       })
+                  .AddJsonOptions(
+                       options =>
+                       {
+                           ConfigureJson(options);
+                           configureJson?.Invoke(options);
+                       })
 
-                // use newtonsoft for some specific serialization (Polymorphism, Dictionary...)
-                // https://github.com/dotnet/runtime/issues/30524#issuecomment-534386814
-                // managed in 5.0 => https://github.com/dotnet/runtime/issues/30524#issuecomment-539666802
-                .AddNewtonsoftJson(options =>
-                {
-                    ConfigureNewtonsoft(options.SerializerSettings);
-                    configureNewtonsoft?.Invoke(options);
-                });
+                   // use newtonsoft for some specific serialization (Polymorphism, Dictionary...)
+                   // https://github.com/dotnet/runtime/issues/30524#issuecomment-534386814
+                   // managed in 5.0 => https://github.com/dotnet/runtime/issues/30524#issuecomment-539666802
+                  .AddNewtonsoftJson(
+                       options =>
+                       {
+                           ConfigureNewtonsoft(options.SerializerSettings);
+                           configureNewtonsoft?.Invoke(options);
+                       });
         }
 
         public static void ConfigureMvc(MvcOptions options)
@@ -55,7 +75,6 @@ namespace RecShark.AspNetCore.Configurator
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
 
             options.AllowEmptyInputInBodyModelBinding = true;
-            // options.Filters.Add(new AuthorizeFilter());
         }
 
         public static void ConfigureJson(JsonOptions options)
@@ -79,8 +98,8 @@ namespace RecShark.AspNetCore.Configurator
             var namingStrategy = new CamelCaseNamingStrategy();
 
             settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            settings.NullValueHandling = NullValueHandling.Ignore;
-            settings.ContractResolver = new DefaultContractResolver { NamingStrategy = namingStrategy };
+            settings.NullValueHandling     = NullValueHandling.Ignore;
+            settings.ContractResolver      = new DefaultContractResolver { NamingStrategy = namingStrategy };
             settings.Converters.Add(new StringEnumConverter(namingStrategy, false));
             settings.Converters.Add(new DictionaryWithEnumKeyConverter(settings));
         }
@@ -95,7 +114,7 @@ namespace RecShark.AspNetCore.Configurator
                 return null;
 
             return Regex.Replace(text, "([a-z])([A-Z])", "$1-$2", RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100))
-                .ToLowerInvariant();
+                        .ToLowerInvariant();
         }
     }
 
@@ -113,8 +132,8 @@ namespace RecShark.AspNetCore.Configurator
             writer.WriteStartObject();
 
             var dictionary = (IDictionary)value;
-            var raws = BuildKVRaw(dictionary);
-            var line = string.Join(",", raws);
+            var raws       = BuildKVRaw(dictionary);
+            var line       = string.Join(",", raws);
             writer.WriteRaw(line);
 
             writer.WriteEndObject();
@@ -123,7 +142,7 @@ namespace RecShark.AspNetCore.Configurator
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var createdType = serializer.ContractResolver.ResolveContract(objectType).CreatedType;
-            var dictionary = (IDictionary)Activator.CreateInstance(createdType, BindingFlags.Instance | BindingFlags.Public);
+            var dictionary  = (IDictionary)Activator.CreateInstance(createdType, BindingFlags.Instance|BindingFlags.Public);
 
             var innerTypes = objectType.GetDictionaryInnerTypes();
 
@@ -131,7 +150,7 @@ namespace RecShark.AspNetCore.Configurator
 
             foreach (var (jKey, jValue) in jObject)
             {
-                var key = JsonConvert.DeserializeObject($"\"{jKey}\"", innerTypes[0], settings);
+                var key   = JsonConvert.DeserializeObject($"\"{jKey}\"", innerTypes[0], settings);
                 var value = jValue.ToObject(innerTypes[1], serializer);
                 dictionary.Add(key, value);
             }
@@ -152,7 +171,7 @@ namespace RecShark.AspNetCore.Configurator
         {
             foreach (DictionaryEntry entry in dictionary)
             {
-                var propertyName = JsonConvert.SerializeObject(entry.Key, settings);
+                var propertyName  = JsonConvert.SerializeObject(entry.Key,   settings);
                 var propertyValue = JsonConvert.SerializeObject(entry.Value, settings);
 
                 var raw = $"{propertyName}:{propertyValue}";

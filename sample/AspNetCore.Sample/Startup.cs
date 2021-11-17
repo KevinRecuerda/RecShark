@@ -23,13 +23,15 @@ namespace RecShark.AspNetCore.Sample
         {
             var apiInfo = Configuration.GetSection("ApiInfo").Get<SwaggerConfigurator.ApiInfo>();
             services.AddSingleton(apiInfo);
-            
+
             services.AddOptions()
-                .AddHttpContextAccessor()
-                .AddOA3Routing()
-                .AddOA3Swagger()
-                .AddOA3Mvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                    .AddHttpContextAccessor()
+                    .AddOA3Routing()
+                    .AddMonitoring()
+                     // .AddSecurity()
+                    .AddOA3Swagger()
+                    .AddOA3Mvc()
+                    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,9 +46,15 @@ namespace RecShark.AspNetCore.Sample
             app.UseStaticFiles();
 
             app.UseRouting()
-                .UseException(new ExceptionOption() { SkipAggregateException = true })
-                .UseOA3Swagger()
-                .UseEndpoints(endpoints => { endpoints.MapControllers(); });
+               .UseException(new ExceptionOption() { SkipAggregateException = true })
+               // .UseSecurity()
+               .UseOA3Swagger()
+               .UseEndpoints(
+                    endpoints =>
+                    {
+                        endpoints.MapHealthChecks();
+                        endpoints.MapControllers();
+                    });
         }
     }
 }
