@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace RecShark.Extensions
 {
+    using System.Linq;
+
     public static class DictionaryExtensions
     {
         /// <summary>
@@ -70,6 +72,22 @@ namespace RecShark.Extensions
                 source[key] = value;
 
             return source;
+        }
+
+        /// <summary>
+        /// combine multiple dictionaries
+        /// </summary>
+        public static Dictionary<TKey, TValue> Combine<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> sources)
+        {
+            return sources.Flatten().ToDictionary();
+        }
+
+        /// <summary>
+        /// create new dictionary from key-values
+        /// </summary>
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> keyValues)
+        {
+            return keyValues.ToDictionary(x => x.Key, x => x.Value);
         }
     }
 }
