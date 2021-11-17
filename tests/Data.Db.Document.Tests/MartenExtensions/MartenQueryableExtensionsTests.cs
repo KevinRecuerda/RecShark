@@ -275,6 +275,93 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         }
 
         [Fact]
+        public async Task Where__Should_filter_on_include_table()
+        {
+            // Arrange
+            var items = new[]
+            {
+                new Item {Id = "1", Name = "test 1", Type = ItemType.A},
+                new Item {Id = "2", Name = "test 2", Type = ItemType.B}
+            };
+            var controls = new[]
+            {
+                new Control(new DateTime(2000, 12, 29), "1", 10),
+                new Control(new DateTime(2000, 12, 30), "1", 20), // last
+                new Control(new DateTime(2000, 12, 31), "2", 30), // last
+            };
+
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            session.Store(items);
+            session.Store(controls);
+
+            items[0].LastControlId = controls[1].Id;
+            items[1].LastControlId = controls[2].Id;
+            session.Store(items);
+            await session.SaveChangesAsync();
+
+            // Act
+            var actualControls = new Dictionary<Guid, Control>();
+            var actual = session.Query<Item>()
+                                .Include(i => i.LastControlId, actualControls)
+                                .Where<Item, Control>(c => c.Result == 20, session)
+                                .ToList();
+
+            // Assert
+            actual.Should().HaveCount(1);
+            actual.Should().ContainEquivalentOf(items[0]);
+
+            actualControls.Should().HaveCount(1);
+            actualControls.Values.Should().ContainEquivalentOf(controls[1]);
+        }
+
+        [Fact]
+        public async Task Where__Should_filter_on_multiple_include_table()
+        {
+            // Arrange
+            var items = new[]
+            {
+                new Item {Id = "1", Name = "test 1", Type = ItemType.A},
+                new Item {Id = "2", Name = "test 2", Type = ItemType.B}
+            };
+            var controls = new[]
+            {
+                new Control(new DateTime(2000, 12, 29), "1", 10),
+                new Control(new DateTime(2000, 12, 30), "1", 20), // last
+                new Control(new DateTime(2000, 12, 31), "2", 30), // last
+            };
+
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            session.Store(items);
+            session.Store(controls);
+
+            items[0].FirstControlId = controls[0].Id;
+            items[0].LastControlId = controls[1].Id;
+            items[1].FirstControlId = controls[2].Id;
+            items[1].LastControlId = controls[2].Id;
+            session.Store(items);
+            await session.SaveChangesAsync();
+
+            // Act
+            var actualFirstControls = new Dictionary<Guid, Control>();
+            var actualLastControls = new Dictionary<Guid, Control>();
+            var actual = session.Query<Item>()
+                                .Include(i => i.FirstControlId, actualFirstControls)
+                                .Include(i => i.LastControlId,  actualLastControls)
+                                .Where<Item, Control>(c => c.Result == 20, session, 1)
+                                .ToList();
+
+            // Assert
+            actual.Should().HaveCount(1);
+            actual.Should().ContainEquivalentOf(items[0]);
+
+            actualFirstControls.Should().HaveCount(1);
+            actualFirstControls.Values.Should().ContainEquivalentOf(controls[0]);
+
+            actualLastControls.Should().HaveCount(1);
+            actualLastControls.Values.Should().ContainEquivalentOf(controls[1]);
+        }
+
+        [Fact]
         public async Task WhereArray__Should_return_controls_with_only_filtered_logs()
         {
             // Arrange
@@ -291,14 +378,18 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             await session.SaveChangesAsync();
 
             // Act
-            var actual = GetControlsByLogDescription(session, new[] {"FR001", "FR002"}).ToList();
+            var actual = session.Query<Control>()
+                                .WhereArray(session, c => c.Logs, a => a.Description, new[] {"FR001", "FR002"})
+                                .ToList();
+
+            // Assert
             controls[3].Logs = new[] {new Log("FR001")};
             actual.Should().HaveCount(3);
             actual.Should().BeEquivalentTo(controls[0], controls[2], controls[3]);
         }
 
         [Fact]
-        public async Task WhereArray__Should_not_apply_filter_When_null_or_empty_parameters()
+        public async Task WhereArray__Should_not_apply_filter_When_empty_parameters()
         {
             // Arrange
             object[] controls =
@@ -314,15 +405,12 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             await session.SaveChangesAsync();
 
             // Act
-            GetControlsByLogDescription(session).Should().BeEquivalentTo(controls);
-            GetControlsByLogDescription(session, null).Should().BeEquivalentTo(controls);
-        }
+            var actual = session.Query<Control>()
+                                .WhereArray(session, c => c.Logs, a => a.Description, Array.Empty<string>())
+                                .ToList();
 
-        private static IEnumerable<Control> GetControlsByLogDescription(IDocumentSession session, params string[] descriptions)
-        {
-            return session.Query<Control>()
-                          .WhereArray(session, c => c.Logs, a => a.Description, descriptions)
-                          .ToList();
+            // Assert
+            actual.Should().BeEquivalentTo(controls);
         }
     }
 }
