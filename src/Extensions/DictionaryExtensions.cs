@@ -8,6 +8,35 @@ namespace RecShark.Extensions
     public static class DictionaryExtensions
     {
         /// <summary>
+        /// return value if dict contains key
+        /// otherwise return default value
+        /// </summary>
+        public static TValue GetSafely<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey                           key,
+            TValue                         defaultValue = default)
+        {
+            return dictionary.TryGetValue(key, out var value)
+                       ? value
+                       : defaultValue;
+        }
+
+        /// <summary>
+        /// return value if dict contains not null key
+        /// otherwise return default value
+        /// </summary>
+        public static TValue GetSafely<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey?                          key,
+            TValue                         defaultValue = default)
+            where TKey : struct
+        {
+            return key.HasValue
+                       ? dictionary.GetSafely(key.Value, defaultValue)
+                       : defaultValue;
+        }
+
+        /// <summary>
         /// return converted value if dict contains key and can convert to required type
         /// otherwise return default value
         /// </summary>
@@ -20,6 +49,21 @@ namespace RecShark.Extensions
                 return result;
 
             return defaultValue;
+        }
+
+        /// <summary>
+        /// return converted value if dict contains not null key and can convert to required type
+        /// otherwise return default value
+        /// </summary>
+        public static TReturn GetSafelyConverted<TKey, TValue, TReturn>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey?                          key,
+            TReturn                        defaultValue = default)
+            where TKey : struct
+        {
+            return key.HasValue
+                       ? dictionary.GetSafelyConverted(key.Value, defaultValue)
+                       : defaultValue;
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace RecShark.Extensions
 
             return value;
         }
-        
+
         public static T ConvertTo<T>(this object value)
         {
             try
@@ -35,7 +35,7 @@ namespace RecShark.Extensions
             return result;
         }
 
-        public static bool TryConvertTo<T>(this object value, out T result, T defaultValue = default(T))
+        public static bool TryConvertTo<T>(this object value, out T result, T defaultValue = default)
         {
             try
             {
