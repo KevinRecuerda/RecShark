@@ -12,14 +12,14 @@ namespace RecShark.Testing.DependencyInjection
         public Hooks(params DIModule[] modules)
         {
             Services = new ServiceCollection();
-            Services.Load(modules);
-
+            
             var configuration = new ConfigurationBuilder()
                                .AddJsonFile("appsettings.json",             true)
                                .AddJsonFile("appsettings.Development.json", true)
                                .Build();
-            
             Services.AddSingleton<IConfiguration>(configuration);
+            
+            Services.Load(modules);
 
             if (Services.Count(x => x.ServiceType == typeof(ILoggerFactory)) == 0)
             {
