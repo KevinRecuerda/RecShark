@@ -52,7 +52,6 @@ namespace RecShark.Testing.NSubstitute
             if (callsToAdapt.Count == 0)
                 return;
 
-
             logger.ClearReceivedCalls();
             foreach (var call in calls)
                 ReCall(logger, call);
