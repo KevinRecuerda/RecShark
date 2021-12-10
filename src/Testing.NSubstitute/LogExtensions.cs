@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using NSubstitute;
 using NSubstitute.Core;
 
@@ -22,23 +21,21 @@ namespace RecShark.Testing.NSubstitute
             string       wildcardExpression = null,
             int          count              = 1)
         {
-            var argException = SubstitutionContext.Current.ThreadContext.DequeueAllArgumentSpecifications().FirstOrDefault(x => x.ForType == typeof(Exception));
+            var argException = SubstitutionContext.Current.ThreadContext.DequeueAllArgumentSpecifications()
+                                                  .FirstOrDefault(x => x.ForType == typeof(Exception));
 
-            var lvl = level ?? Arg.Any<LogLevel>();
+            AdaptCalls(logger);
+
+            var lvl     = level ?? Arg.Any<LogLevel>();
             var eventId = Arg.Any<EventId>();
-            var state = wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>();
+            var state   = wildcardExpression != null ? new FormattedLogValuesComparable(wildcardExpression) : Arg.Any<object>();
             if (argException != null)
                 SubstitutionContext.Current.ThreadContext.EnqueueArgumentSpecification(argException);
-            
+
             logger.Received(count)
-                  .Log(
-                       lvl,
-                       eventId,
-                       state,
-                       exception,
-                       Arg.Any<Func<object, Exception, string>>());
-        }        
-        
+                  .Log(lvl, eventId, state, exception, Arg.Any<Func<object, Exception, string>>());
+        }
+
         public static void DidNotLog(
             this ILogger logger,
             LogLevel?    level              = null,
@@ -47,7 +44,30 @@ namespace RecShark.Testing.NSubstitute
         {
             logger.Logged(exception, level, wildcardExpression, 0);
         }
-        
+
+        private static void AdaptCalls(ILogger logger)
+        {
+            var calls        = logger.ReceivedCalls().ToArray();
+            var callsToAdapt = calls.Where(call => call.GetMethodInfo().ToString().Contains("Log[FormattedLogValues]")).ToList();
+            if (callsToAdapt.Count == 0)
+                return;
+
+            logger.ClearReceivedCalls();
+            foreach (var call in calls)
+                ReCall(logger, call);
+        }
+
+        private static void ReCall(ILogger logger, ICall call)
+        {
+            var args      = call.GetArguments();
+            var logLevel  = (LogLevel)args[0];
+            var eventId   = (EventId)args[1];
+            var message   = (args[2] as FormattedLogValuesComparable) ?? new FormattedLogValuesComparable(args[2].ToString());
+            var exception = (Exception)args[3];
+
+            logger.Log<object>(logLevel, eventId, message, exception, (state, ex) => state.ToString());
+        }
+
         private class FormattedLogValuesComparable
         {
             public FormattedLogValuesComparable(string wildcardExpression)
@@ -59,7 +79,8 @@ namespace RecShark.Testing.NSubstitute
 
             public override bool Equals(object obj)
             {
-                return obj is FormattedLogValues other && Regex.IsMatch(other.ToString(), ConvertWildcardToRegEx(WildcardExpression), RegexOptions.Singleline);
+                var regex = BuildRegex(this.WildcardExpression);
+                return Regex.IsMatch(obj?.ToString(), regex, RegexOptions.Singleline);
             }
 
             public override int GetHashCode()
@@ -72,7 +93,7 @@ namespace RecShark.Testing.NSubstitute
                 return WildcardExpression;
             }
 
-            private static string ConvertWildcardToRegEx(string wildcardExpression)
+            private static string BuildRegex(string wildcardExpression)
             {
                 return "^" + Regex.Escape(wildcardExpression).Replace("\\*", ".*").Replace("\\?", ".") + "$";
             }

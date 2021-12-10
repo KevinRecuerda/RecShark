@@ -5,6 +5,8 @@ using System.Reflection;
 
 namespace RecShark.Extensions
 {
+    using System.Text;
+
     public static class TypeExtensions
     {
         public static bool IsNullableType(this Type type)
@@ -37,6 +39,23 @@ namespace RecShark.Extensions
         public static void RunStaticConstructor(this Type type)
         {
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+        }
+
+        public static string FriendlyId(this Type type)
+        {
+            var name = type.Name;
+            if (!type.IsGenericType)
+                return name;
+
+            var genericArgumentIds = type.GetGenericArguments()
+                                         .Select(FriendlyId)
+                                         .ToArray();
+
+            return new StringBuilder(name)
+                  .Replace($"`{genericArgumentIds.Length}", string.Empty)
+                  .Append($"[{string.Join(",", genericArgumentIds).TrimEnd(',')}]")
+                  .ToString();
+
         }
     }
 }
