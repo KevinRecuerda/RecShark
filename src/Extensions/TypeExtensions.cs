@@ -31,9 +31,9 @@ namespace RecShark.Extensions
 
         public static string[] GetConstValues(this Type type)
         {
-            return type.GetFields(BindingFlags.Static | BindingFlags.Public)
-                .Select(f => f.GetRawConstantValue().ToString())
-                .ToArray();
+            return type.GetFields(BindingFlags.Static|BindingFlags.Public)
+                       .Select(f => f.GetRawConstantValue().ToString())
+                       .ToArray();
         }
 
         public static void RunStaticConstructor(this Type type)
@@ -55,7 +55,6 @@ namespace RecShark.Extensions
                   .Replace($"`{genericArgumentIds.Length}", string.Empty)
                   .Append($"[{string.Join(",", genericArgumentIds).TrimEnd(',')}]")
                   .ToString();
-
         }
     }
 }

@@ -14,17 +14,12 @@ namespace RecShark.Testing.NSubstitute
             logger.Logged(null, level, wildcardExpression, count);
         }
 
-        public static void Logged(
-            this ILogger logger,
-            Exception    exception,
-            LogLevel?    level              = null,
-            string       wildcardExpression = null,
-            int          count              = 1)
+        public static void Logged(this ILogger logger, Exception exception, LogLevel? level = null, string wildcardExpression = null, int count = 1)
         {
             var argException = SubstitutionContext.Current.ThreadContext.DequeueAllArgumentSpecifications()
                                                   .FirstOrDefault(x => x.ForType == typeof(Exception));
 
-            AdaptCalls(logger);
+            logger.AdaptCalls();
 
             var lvl     = level ?? Arg.Any<LogLevel>();
             var eventId = Arg.Any<EventId>();
@@ -36,16 +31,18 @@ namespace RecShark.Testing.NSubstitute
                   .Log(lvl, eventId, state, exception, Arg.Any<Func<object, Exception, string>>());
         }
 
-        public static void DidNotLog(
-            this ILogger logger,
-            LogLevel?    level              = null,
-            string       wildcardExpression = null,
-            Exception    exception          = null)
+        public static void DidNotLog(this ILogger logger, LogLevel? level = null, string wildcardExpression = null, Exception exception = null)
         {
             logger.Logged(exception, level, wildcardExpression, 0);
         }
 
-        private static void AdaptCalls(ILogger logger)
+        public static void LoggedInOrder(this ILogger logger, Action<ILogger> calls)
+        {
+            logger.AdaptCalls();
+            Received.InOrder(() => { calls(logger); });
+        }
+
+        public static void AdaptCalls(this ILogger logger)
         {
             var calls        = logger.ReceivedCalls().ToArray();
             var callsToAdapt = calls.Where(call => call.GetMethodInfo().ToString().Contains("Log[FormattedLogValues]")).ToList();

@@ -25,21 +25,6 @@ namespace RecShark.Testing.DependencyInjection
             var serviceDescriptors = services.Where(condition).ToArray();
             return services.Substitute(serviceDescriptors);
         }
-
-        public static bool InheritedFrom(this ServiceDescriptor service, params string[] names)
-        {
-            var type = service.ImplementationType;
-
-            while (type != null)
-            {
-                if (names.Any(name => type.Name.Contains(name)))
-                    return true;
-
-                type = type.BaseType;
-            }
-
-            return false;
-        }
     }
 
     public class Substitutor
