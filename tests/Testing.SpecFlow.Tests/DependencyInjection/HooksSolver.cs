@@ -9,11 +9,13 @@ namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
         public HooksSolver(ProjectHooks hooks, SharedHooks sharedHooks) : base(hooks, sharedHooks) { }
     }
 
-    public class SampleBaseApiClient : ISample
+    public interface ISampleApiClient : ISample { }
+
+    public class SampleApiClient : ISampleApiClient
     {
         public string Hello()
         {
-            return "should be substitute";
+            return "should be substitute automatically";
         }
     }
 }

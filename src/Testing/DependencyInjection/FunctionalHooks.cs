@@ -10,11 +10,9 @@ namespace RecShark.Testing.DependencyInjection
 
         public FunctionalHooks(params DIModule[] modules) : base(modules)
         {
-            // TODO: create common interface to mock all external call (db/api)
-            // data.db.relational
-            // data.db.document
-            // data.api
-            Services.Substitute(x => x.InheritedFrom("BaseDataAccess", "BaseDocumentDataAccess", "BaseApiClient"));
+            Services.Substitute(x => x.ServiceType.Name.EndsWith("DataAccess"));
+            Services.Substitute(x => x.ServiceType.Name.EndsWith("ApiClient"));
+            Services.Substitute(x => x.ServiceType.Name.EndsWith("Connector"));
             Services.Substitute(x => SubstitutedServices.Contains(x.ServiceType));
         }
     }

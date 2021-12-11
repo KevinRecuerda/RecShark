@@ -5,8 +5,6 @@ namespace RecShark.Testing
     public class FunctionalTests<T> : IntegrationTests<T>
         where T : FunctionalHooks, new()
     {
-        protected FunctionalTests(FunctionalHooks hooks = null) : base(hooks)
-        {
-        }
+        protected FunctionalTests(FunctionalHooks hooks = null) : base(hooks) { }
     }
 }
