@@ -15,7 +15,7 @@ namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
         [Given(@"a sentence ""(.*)""")]
         public void GivenASentence(string sentence)
         {
-            var sample = Hooks.Provider.GetService<ISample>();
+            var sample = Hooks.Provider.GetService<ISampleApiClient>();
             sample.Hello().Returns(sentence);
         }
     }
@@ -29,7 +29,7 @@ namespace RecShark.Testing.SpecFlow.Tests.DependencyInjection
     {
         public override void Load(IServiceCollection services)
         {
-            services.AddTransient<ISample, SampleBaseApiClient>();
+            services.AddTransient<ISampleApiClient, SampleApiClient>();
         }
     }
 }
