@@ -10,9 +10,12 @@ namespace RecShark.Testing.DependencyInjection
 
         public FunctionalHooks(params DIModule[] modules) : base(modules)
         {
-            Services.Substitute(x => x.ServiceType.Name.EndsWith("DataAccess"));
-            Services.Substitute(x => x.ServiceType.Name.EndsWith("ApiClient"));
-            Services.Substitute(x => x.ServiceType.Name.EndsWith("Connector"));
+            var externalConnectors = new[] { "DataAccess", "ApiClient", "Connector" };
+            foreach (var externalConnector in externalConnectors)
+            {
+                Services.Substitute(x => x.ServiceType.Name.EndsWith(externalConnector) && x.ServiceType.IsInterface);
+            }
+
             Services.Substitute(x => SubstitutedServices.Contains(x.ServiceType));
         }
     }
