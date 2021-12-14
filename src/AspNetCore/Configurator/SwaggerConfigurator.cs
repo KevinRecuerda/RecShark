@@ -120,7 +120,7 @@ namespace RecShark.AspNetCore.Configurator
             public static string Schema(Type type)
             {
                 // this handle correctly generic types
-                return type.FriendlyId();
+                return type.AsFriendlyName();
             }
         }
 
