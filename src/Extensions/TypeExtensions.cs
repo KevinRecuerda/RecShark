@@ -41,19 +41,27 @@ namespace RecShark.Extensions
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
         }
 
-        public static string FriendlyId(this Type type)
+        public static string AsFirstName(this Type type)
         {
             var name = type.Name;
+            if (type.IsGenericType)
+                name = name[..name.IndexOf('`')];
+
+            return name;
+        }
+
+        public static string AsFriendlyName(this Type type)
+        {
+            var name = type.AsFirstName();
             if (!type.IsGenericType)
                 return name;
 
             var genericArgumentIds = type.GetGenericArguments()
-                                         .Select(FriendlyId)
+                                         .Select(AsFriendlyName)
                                          .ToArray();
 
             return new StringBuilder(name)
-                  .Replace($"`{genericArgumentIds.Length}", string.Empty)
-                  .Append($"[{string.Join(",", genericArgumentIds).TrimEnd(',')}]")
+                  .Append($"[{genericArgumentIds.ToString(",")}]")
                   .ToString();
         }
     }
