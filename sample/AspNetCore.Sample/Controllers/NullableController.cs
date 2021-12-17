@@ -13,9 +13,9 @@ namespace RecShark.AspNetCore.Sample.Controllers
     {
         /// <summary> nullable parameters </summary>
         [HttpGet("parameters")]
-        public string NullableParameters(string issue, int number, int? numberNullable)
+        public string NullableParameters(string text, int number, int? numberNullable)
         {
-            return issue;
+            return text;
         }
 
         /// <summary> object containing nullable properties </summary>
