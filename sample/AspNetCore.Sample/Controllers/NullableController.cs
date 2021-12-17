@@ -11,8 +11,15 @@ namespace RecShark.AspNetCore.Sample.Controllers
     [SwaggerTagBadgeDefault.Tech]
     public class NullableController : ControllerBase
     {
+        /// <summary> nullable parameters </summary>
+        [HttpGet("parameters")]
+        public string NullableParameters(string text, int number, int? numberNullable)
+        {
+            return text;
+        }
+
         /// <summary> object containing nullable properties </summary>
-        [HttpPost]
+        [HttpPost("properties")]
         public Issue NullableProperties(Issue issue)
         {
             return issue;
