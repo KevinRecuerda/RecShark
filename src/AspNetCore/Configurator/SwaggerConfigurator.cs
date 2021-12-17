@@ -61,7 +61,9 @@ namespace RecShark.AspNetCore.Configurator
             InheritanceConfigurator.UsePolymorphism(options);
 
             options.UseAllOfToExtendReferenceSchemas();
+            options.SupportNonNullableReferenceTypes();
             options.SchemaFilter<RequiredPropertiesSchemaFilter>();
+            options.OperationFilter<RequiredParametersOperationFilter>();
 
             // https://github.com/mattfrear/Swashbuckle.AspNetCore.Filters
             options.ExampleFilters();
