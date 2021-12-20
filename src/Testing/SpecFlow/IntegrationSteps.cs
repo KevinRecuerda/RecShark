@@ -15,7 +15,7 @@ namespace RecShark.Testing.SpecFlow
 
         protected T Hooks { get; set; }
 
-        protected IntegrationSteps(Hooks hooks = null)
+        protected IntegrationSteps(T hooks = null)
         {
             Hooks = HooksFactory.BuildHooks<T>(hooks);
 

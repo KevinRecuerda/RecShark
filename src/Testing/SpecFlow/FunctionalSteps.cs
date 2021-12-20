@@ -5,8 +5,6 @@ namespace RecShark.Testing.SpecFlow
     public abstract class FunctionalSteps<T> : IntegrationSteps<T>
         where T : FunctionalHooks, new()
     {
-        protected FunctionalSteps(FunctionalHooks hooks = null) : base(hooks)
-        {
-        }
+        protected FunctionalSteps(T hooks = null) : base(hooks) { }
     }
 }
