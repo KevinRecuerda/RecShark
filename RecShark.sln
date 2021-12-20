@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ApiClient", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ApiClient.Generator", "src\AspNetCore.ApiClient.Generator\AspNetCore.ApiClient.Generator.csproj", "{1255E544-E12E-44F5-8120-EDC680DACBC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Testing", "src\AspNetCore.Testing\AspNetCore.Testing.csproj", "{236B1A5D-FA02-4D04-8FFF-E194A2BEA0F4}"
+EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -168,5 +170,9 @@ Global
 		{1255E544-E12E-44F5-8120-EDC680DACBC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1255E544-E12E-44F5-8120-EDC680DACBC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1255E544-E12E-44F5-8120-EDC680DACBC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236B1A5D-FA02-4D04-8FFF-E194A2BEA0F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{236B1A5D-FA02-4D04-8FFF-E194A2BEA0F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{236B1A5D-FA02-4D04-8FFF-E194A2BEA0F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{236B1A5D-FA02-4D04-8FFF-E194A2BEA0F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
