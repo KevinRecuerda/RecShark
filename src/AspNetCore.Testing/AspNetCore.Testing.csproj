@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <Description>Provide api testing.</Description>
     <PackageTags>$(PackageTags);aspnetcore;api;testing</PackageTags>
     <Version>1.0.0</Version>
