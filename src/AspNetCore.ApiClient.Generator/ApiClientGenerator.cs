@@ -54,7 +54,7 @@
                 OperationNameGenerator      = new MultipleClientsFromFirstTagAndPathSegmentsOperationNameGenerator()
             };
             if (singleClient)
-                clientSettings.ClassName = $"{apiName}ApiClient";
+                clientSettings.ClassName = clientSettings.ClassName.Replace("{controller}", "");
 
             clientSettings.CSharpGeneratorSettings.ClassStyle = CSharpClassStyle.Poco;
             clientSettings.CSharpGeneratorSettings.Namespace  = $"{apiName}";
