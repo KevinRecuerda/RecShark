@@ -1,10 +1,10 @@
-namespace RecShark.AspNetCore.HttpClient
+namespace RecShark.AspNetCore.ApiClient
 {
     using System;
     using System.Net;
     using System.Net.Http;
     using Microsoft.Extensions.DependencyInjection;
-    using RecShark.AspNetCore.HttpClient.Security;
+    using RecShark.AspNetCore.ApiClient.Security;
     using RecShark.DependencyInjection;
     using Refit;
 

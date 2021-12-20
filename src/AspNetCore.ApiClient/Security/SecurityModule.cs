@@ -1,4 +1,4 @@
-namespace RecShark.AspNetCore.HttpClient.Security
+namespace RecShark.AspNetCore.ApiClient.Security
 {
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;

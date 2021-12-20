@@ -1,4 +1,4 @@
-﻿namespace RecShark.AspNetCore.HttpClient.Security
+﻿namespace RecShark.AspNetCore.ApiClient.Security
 {
     using System.Net.Http;
     using System.Threading;

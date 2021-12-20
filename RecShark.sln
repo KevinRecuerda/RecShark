@@ -50,9 +50,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algorithm", "src\Algorithm\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Algorithm.Tests", "tests\Algorithm.Tests\Algorithm.Tests.csproj", "{71D83900-87DE-418E-A32B-158C25282254}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.HttpClient", "src\AspNetCore.HttpClient\AspNetCore.HttpClient.csproj", "{48E24880-498C-4AA8-AE4D-B5406F5C56D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ApiClient", "src\AspNetCore.ApiClient\AspNetCore.ApiClient.csproj", "{48E24880-498C-4AA8-AE4D-B5406F5C56D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.HttpClient.Generator", "src\AspNetCore.HttpClient.Generator\AspNetCore.HttpClient.Generator.csproj", "{1255E544-E12E-44F5-8120-EDC680DACBC7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ApiClient.Generator", "src\AspNetCore.ApiClient.Generator\AspNetCore.ApiClient.Generator.csproj", "{1255E544-E12E-44F5-8120-EDC680DACBC7}"
 EndProject
 Global
 				GlobalSection(SolutionConfigurationPlatforms) = preSolution

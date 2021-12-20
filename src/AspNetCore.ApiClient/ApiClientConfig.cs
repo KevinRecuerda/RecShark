@@ -1,4 +1,4 @@
-﻿namespace RecShark.AspNetCore.HttpClient
+﻿namespace RecShark.AspNetCore.ApiClient
 {
     public class ApiClientConfig
     {

@@ -1,4 +1,4 @@
-﻿namespace RecShark.AspNetCore.HttpClient.Generator
+﻿namespace RecShark.AspNetCore.ApiClient.Generator
 {
     using System;
     using System.IO;
@@ -8,7 +8,7 @@
     using NSwag.CodeGeneration.CSharp;
     using NSwag.CodeGeneration.OperationNameGenerators;
 
-    public class ApiGenerator
+    public class ApiClientGenerator
     {
         public void Generate(string apiName, string swaggerDocsUrl, bool singleClient = false)
         {
