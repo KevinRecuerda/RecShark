@@ -1,52 +1,33 @@
 namespace RecShark.AspNetCore.Configurator
 {
-    using System.Linq;
-    using System.Threading.Tasks;
+    using System;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Routing;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    using Microsoft.Extensions.Hosting;
+    using Serilog;
 
-    public static class MonitoringConfigurator
+    public static partial class MonitoringConfigurator
     {
-        public static IServiceCollection AddMonitoring(this IServiceCollection services)
+        public static IApplicationBuilder UseMonitoring(
+            this IApplicationBuilder                app,
+            IHostApplicationLifetime                applicationLifetime,
+            Action<IDiagnosticContext, HttpContext> enrichDiagnosticContext = null)
         {
-            services.AddHealthChecks();
+            app.UseLogging(applicationLifetime, enrichDiagnosticContext);
+            return app;
+        }
+
+        public static IServiceCollection AddMonitoring(
+            this IServiceCollection      services,
+            IConfiguration               configuration,
+            Action<IHealthChecksBuilder> healthCheckBuilder = null,
+            Action<LoggerConfiguration>  loggerConfigurator = null)
+        {
+            services.AddHealthChecks(healthCheckBuilder);
+            services.AddLogging(configuration, loggerConfigurator);
             return services;
-        }
-
-        public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options)
-        {
-            return options.MapHealthChecks(
-                "/health",
-                new HealthCheckOptions()
-                {
-                    ResponseWriter = WriteResponse
-                });
-        }
-
-        private static Task WriteResponse(HttpContext context, HealthReport result)
-        {
-            context.Response.ContentType = "application/json";
-
-            var results = result.Entries.Select(
-                pair =>
-                    new JProperty(
-                        pair.Key,
-                        new JObject(
-                            new JProperty("status",      pair.Value.Status.ToString()),
-                            new JProperty("description", pair.Value.Description),
-                            new JProperty("data",        new JObject(pair.Value.Data.Select(p => new JProperty(p.Key, p.Value)))))));
-
-            var json = new JObject(
-                new JProperty("status",  result.Status.ToString()),
-                new JProperty("results", new JObject(results)));
-
-            return context.Response.WriteAsync(json.ToString(Formatting.Indented));
         }
     }
 }

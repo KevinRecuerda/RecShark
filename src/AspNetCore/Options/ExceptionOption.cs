@@ -10,13 +10,11 @@ namespace RecShark.AspNetCore.Options
 
         public Dictionary<Type, HttpStatusCode> ExceptionStatusCodes { get; set; } = new Dictionary<Type, HttpStatusCode>
         {
-            [typeof(ArgumentException)] = HttpStatusCode.BadRequest,
+            [typeof(ArgumentException)]           = HttpStatusCode.BadRequest,
             [typeof(UnauthorizedAccessException)] = HttpStatusCode.Forbidden,
-            [typeof(NotFoundException)] = HttpStatusCode.NotFound
+            [typeof(NotFoundException)]           = HttpStatusCode.NotFound
         };
     }
 
-    public class NotFoundException : Exception
-    {
-    }
+    public class NotFoundException : Exception { }
 }
