@@ -13,7 +13,7 @@ namespace RecShark.AspNetCore.Sample.Controllers
     {
         /// <summary> nullable parameters </summary>
         [HttpGet("parameters")]
-        public string NullableParameters(string text, int number, int? numberNullable)
+        public string NullableParameters(string text, int number, int? numberNullable, DateTime date, DateTime? dateNullable)
         {
             return text;
         }

@@ -7,6 +7,27 @@ namespace RecShark.DependencyInjection.Tests
     public class DependencyInjectionExtensionsTests
     {
         [Fact]
+        public void AddSingleton__Should_add_same_instance()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+
+            // Act
+            services.AddSingleton<ISample, IOther, Sample>();
+
+            // Assert
+            services.Count.Should().Be(3);
+
+            var provider = services.BuildServiceProvider();
+            var sample   = provider.GetService<Sample>();
+            var iSample  = provider.GetService<ISample>();
+            var other    = provider.GetService<IOther>();
+
+            sample.Should().Be(iSample);
+            sample.Should().Be(other);
+        }
+
+        [Fact]
         public void Remove__Should_remove_all_registered_description()
         {
             // Arrange
@@ -50,27 +71,6 @@ namespace RecShark.DependencyInjection.Tests
 
             // Assert
             services.Count.Should().Be(0);
-        }
-
-        [Fact]
-        public void AddSingleton__Should_add_same_instance()
-        {
-            // Arrange
-            var services = new ServiceCollection();
-
-            // Act
-            services.AddSingleton<ISample, IOther, Sample>();
-
-            // Assert
-            services.Count.Should().Be(3);
-
-            var provider = services.BuildServiceProvider();
-            var sample   = provider.GetService<Sample>();
-            var iSample  = provider.GetService<ISample>();
-            var other    = provider.GetService<IOther>();
-
-            sample.Should().Be(iSample);
-            sample.Should().Be(other);
         }
     }
 }
