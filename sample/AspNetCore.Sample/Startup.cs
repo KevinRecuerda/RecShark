@@ -9,6 +9,8 @@ using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Sample
 {
+    using RecShark.DependencyInjection;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -21,13 +23,12 @@ namespace RecShark.AspNetCore.Sample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var apiInfo = Configuration.GetSection("ApiInfo").Get<SwaggerConfigurator.ApiInfo>();
-            services.AddSingleton(apiInfo);
+            services.AddConfig<SwaggerConfigurator.ApiInfo>("ApiInfo");
 
             services.AddOptions()
                     .AddHttpContextAccessor()
                     .AddOA3Routing()
-                    .AddMonitoring()
+                    .AddMonitoring(this.Configuration)
                      // .AddSecurity()
                     .AddOA3Swagger()
                     .AddOA3Mvc()
@@ -35,7 +36,7 @@ namespace RecShark.AspNetCore.Sample
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
         {
             if (env.IsDevelopment())
             {
@@ -46,8 +47,9 @@ namespace RecShark.AspNetCore.Sample
             app.UseStaticFiles();
 
             app.UseRouting()
+               .UseMonitoring(applicationLifetime)
                .UseException(new ExceptionOption() { SkipAggregateException = true })
-               // .UseSecurity()
+                // .UseSecurity()
                .UseOA3Swagger()
                .UseEndpoints(
                     endpoints =>

@@ -2,6 +2,7 @@ namespace RecShark.AspNetCore.Sample
 {
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
+    using Serilog;
 
     public class Program
     {
@@ -12,6 +13,11 @@ namespace RecShark.AspNetCore.Sample
 
         public static IHostBuilder CreateHostBuilder(string[] args)
             => Host.CreateDefaultBuilder(args)
-                   .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                   .ConfigureWebHostDefaults(
+                        webBuilder =>
+                        {
+                            webBuilder.UseSerilog()
+                                      .UseStartup<Startup>();
+                        });
     }
 }
