@@ -8,7 +8,7 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.Extensions.Hosting;
     using Serilog;
 
-    public static partial class MonitoringConfigurator
+    public static class MonitoringConfigurator
     {
         public static IApplicationBuilder UseMonitoring(
             this IApplicationBuilder                app,
