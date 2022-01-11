@@ -132,9 +132,14 @@ namespace RecShark.AspNetCore.Configurator
             writer.WriteStartObject();
 
             var dictionary = (IDictionary)value;
-            var raws       = BuildKVRaw(dictionary);
-            var line       = string.Join(",", raws);
-            writer.WriteRaw(line);
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                var propertyNameQuoted = JsonConvert.SerializeObject(entry.Key, settings);
+                var propertyName = propertyNameQuoted[1..^1];
+                writer.WritePropertyName(propertyName);
+
+                serializer.Serialize(writer, entry.Value);
+            }
 
             writer.WriteEndObject();
         }
@@ -165,18 +170,6 @@ namespace RecShark.AspNetCore.Configurator
 
             var innerTypes = objectType.GetDictionaryInnerTypes();
             return innerTypes[0].IsEnum;
-        }
-
-        private IEnumerable<string> BuildKVRaw(IDictionary dictionary)
-        {
-            foreach (DictionaryEntry entry in dictionary)
-            {
-                var propertyName  = JsonConvert.SerializeObject(entry.Key,   settings);
-                var propertyValue = JsonConvert.SerializeObject(entry.Value, settings);
-
-                var raw = $"{propertyName}:{propertyValue}";
-                yield return raw;
-            }
         }
     }
 }
