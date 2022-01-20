@@ -1,18 +1,20 @@
-﻿using System.Linq;
+﻿using FastDeepCloner;
+using System.Linq;
 
 namespace RecShark.Extensions
 {
     public static class ObjectExtensions
     {
-        public static T Clone<T>(this T original)
-            where T : class
+        public static T Clone<T>(this T item)
         {
-            return FastDeepCloner.DeepCloner.Clone<T>(original, null);
+            return item.GetType().IsInternalType()
+            ? item
+            : (T)((object)item).Clone(null);
         }
 
-        public static void CloneTo(this object original, object target)
+        public static void CloneTo(this object item, object target)
         {
-            FastDeepCloner.DeepCloner.CloneTo(original, target);
+            DeepCloner.CloneTo(item, target);
         }
 
         public static void AdaptSmart<T>(T item)
