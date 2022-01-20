@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -38,6 +39,18 @@ namespace RecShark.Extensions.Tests
             // Assert
             actual.Should().NotBeSameAs(item);
             actual["A"].Message.Should().Be("Hello World !");
+        }
+
+        [Fact]
+        public void Clone__Should_clone_primitive_type()
+        {
+            1.Clone().Should().Be(1);
+        }
+
+        [Fact]
+        public void Clone__Should_clone_datetime()
+        {
+            new DateTime(2000, 12, 31).Clone().ToIso().Should().Be("2000-12-31");
         }
 
         private class ObjectToClone
