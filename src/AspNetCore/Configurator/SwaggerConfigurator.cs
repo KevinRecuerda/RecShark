@@ -73,13 +73,14 @@ namespace RecShark.AspNetCore.Configurator
 
         public static void ConfigureSwaggerUi(SwaggerUIOptions uiOptions, ApiInfo apiInfo)
         {
-            uiOptions.DocumentTitle = $"{apiInfo.Code} | swagger";
+            uiOptions.DocumentTitle = $"{apiInfo.Code} | swagger | {apiInfo.Env?.ToLower()}";
             uiOptions.DocExpansion(DocExpansion.None);
             uiOptions.DefaultModelExpandDepth(-1);
             uiOptions.DefaultModelsExpandDepth(-1);
             uiOptions.EnableDeepLinking();
             uiOptions.DisplayRequestDuration();
             uiOptions.ConfigObject.AdditionalItems["apiCode"]           = apiInfo.Code;
+            uiOptions.ConfigObject.AdditionalItems["apiEnv"]            = apiInfo.Env?.ToLower();
             uiOptions.ConfigObject.AdditionalItems["useUnsafeMarkdown"] = true;
 
             LoadAssemblyResources(typeof(SwaggerConfigurator), uiOptions);
@@ -129,6 +130,7 @@ namespace RecShark.AspNetCore.Configurator
         public class ApiInfo : OpenApiInfo
         {
             public string Code { get; set; }
+            public string Env  { get; set; }
         }
     }
 }
