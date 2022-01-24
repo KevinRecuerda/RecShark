@@ -4,11 +4,11 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Provides some SpecFlow extensions</Description>
     <PackageTags>$(PackageTags);testing;specflow;extensions</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SpecFlow" Version="3.9.22" />
+    <PackageReference Include="SpecFlow" Version="3.9.40" />
   </ItemGroup>
 
   <ItemGroup>
