@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Provide some tools for testing.</Description>
     <PackageTags>$(PackageTags);extensions;testing;all;ioc;di;injection</PackageTags>
-    <Version>1.1.5</Version>
+    <Version>1.1.6</Version>
   </PropertyGroup>
 
   <ItemGroup>

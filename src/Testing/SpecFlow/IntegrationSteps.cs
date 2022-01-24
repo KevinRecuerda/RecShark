@@ -1,25 +1,18 @@
-﻿using RecShark.Extensions;
+﻿using System.Globalization;
+using RecShark.Extensions;
 using RecShark.Testing.DependencyInjection;
-using TechTalk.SpecFlow;
 
 namespace RecShark.Testing.SpecFlow
 {
-    public abstract class IntegrationSteps<T> : Steps
+    public abstract class IntegrationSteps<T> : BasicSteps
         where T : Hooks, new()
     {
-        static IntegrationSteps()
-        {
-            typeof(Tests).RunStaticConstructor();
-            SpecFlowExtensions.UseObjectConverter();
-        }
-
         protected T Hooks { get; set; }
 
         protected IntegrationSteps(T hooks = null)
         {
             Hooks = HooksFactory.BuildHooks<T>(hooks);
-
-            Tests.OverrideCultureInfo();
+            CultureInfo.InvariantCulture.UseDefault();
         }
     }
 }
