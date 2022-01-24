@@ -54,7 +54,7 @@ namespace RecShark.AspNetCore.Configurator
                                .Enrich.FromLogContext()
                                .Enrich.WithProperty("server-host", host)
                                .Filter.With(new ExcludedPathFilter("/swagger", "/health", "/favicon.ico"))
-                               .WriteTo.ColoredConsole(outputTemplate: OutputTemplate)
+                               .WriteTo.Console(outputTemplate: OutputTemplate)
                                .WriteTo.RollingFile(filename, outputTemplate: OutputTemplate);
 
             configurator?.Invoke(serilogConfig);
