@@ -28,8 +28,8 @@
 .swagger-ui .topbar .env-tag span.ppr { background-color: #275855; }
 .swagger-ui .topbar .env-tag span.uat { background-color: #38699f; }
 .swagger-ui .topbar .env-tag span.rct { background-color: #38699f; }
-.swagger-ui .topbar .env-tag span.dev { background-color: #444852; }
-.swagger-ui .topbar .env-tag span.local { background-color: #444852; }
+.swagger-ui .topbar .env-tag span.dev { background-color: #5f6574; }
+.swagger-ui .topbar .env-tag span.local { background-color: #5f6574; }
 
 
 /* info */
