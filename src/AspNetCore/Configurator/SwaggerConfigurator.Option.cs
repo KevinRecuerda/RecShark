@@ -78,7 +78,8 @@ namespace RecShark.AspNetCore.Configurator
                     {
                         ["x-versionDeprecated"] = new OpenApiBoolean(description.IsDeprecated),
                         ["x-health"]            = new OpenApiString("/health"),
-                        ["x-code"]              = new OpenApiString(ApiInfo.Code)
+                        ["x-code"]              = new OpenApiString(ApiInfo.Code),
+                        ["x-env"]               = new OpenApiString(ApiInfo.Env),
                     }
                 };
 

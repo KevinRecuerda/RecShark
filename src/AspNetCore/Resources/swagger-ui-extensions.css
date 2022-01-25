@@ -1,9 +1,43 @@
 ﻿/* top */
+.swagger-ui .topbar {
+    background-color: #3d3d3d;
+}
 .swagger-ui .topbar .api-code {
     font-size: 20px;
     font-weight: bold;
-    color: #ccc;
+    color: #eee;
 }
+.swagger-ui .topbar .env-tag {
+    position: fixed;
+    top: 0;
+    display: flex;
+    align-items: flex-start;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1111;
+}
+.swagger-ui .topbar .env-tag span {
+    padding: 4px 16px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #eee;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.swagger-ui .topbar.prd .env-tag span { background-color: #974a5a; }
+.swagger-ui .topbar.ppr .env-tag span { background-color: #275855; }
+.swagger-ui .topbar.uat .env-tag span { background-color: #38699f; }
+.swagger-ui .topbar.rct .env-tag span { background-color: #38699f; }
+.swagger-ui .topbar.dev .env-tag span { background-color: #5f6574; }
+.swagger-ui .topbar.local .env-tag span { background-color: #5f6574; }
+
+.swagger-ui .topbar.prd .download-url-wrapper .select-label select { border-color: #974a5a; }
+.swagger-ui .topbar.ppr .download-url-wrapper .select-label select { border-color: #275855; }
+.swagger-ui .topbar.uat .download-url-wrapper .select-label select { border-color: #38699f; }
+.swagger-ui .topbar.rct .download-url-wrapper .select-label select { border-color: #38699f; }
+.swagger-ui .topbar.dev .download-url-wrapper .select-label select { border-color: #5f6574; }
+.swagger-ui .topbar.local .download-url-wrapper .select-label select { border-color: #5f6574; }
+
 
 /* info */
 .information-container .info { margin: 0 auto; padding-top: 10px; }
