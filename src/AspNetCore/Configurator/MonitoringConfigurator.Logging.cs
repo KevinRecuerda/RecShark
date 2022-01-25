@@ -43,7 +43,7 @@ namespace RecShark.AspNetCore.Configurator
 
         public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator)
         {
-            var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? "", "logs", "log-{Date}.txt");
+            var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? "", "logs", "log.txt");
 
             var host = Dns.GetHostName();
             var serilogConfig = new LoggerConfiguration()
@@ -55,7 +55,7 @@ namespace RecShark.AspNetCore.Configurator
                                .Enrich.WithProperty("server-host", host)
                                .Filter.With(new ExcludedPathFilter("/swagger", "/health", "/favicon.ico"))
                                .WriteTo.Console(outputTemplate: OutputTemplate)
-                               .WriteTo.RollingFile(filename, outputTemplate: OutputTemplate);
+                               .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
 
             configurator?.Invoke(serilogConfig);
 
