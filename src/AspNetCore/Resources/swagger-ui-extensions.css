@@ -24,12 +24,19 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
-.swagger-ui .topbar .env-tag span.prd { background-color: #974a5a; }
-.swagger-ui .topbar .env-tag span.ppr { background-color: #275855; }
-.swagger-ui .topbar .env-tag span.uat { background-color: #38699f; }
-.swagger-ui .topbar .env-tag span.rct { background-color: #38699f; }
-.swagger-ui .topbar .env-tag span.dev { background-color: #5f6574; }
-.swagger-ui .topbar .env-tag span.local { background-color: #5f6574; }
+.swagger-ui .topbar.prd .env-tag span { background-color: #974a5a; }
+.swagger-ui .topbar.ppr .env-tag span { background-color: #275855; }
+.swagger-ui .topbar.uat .env-tag span { background-color: #38699f; }
+.swagger-ui .topbar.rct .env-tag span { background-color: #38699f; }
+.swagger-ui .topbar.dev .env-tag span { background-color: #5f6574; }
+.swagger-ui .topbar.local .env-tag span { background-color: #5f6574; }
+
+.swagger-ui .topbar.prd .download-url-wrapper .select-label select { border-color: #974a5a; }
+.swagger-ui .topbar.ppr .download-url-wrapper .select-label select { border-color: #275855; }
+.swagger-ui .topbar.uat .download-url-wrapper .select-label select { border-color: #38699f; }
+.swagger-ui .topbar.rct .download-url-wrapper .select-label select { border-color: #38699f; }
+.swagger-ui .topbar.dev .download-url-wrapper .select-label select { border-color: #5f6574; }
+.swagger-ui .topbar.local .download-url-wrapper .select-label select { border-color: #5f6574; }
 
 
 /* info */

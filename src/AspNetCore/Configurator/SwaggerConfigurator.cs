@@ -80,7 +80,7 @@ namespace RecShark.AspNetCore.Configurator
             uiOptions.EnableDeepLinking();
             uiOptions.DisplayRequestDuration();
             uiOptions.ConfigObject.AdditionalItems["apiCode"]           = apiInfo.Code;
-            uiOptions.ConfigObject.AdditionalItems["apiEnv"]            = apiInfo.Env?.ToLower();
+            uiOptions.ConfigObject.AdditionalItems["apiEnv"]            = apiInfo.Env?.ToLower() ?? "";
             uiOptions.ConfigObject.AdditionalItems["useUnsafeMarkdown"] = true;
 
             LoadAssemblyResources(typeof(SwaggerConfigurator), uiOptions);

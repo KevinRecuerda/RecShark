@@ -12,9 +12,10 @@
     // env
     const envWrapper = document.createElement("div");
     envWrapper.className = "env-tag";
-    envWrapper.innerHTML = `<span class="${configObject.apiEnv}">${configObject.apiEnv}</span>`;
+    envWrapper.innerHTML = `<span>${configObject.apiEnv}</span>`;
 
     const topbar = document.getElementsByClassName("topbar")[0];
+    topbar.className += " " + configObject.apiEnv;
     topbar.appendChild(envWrapper);
 };
 
