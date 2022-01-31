@@ -4,6 +4,11 @@ using RecShark.AspNetCore.Extensions;
 
 namespace RecShark.AspNetCore.Configurator
 {
+    using System;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.FileProviders;
+
     /// <remarks>See also <seealso cref="DefaultRouteAttribute"/></remarks>
     public static class RoutingConfigurator
     {
@@ -35,6 +40,16 @@ namespace RecShark.AspNetCore.Configurator
                 });
 
             return services;
+        }
+
+        public static IApplicationBuilder UseEmbeddedFiles(this IApplicationBuilder app, Type type)
+        {
+            var options = new StaticFileOptions()
+            {
+                FileProvider = new ManifestEmbeddedFileProvider(type.Assembly, "wwwroot"),
+                RequestPath  = new PathString("")
+            };
+            return app.UseStaticFiles(options);
         }
     }
 }

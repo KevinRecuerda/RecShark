@@ -9,7 +9,9 @@ using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Sample
 {
+    using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using RecShark.DependencyInjection;
+    using Swashbuckle.AspNetCore.SwaggerUI;
 
     public class Startup
     {
@@ -30,7 +32,7 @@ namespace RecShark.AspNetCore.Sample
                     .AddOA3Routing()
                     .AddMonitoring(this.Configuration)
                      // .AddSecurity()
-                    .AddOA3Swagger()
+                    .AddOA3Swagger<CustomSwaggerOptions>()
                     .AddOA3Mvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
@@ -57,6 +59,18 @@ namespace RecShark.AspNetCore.Sample
                         endpoints.MapHealthChecks();
                         endpoints.MapControllers();
                     });
+        }
+
+        public class CustomSwaggerOptions : SwaggerConfigurator.ConfigureSwaggerOptions
+        {
+            public CustomSwaggerOptions(IApiVersionDescriptionProvider provider, SwaggerConfigurator.ApiInfo apiInfo) : base(provider, apiInfo) { }
+
+            public override void Configure(SwaggerUIOptions uiOptions)
+            {
+                base.Configure(uiOptions);
+                uiOptions.UseLogo("logo.png");
+                uiOptions.UseBackground("bg.jpg");
+            }
         }
     }
 }
