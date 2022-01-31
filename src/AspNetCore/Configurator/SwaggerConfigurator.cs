@@ -20,7 +20,8 @@ namespace RecShark.AspNetCore.Configurator
         public static IApplicationBuilder UseOA3Swagger(this IApplicationBuilder app)
         {
             app.UseSwagger()
-               .UseSwaggerUI();
+               .UseSwaggerUI()
+               .UseEmbeddedFiles(typeof(SwaggerConfigurator));
 
             return app;
         }
@@ -83,7 +84,27 @@ namespace RecShark.AspNetCore.Configurator
             uiOptions.ConfigObject.AdditionalItems["apiEnv"]            = apiInfo.Env?.ToLower() ?? "";
             uiOptions.ConfigObject.AdditionalItems["useUnsafeMarkdown"] = true;
 
-            LoadAssemblyResources(typeof(SwaggerConfigurator), uiOptions);
+            uiOptions.InjectJavascript("swagger-ui-extensions.js");
+            uiOptions.InjectStylesheet("swagger-ui-extensions.css");
+        }
+
+        public static void UseLogo(this SwaggerUIOptions uiOptions, string filepath)
+        {
+            uiOptions.HeadContent += @$"<style>
+.swagger-ui .topbar-wrapper img {{
+    content: url({filepath});
+}}
+</style >";
+        }
+
+        public static void UseBackground(this SwaggerUIOptions uiOptions, string filepath)
+        {
+            uiOptions.ConfigObject.AdditionalItems["topbarLight"] = true;
+            uiOptions.HeadContent += @$"<style>
+#swagger-ui {{
+    background: url({filepath}) 50% 0;
+}}
+</style >";
         }
 
         /// <summary> add custom js/css </summary>

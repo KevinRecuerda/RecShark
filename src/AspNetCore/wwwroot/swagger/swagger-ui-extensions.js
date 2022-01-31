@@ -1,10 +1,10 @@
 ﻿const callback = function () {
-    const configObject = JSON.parse('%(ConfigObject)');
+    const config = window.ui.getConfigs();
 
     // api code
     const apiCodeWrapper = document.createElement("div");
     apiCodeWrapper.className = "api-code";
-    apiCodeWrapper.innerText = configObject.apiCode;
+    apiCodeWrapper.innerText = config.apiCode;
 
     const topbarWrapper = document.getElementsByClassName("topbar-wrapper")[0];
     topbarWrapper.insertBefore(apiCodeWrapper, topbarWrapper.childNodes[1]);
@@ -12,11 +12,16 @@
     // env
     const envWrapper = document.createElement("div");
     envWrapper.className = "env-tag";
-    envWrapper.innerHTML = `<span>${configObject.apiEnv}</span>`;
+    envWrapper.innerHTML = `<span>${config.apiEnv}</span>`;
 
     const topbar = document.getElementsByClassName("topbar")[0];
-    topbar.className += " " + configObject.apiEnv;
+    topbar.className += " " + config.apiEnv;
     topbar.appendChild(envWrapper);
+
+    // bg
+    if (config.topbarLight) {
+        topbar.className += " light";
+    }
 };
 
 _callbackRunnerCount = 0;

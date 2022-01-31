@@ -1,4 +1,8 @@
-﻿/* top */
+﻿#swagger-ui {
+    min-height: 100vh;
+}
+
+/* top */
 .swagger-ui .topbar {
     background-color: #3d3d3d;
 }
@@ -7,6 +11,16 @@
     font-weight: bold;
     color: #eee;
 }
+
+.swagger-ui .topbar.light {
+    background-color: #3d3d3d20;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+}
+.swagger-ui .topbar.light .api-code,
+.swagger-ui .topbar.light .download-url-wrapper .select-label {
+    color: #3b4151;
+}
+
 .swagger-ui .topbar .env-tag {
     position: fixed;
     top: 0;
@@ -38,7 +52,6 @@
 .swagger-ui .topbar.dev .download-url-wrapper .select-label select { border-color: #5f6574; }
 .swagger-ui .topbar.local .download-url-wrapper .select-label select { border-color: #5f6574; }
 
-
 /* info */
 .information-container .info { margin: 0 auto; padding-top: 10px; }
 .swagger-ui .info > div { margin: 0; }
@@ -59,9 +72,19 @@
 .swagger-ui .info__extdocs {
     font-size: 12px;
 }
+
+/* auth */
 .swagger-ui .scheme-container {
     padding: 0 0 10px 0;
     margin-bottom: 10px;
+    background: inherit;
+}
+.swagger-ui .scheme-container .btn.authorize {
+    border-color: #275855;
+    color: #275855;
+}
+.swagger-ui .scheme-container .btn.authorize svg {
+    fill: #275855;
 }
 
 /* badge tag */

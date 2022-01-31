@@ -6,11 +6,13 @@
     <IsPackable>true</IsPackable>
     <Description>Provide api extensions.</Description>
     <PackageTags>$(PackageTags);aspnetcore;api;extensions</PackageTags>
-    <Version>1.1.9</Version>
+    <Version>1.2.0</Version>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.21" />
     <PackageReference Include="NJsonSchema" Version="9.11.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
@@ -25,10 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\swagger-ui-extensions.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\swagger-ui-extensions.js">
+    <EmbeddedResource Include="wwwroot\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
