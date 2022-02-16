@@ -43,9 +43,26 @@ namespace RecShark.Extensions
             return !suffix.IsNullOrEmpty() ? $"{text} {suffix}" : text;
         }
 
+        public static string Keying(this object value, string key)
+        {
+            return $"{key}={value}";
+        }
+
         public static string Tag(this string text, string tag)
         {
             return !tag.IsNullOrEmpty() ? $"[{tag}] {text}" : text;
+        }
+
+        public static string TagKey(this string text, string key, object value)
+        {
+            var kv = value.Keying(key);
+            return text.Tag(kv);
+        }
+
+        public static string TagKeys(this string text, params (string key, object value)[] patterns)
+        {
+            var kvs = patterns.Select(p => p.value.Keying(p.key)).ToArray();
+            return text.Tag(kvs.ToString("|"));
         }
 
         public static string TagSemantic(this string text, string name, string value)
