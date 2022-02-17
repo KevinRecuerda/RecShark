@@ -45,7 +45,7 @@ namespace RecShark.Extensions
 
         public static string Keying(this object value, string key)
         {
-            return $"{key}={value}";
+            return !value.ToString().IsNullOrEmpty() ? $"{key}={value}" : "";
         }
 
         public static string Tag(this string text, string tag)
@@ -61,8 +61,10 @@ namespace RecShark.Extensions
 
         public static string TagKeys(this string text, params (string key, object value)[] patterns)
         {
-            var kvs = patterns.Select(p => p.value.Keying(p.key)).ToArray();
-            return text.Tag(kvs.ToString("|"));
+            var kvs = patterns.Select(p => p.value.Keying(p.key))
+                              .Where(kv => !kv.IsNullOrEmpty())
+                              .ToString("|");
+            return text.Tag(kvs);
         }
 
         public static string TagSemantic(this string text, string name, string value)
