@@ -30,7 +30,7 @@ namespace RecShark.Extensions.Tests
             const string text = "hello world!";
             text.SmartMatchAny(patterns).Should().Be(false);
         }
-        
+
         [Fact]
         public void SmartMatchAny__Should_not_match_When_no_patterns()
         {
@@ -59,6 +59,18 @@ namespace RecShark.Extensions.Tests
             Action action = () => "test".IndexOfN('e', n);
 
             action.Should().Throw<ArgumentException>().WithMessage("n should be > 0*");
+        }
+
+        [Fact]
+        public void Keying__Should_key_element()
+        {
+            "hello".Keying("message").Should().Be("message=hello");
+        }
+
+        [Fact]
+        public void Keying__Should_manage_add_quotes()
+        {
+            "hello world".Keying("message", true).Should().Be("message=\"hello world\"");
         }
 
         [Fact]
