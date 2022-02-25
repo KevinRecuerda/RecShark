@@ -43,9 +43,12 @@ namespace RecShark.Extensions
             return !suffix.IsNullOrEmpty() ? $"{text} {suffix}" : text;
         }
 
-        public static string Keying(this object value, string key)
+        public static string Keying(this object value, string key, bool quoteValue = false)
         {
-            return !value.ToString().IsNullOrEmpty() ? $"{key}={value}" : "";
+            var quotes = quoteValue ? "\"" : "";
+            return !value.ToString().IsNullOrEmpty()
+                       ? $"{key}={quotes}{value}{quotes}"
+                       : "";
         }
 
         public static string Tag(this string text, string tag)
