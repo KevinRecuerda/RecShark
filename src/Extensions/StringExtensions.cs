@@ -45,7 +45,7 @@ namespace RecShark.Extensions
 
         public static string Keying(this object value, string key, bool quoteValue = false)
         {
-            var quotes = quoteValue ? "\"" : "";
+            var quotes = quoteValue ? "'" : "";
             return !value.ToString().IsNullOrEmpty()
                        ? $"{key}={quotes}{value}{quotes}"
                        : "";
