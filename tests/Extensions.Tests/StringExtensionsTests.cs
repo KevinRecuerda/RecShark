@@ -68,9 +68,9 @@ namespace RecShark.Extensions.Tests
         }
 
         [Fact]
-        public void Keying__Should_manage_add_quotes()
+        public void Keying__Should_key_element_with_quote()
         {
-            "hello world".Keying("message", true).Should().Be("message=\"hello world\"");
+            "hello world".Keying("message", true).Should().Be("message='hello world'");
         }
 
         [Fact]
