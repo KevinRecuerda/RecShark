@@ -74,6 +74,12 @@ namespace RecShark.Extensions.Tests
         }
 
         [Fact]
+        public void Keying__Should_key_element_with_custom_quote()
+        {
+            "hello world".Keying("message", "\"").Should().Be("message=\"hello world\"");
+        }
+
+        [Fact]
         public void Prefixing__Should_return_text_with_prefix()
         {
             "hello".Prefixing("[tag]").Should().Be("[tag] hello");
