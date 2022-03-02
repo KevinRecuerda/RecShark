@@ -11,6 +11,7 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using RecShark.AspNetCore.Health;
 
     public static class HealthCheckConfigurator
     {
@@ -21,12 +22,44 @@ namespace RecShark.AspNetCore.Configurator
             return services;
         }
 
+        public static void AddStartupHealthService<TStartupService>(this IServiceCollection services)
+            where TStartupService : BaseHealthStartupService
+        {
+            services.AddSingleton<IHealthStartupService, TStartupService>();
+            services.AddHostedService(sp => sp.GetService<IHealthStartupService>() as TStartupService);
+        }
+
+        public static IApplicationBuilder MapHealthChecks(this IApplicationBuilder app)
+        {
+            return app.UseEndpoints(
+                options =>
+                {
+                    options.MapHealthChecks("/healthz/live",    _ => false);
+                    options.MapHealthChecks("/healthz/startup", "startup");
+                    options.MapHealthChecks("/healthz/ready",   "ready");
+                });
+        }
+        
         public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options)
         {
+            return options.MapHealthChecks("/health");
+        }
+
+        public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options, string pattern, params string[] tags)
+        {
+            return options.MapHealthChecks(pattern, check => !tags.Any() || tags.Any(tag => check.Tags.Contains(tag)));
+        }
+
+        public static IEndpointConventionBuilder MapHealthChecks(
+            this IEndpointRouteBuilder          options,
+            string                              pattern,
+            Func<HealthCheckRegistration, bool> predicate = null)
+        {
             return options.MapHealthChecks(
-                "/health",
-                new HealthCheckOptions()
+                pattern,
+                new HealthCheckOptions
                 {
+                    Predicate      = predicate,
                     ResponseWriter = WriteResponse
                 });
         }
