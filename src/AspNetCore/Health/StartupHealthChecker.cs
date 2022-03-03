@@ -6,20 +6,17 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-    public class StartupHealthService : IHealthCheck
+    public class StartupHealthChecker : IHealthCheck
     {
-        public StartupHealthService(IEnumerable<IHealthStartupService> services)
+        public StartupHealthChecker(IEnumerable<IStartupHostedService> services)
         {
             this.Services = services.ToList();
         }
 
-        private List<IHealthStartupService> Services { get; }
+        private List<IStartupHostedService> Services { get; }
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            if (!this.Services.Any())
-                return Task.FromResult(HealthCheckResult.Healthy("No startup task defined."));
-
             if (this.Services.Any(s => !s.HasCompleted))
                 return Task.FromResult(HealthCheckResult.Unhealthy("The startup tasks are still running."));
 

@@ -53,12 +53,8 @@ namespace RecShark.AspNetCore.Sample
                .UseException(new ExceptionOption() { SkipAggregateException = true })
                 // .UseSecurity()
                .UseOA3Swagger()
-               .UseEndpoints(
-                    endpoints =>
-                    {
-                        endpoints.MapHealthChecks();
-                        endpoints.MapControllers();
-                    });
+               .MapHealthChecks()
+               .UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
         public class CustomSwaggerOptions : SwaggerConfigurator.ConfigureSwaggerOptions
