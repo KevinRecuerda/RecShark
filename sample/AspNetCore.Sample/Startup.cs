@@ -50,11 +50,15 @@ namespace RecShark.AspNetCore.Sample
 
             app.UseRouting()
                .UseMonitoring(applicationLifetime)
-               .UseException(new ExceptionOption() { SkipAggregateException = true })
+               .UseException(new ExceptionOption() {SkipAggregateException = true})
                 // .UseSecurity()
                .UseOA3Swagger()
-               .MapHealthChecks()
-               .UseEndpoints(endpoints => { endpoints.MapControllers(); });
+               .UseEndpoints(
+                    endpoints =>
+                    {
+                        endpoints.MapConventionalHealthChecks();
+                        endpoints.MapControllers();
+                    });
         }
 
         public class CustomSwaggerOptions : SwaggerConfigurator.ConfigureSwaggerOptions

@@ -1,6 +1,7 @@
 namespace RecShark.AspNetCore.Configurator
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,7 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -20,28 +22,24 @@ namespace RecShark.AspNetCore.Configurator
         {
             var builder = services
                          .AddHealthChecks()
-                         .AddCheck<StartupHealthChecker>("initialize", tags: new[] {"startup"});
+                         .AddCheck<StartupHealthChecker>("startup", tags: new[] {"startup"});
             healthCheckBuilder?.Invoke(builder);
             return services;
         }
 
-        public static void AddStartupHostedService<TStartupHostedService>(this IServiceCollection services)
-            where TStartupHostedService : class, IStartupHostedService
+        public static void AddStartupHostedService<T>(this IServiceCollection services)
+            where T : class, IStartupHostedService
         {
-            services.AddSingleton<TStartupHostedService>();
-            services.AddTransient<IStartupHostedService>(sp => sp.GetService<TStartupHostedService>());
-            services.AddHostedService(sp => sp.GetService<TStartupHostedService>());
+            services.AddSingleton<T>();
+            services.AddTransient<IStartupHostedService>(sp => sp.GetService<T>());
+            services.AddHostedService(sp => sp.GetService<T>());
         }
 
-        public static IApplicationBuilder MapHealthChecks(this IApplicationBuilder app)
+        public static void MapConventionalHealthChecks(this IEndpointRouteBuilder options)
         {
-            return app.UseEndpoints(
-                options =>
-                {
-                    options.MapHealthChecks("/healthz/live",    _ => false);
-                    options.MapHealthChecks("/healthz/startup", "startup");
-                    options.MapHealthChecks("/healthz/ready",   "ready");
-                });
+            options.MapHealthChecks("/healthz/live",    _ => false);
+            options.MapHealthChecks("/healthz/startup", "startup");
+            options.MapHealthChecks("/healthz/ready",   "ready");
         }
 
         public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options, string pattern, params string[] tags)
