@@ -1,6 +1,7 @@
 namespace RecShark.AspNetCore.Configurator
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Builder;
@@ -8,25 +9,54 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using RecShark.AspNetCore.Health;
+    using RecShark.Extensions;
 
     public static class HealthCheckConfigurator
     {
         public static IServiceCollection AddHealthChecks(this IServiceCollection services, Action<IHealthChecksBuilder> healthCheckBuilder)
         {
-            var builder = services.AddHealthChecks();
+            var builder = services
+                         .AddHealthChecks()
+                         .AddCheck<StartupHealthChecker>("startup", tags: new[] {"startup"});
             healthCheckBuilder?.Invoke(builder);
             return services;
         }
 
-        public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options)
+        public static void AddStartupHostedService<T>(this IServiceCollection services)
+            where T : class, IStartupHostedService
+        {
+            services.AddSingleton<T>();
+            services.AddTransient<IStartupHostedService>(sp => sp.GetService<T>());
+            services.AddHostedService(sp => sp.GetService<T>());
+        }
+
+        public static void MapConventionalHealthChecks(this IEndpointRouteBuilder options)
+        {
+            options.MapHealthChecks("/healthz/live",    _ => false);
+            options.MapHealthChecks("/healthz/startup", "startup");
+            options.MapHealthChecks("/healthz/ready",   "ready");
+        }
+
+        public static IEndpointConventionBuilder MapHealthChecks(this IEndpointRouteBuilder options, string pattern, params string[] tags)
+        {
+            return options.MapHealthChecks(pattern, check => !tags.Any() || check.Tags.ContainsAny(tags));
+        }
+
+        public static IEndpointConventionBuilder MapHealthChecks(
+            this IEndpointRouteBuilder          options,
+            string                              pattern,
+            Func<HealthCheckRegistration, bool> predicate = null)
         {
             return options.MapHealthChecks(
-                "/health",
-                new HealthCheckOptions()
+                pattern,
+                new HealthCheckOptions
                 {
+                    Predicate      = predicate,
                     ResponseWriter = WriteResponse
                 });
         }
