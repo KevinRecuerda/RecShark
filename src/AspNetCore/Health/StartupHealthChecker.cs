@@ -21,10 +21,10 @@
         {
             var data = new ReadOnlyDictionary<string, object>(
                 this.Services.ToDictionary(
-                    s => s.GetType().Name,
+                    s => s.Name,
                     s => (object) s.HasCompleted.ToString("Completed", "Failed", "Running")));
 
-            var healthCheckResult = this.Services.Any(s => s.HasCompleted == true)
+            var healthCheckResult = this.Services.All(s => s.HasCompleted == true)
                                         ? HealthCheckResult.Healthy(data: data)
                                         : HealthCheckResult.Unhealthy(data: data);
             return Task.FromResult(healthCheckResult);

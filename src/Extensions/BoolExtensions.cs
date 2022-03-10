@@ -4,7 +4,7 @@
     {
         public static string ToString(this bool? x, string trueValue = "", string falseValue = "", string nullValue = "")
         {
-            return x.HasValue ? nullValue :
+            return !x.HasValue ? nullValue :
                    x.Value    ? trueValue : falseValue;
         }
     }
