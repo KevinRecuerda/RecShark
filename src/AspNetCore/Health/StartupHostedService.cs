@@ -5,13 +5,7 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 
-    public interface IStartupHostedService : IHostedService
-    {
-        public string Name         { get; }
-        public bool?  HasCompleted { get; set; }
-    }
-
-    public abstract class StartupHostedService : BackgroundService, IStartupHostedService
+    public abstract class StartupHostedService : BackgroundService, IHostedService
     {
         public StartupHostedService(ILogger logger)
         {

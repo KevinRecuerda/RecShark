@@ -6,16 +6,17 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
+    using Microsoft.Extensions.Hosting;
     using RecShark.Extensions;
 
     public class StartupHealthChecker : IHealthCheck
     {
-        public StartupHealthChecker(IEnumerable<IStartupHostedService> services)
+        public StartupHealthChecker(IEnumerable<IHostedService> services)
         {
-            this.Services = services.ToList();
+            this.Services = services.OfType<StartupHostedService>().ToList();
         }
 
-        private List<IStartupHostedService> Services { get; }
+        private List<StartupHostedService> Services { get; }
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {

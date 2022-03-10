@@ -1,15 +1,14 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using RecShark.AspNetCore.Configurator;
-using RecShark.AspNetCore.Options;
-
 namespace RecShark.AspNetCore.Sample
 {
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using RecShark.AspNetCore.Configurator;
+    using RecShark.AspNetCore.Options;
     using RecShark.DependencyInjection;
     using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -26,6 +25,10 @@ namespace RecShark.AspNetCore.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConfig<SwaggerConfigurator.ApiInfo>("ApiInfo");
+            services.AddHostedService<ShortStartupHealthService>();
+            services.AddHostedService<FailStartupHealthService>();
+            services.AddHostedService<FailAsyncStartupHealthService>();
+            services.AddHostedService<CanceledStartupHealthService>();
 
             services.AddOptions()
                     .AddHttpContextAccessor()
