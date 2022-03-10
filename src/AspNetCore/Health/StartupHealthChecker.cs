@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
+    using RecShark.Extensions;
 
     public class StartupHealthChecker : IHealthCheck
     {
@@ -21,13 +22,11 @@
             var data = new ReadOnlyDictionary<string, object>(
                 this.Services.ToDictionary(
                     s => s.GetType().Name,
-                    s => (object) (
-                                      !s.HasCompleted.HasValue ? "Running" :
-                                      s.HasCompleted.Value     ? "Completed" : "Failed")));
+                    s => (object) s.HasCompleted.ToString("Completed", "Failed", "Running")));
 
-            var healthCheckResult = this.Services.Any(s => s.HasCompleted != true)
-                                        ? HealthCheckResult.Unhealthy(data: data)
-                                        : HealthCheckResult.Healthy(data: data);
+            var healthCheckResult = this.Services.Any(s => s.HasCompleted == true)
+                                        ? HealthCheckResult.Healthy(data: data)
+                                        : HealthCheckResult.Unhealthy(data: data);
             return Task.FromResult(healthCheckResult);
         }
     }

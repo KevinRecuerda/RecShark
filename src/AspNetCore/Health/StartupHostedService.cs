@@ -27,8 +27,10 @@
                            t =>
                            {
                                this.HasCompleted = t.IsCompletedSuccessfully;
-
                                var type = this.GetType().Name;
+                               if (t.IsCompletedSuccessfully)
+                                   this.Logger.LogInformation("Service {Type} has successfully completed", type);
+                               
                                if (t.IsCanceled)
                                    this.Logger.LogWarning("Task has been cancelled when executing service {Type}", type);
 
