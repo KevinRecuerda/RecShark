@@ -27,13 +27,13 @@
 
                 this.HasCompleted = !stoppingToken.IsCancellationRequested;
                 if (stoppingToken.IsCancellationRequested)
-                    this.Logger.LogInformation("Service {Name} has successfully completed", this.Name);
+                    this.Logger.LogInformation("Startup service {Name} completed", this.Name);
                 else
-                    this.Logger.LogWarning("Task has been cancelled when executing service {Name}", this.Name);
+                    this.Logger.LogWarning("Startup service {Name} cancelled", this.Name);
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, "An error occured when running service {Name}", this.Name);
+                this.Logger.LogError(e, "Startup service {Name} failed", this.Name);
                 this.HasCompleted = false;
             }
         }
