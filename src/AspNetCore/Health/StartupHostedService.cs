@@ -27,9 +27,9 @@
 
                 this.HasCompleted = !stoppingToken.IsCancellationRequested;
                 if (stoppingToken.IsCancellationRequested)
-                    this.Logger.LogInformation("Startup service {Name} completed", this.Name);
-                else
                     this.Logger.LogWarning("Startup service {Name} cancelled", this.Name);
+                else
+                    this.Logger.LogInformation("Startup service {Name} completed", this.Name);
             }
             catch (Exception e)
             {
