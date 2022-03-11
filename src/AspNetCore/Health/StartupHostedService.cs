@@ -1,5 +1,6 @@
 ﻿namespace RecShark.AspNetCore.Health
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Hosting;
@@ -18,20 +19,23 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Run(() => this.InnerExecute(stoppingToken), stoppingToken)
-                      .ContinueWith(
-                           t =>
-                           {
-                               this.HasCompleted = t.IsCompletedSuccessfully;
-                               if (t.IsCompletedSuccessfully)
-                                   this.Logger.LogInformation("Service {Name} has successfully completed", this.Name);
+            await Task.Yield();
 
-                               if (t.IsCanceled)
-                                   this.Logger.LogWarning("Task has been cancelled when executing service {Name}", this.Name);
+            try
+            {
+                await this.InnerExecute(stoppingToken);
 
-                               if (t.IsFaulted)
-                                   this.Logger.LogError(t.Exception, "An error occured when running service {Name}", this.Name);
-                           });
+                this.HasCompleted = !stoppingToken.IsCancellationRequested;
+                if (stoppingToken.IsCancellationRequested)
+                    this.Logger.LogInformation("Service {Name} has successfully completed", this.Name);
+                else
+                    this.Logger.LogWarning("Task has been cancelled when executing service {Name}", this.Name);
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, "An error occured when running service {Name}", this.Name);
+                this.HasCompleted = false;
+            }
         }
 
         public abstract Task InnerExecute(CancellationToken stoppingToken);
