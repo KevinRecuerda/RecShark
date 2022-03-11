@@ -1,23 +1,43 @@
 ﻿namespace RecShark.AspNetCore.Health
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
 
-    public interface IStartupHostedService : IHostedService
+    public abstract class StartupHostedService : BackgroundService, IHostedService
     {
-        public bool HasCompleted { get; set; }
-    }
+        public StartupHostedService(ILogger logger)
+        {
+            this.Logger = logger;
+        }
 
-    public abstract class StartupHostedService : BackgroundService, IStartupHostedService
-    {
-        public bool HasCompleted { get; set; }
+        public virtual string  Name         => this.GetType().Name;
+        public         bool?   HasCompleted { get; set; }
+        public         ILogger Logger       { get; set; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await this.InnerExecute(stoppingToken);
+            await Task.Yield();
 
-            this.HasCompleted = true;
+            try
+            {
+                await this.InnerExecute(stoppingToken);
+
+                this.HasCompleted = true;
+                this.Logger.LogInformation("Startup service {Name} completed", this.Name);
+            }
+            catch (OperationCanceledException)
+            {
+                this.HasCompleted = false;
+                this.Logger.LogWarning("Startup service {Name} cancelled", this.Name);
+            }
+            catch (Exception e)
+            {
+                this.HasCompleted = false;
+                this.Logger.LogError(e, "Startup service {Name} failed", this.Name);
+            }
         }
 
         public abstract Task InnerExecute(CancellationToken stoppingToken);

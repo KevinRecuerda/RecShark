@@ -1,7 +1,6 @@
 namespace RecShark.AspNetCore.Configurator
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Builder;
@@ -9,7 +8,6 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -25,14 +23,6 @@ namespace RecShark.AspNetCore.Configurator
                          .AddCheck<StartupHealthChecker>("startup", tags: new[] {"startup"});
             healthCheckBuilder?.Invoke(builder);
             return services;
-        }
-
-        public static void AddStartupHostedService<T>(this IServiceCollection services)
-            where T : class, IStartupHostedService
-        {
-            services.AddSingleton<T>();
-            services.AddTransient<IStartupHostedService>(sp => sp.GetService<T>());
-            services.AddHostedService(sp => sp.GetService<T>());
         }
 
         public static void MapConventionalHealthChecks(this IEndpointRouteBuilder options)
