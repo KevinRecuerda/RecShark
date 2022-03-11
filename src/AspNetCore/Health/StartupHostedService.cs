@@ -25,16 +25,18 @@
             {
                 await this.InnerExecute(stoppingToken);
 
-                this.HasCompleted = !stoppingToken.IsCancellationRequested;
-                if (stoppingToken.IsCancellationRequested)
-                    this.Logger.LogWarning("Startup service {Name} cancelled", this.Name);
-                else
-                    this.Logger.LogInformation("Startup service {Name} completed", this.Name);
+                this.HasCompleted = true;
+                this.Logger.LogInformation("Startup service {Name} completed", this.Name);
+            }
+            catch (OperationCanceledException)
+            {
+                this.HasCompleted = false;
+                this.Logger.LogWarning("Startup service {Name} cancelled", this.Name);
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, "Startup service {Name} failed", this.Name);
                 this.HasCompleted = false;
+                this.Logger.LogError(e, "Startup service {Name} failed", this.Name);
             }
         }
 
