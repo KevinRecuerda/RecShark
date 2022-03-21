@@ -60,7 +60,7 @@ namespace RecShark.AspNetCore.Configurator
             configurator?.Invoke(serilogConfig);
 
             Log.Logger      = serilogConfig.CreateLogger();
-            apiHealthLogger = Log.Logger.ForContext(new[] { new PropertyEnricher("SourceContext", "api-health") });
+            apiHealthLogger = Log.Logger.ForContext(new[] {new PropertyEnricher("SourceContext", "api-health")});
             return Log.Logger;
         }
 
@@ -87,17 +87,11 @@ namespace RecShark.AspNetCore.Configurator
 
         public class ExcludedPathFilter : ILogEventFilter
         {
-            private readonly List<string> excludedPaths;
+            private readonly string[] excludedPaths;
 
             public ExcludedPathFilter(params string[] excludedPaths)
             {
-                this.excludedPaths = excludedPaths.ToList();
-            }
-
-            public void AddExcludedPaths(IEnumerable<string> paths)
-            {
-                if (paths != null)
-                    this.excludedPaths.AddRange(paths);
+                this.excludedPaths = excludedPaths;
             }
 
             public bool IsEnabled(LogEvent logEvent)
