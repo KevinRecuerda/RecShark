@@ -53,14 +53,22 @@ namespace RecShark.AspNetCore.Configurator
                                .ReadFrom.Configuration(configuration)
                                .Enrich.FromLogContext()
                                .Enrich.WithProperty("server-host", host)
-                               .Filter.With(new ExcludedPathFilter("/swagger", "/health", "/favicon.ico"))
+                               .Filter.With(
+                                    new ExcludedPathFilter(
+                                        "/swagger",
+                                        "/health",
+                                        "/healthz/startup",
+                                        "/healthz/ready",
+                                        "/healthz/live",
+                                        "/metrics",
+                                        "/favicon.ico"))
                                .WriteTo.Console(outputTemplate: OutputTemplate)
                                .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
 
             configurator?.Invoke(serilogConfig);
 
             Log.Logger      = serilogConfig.CreateLogger();
-            apiHealthLogger = Log.Logger.ForContext(new[] { new PropertyEnricher("SourceContext", "api-health") });
+            apiHealthLogger = Log.Logger.ForContext(new[] {new PropertyEnricher("SourceContext", "api-health")});
             return Log.Logger;
         }
 
