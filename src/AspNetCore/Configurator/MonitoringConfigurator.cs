@@ -23,10 +23,11 @@ namespace RecShark.AspNetCore.Configurator
             this IServiceCollection      services,
             IConfiguration               configuration,
             Action<IHealthChecksBuilder> healthCheckBuilder = null,
-            Action<LoggerConfiguration>  loggerConfigurator = null)
+            Action<LoggerConfiguration>  loggerConfigurator = null,
+            string[]                     excludedPaths      = null)
         {
             services.AddHealthChecks(healthCheckBuilder);
-            services.AddLogging(configuration, loggerConfigurator);
+            services.AddLogging(configuration, loggerConfigurator, excludedPaths);
             return services;
         }
     }

@@ -34,15 +34,23 @@ namespace RecShark.AspNetCore.Configurator
             applicationLifetime.ApplicationStopped.Register(OnStopped);
         }
 
-        public static void AddLogging(this IServiceCollection services, IConfiguration configuration, Action<LoggerConfiguration> configurator = null)
+        public static void AddLogging(
+            this IServiceCollection     services,
+            IConfiguration              configuration,
+            Action<LoggerConfiguration> configurator   = null,
+            string[]                    excludedPaths = null)
         {
-            var logger = CreateLogger(configuration, configurator);
+            var logger = CreateLogger(configuration, configurator, excludedPaths);
             services.TryAddSingleton(logger);
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
         }
 
-        public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator)
+        public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator, string[] excludedPaths = null)
         {
+            var allExcludedPaths = new List<string> {"/swagger", "/healthz", "/favicon.ico"};
+            if (excludedPaths != null)
+                allExcludedPaths.AddRange(excludedPaths);
+
             var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? "", "logs", "log.txt");
 
             var host = Dns.GetHostName();
@@ -53,15 +61,7 @@ namespace RecShark.AspNetCore.Configurator
                                .ReadFrom.Configuration(configuration)
                                .Enrich.FromLogContext()
                                .Enrich.WithProperty("server-host", host)
-                               .Filter.With(
-                                    new ExcludedPathFilter(
-                                        "/swagger",
-                                        "/health",
-                                        "/healthz/startup",
-                                        "/healthz/ready",
-                                        "/healthz/live",
-                                        "/metrics",
-                                        "/favicon.ico"))
+                               .Filter.With(new ExcludedPathFilter(allExcludedPaths.ToArray()))
                                .WriteTo.Console(outputTemplate: OutputTemplate)
                                .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
 
