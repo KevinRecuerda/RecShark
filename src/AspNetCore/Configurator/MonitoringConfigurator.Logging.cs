@@ -11,6 +11,7 @@ namespace RecShark.AspNetCore.Configurator
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Hosting;
+    using RecShark.AspNetCore.Extensions;
     using Serilog;
     using Serilog.Core;
     using Serilog.Core.Enrichers;
@@ -53,7 +54,7 @@ namespace RecShark.AspNetCore.Configurator
                                .ReadFrom.Configuration(configuration)
                                .Enrich.FromLogContext()
                                .Enrich.WithProperty("server-host", host)
-                               .Filter.With(new ExcludedPathFilter("/swagger", "/healthz", "/favicon.ico"))
+                               .Filter.ExcludePaths("/swagger", "/healthz", "/favicon.ico")
                                .WriteTo.Console(outputTemplate: OutputTemplate)
                                .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
 
@@ -62,11 +63,6 @@ namespace RecShark.AspNetCore.Configurator
             Log.Logger      = serilogConfig.CreateLogger();
             apiHealthLogger = Log.Logger.ForContext(new[] {new PropertyEnricher("SourceContext", "api-health")});
             return Log.Logger;
-        }
-
-        public static Action<LoggerConfiguration> PathFilterConfigurator(params string[] excludedPaths)
-        {
-            return config => config.Filter.With(new ExcludedPathFilter(excludedPaths));
         }
 
         private static void OnStarted()
