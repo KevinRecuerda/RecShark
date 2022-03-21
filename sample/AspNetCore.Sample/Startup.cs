@@ -33,7 +33,7 @@ namespace RecShark.AspNetCore.Sample
             services.AddOptions()
                     .AddHttpContextAccessor()
                     .AddOA3Routing()
-                    .AddMonitoring(this.Configuration, excludedPaths: new []{"/api/v2/enum"})
+                    .AddMonitoring(this.Configuration, loggerConfigurator: LoggingConfigurator.PathFilterConfigurator("/api/v2/enum"))
                      // .AddSecurity()
                     .AddOA3Swagger<CustomSwaggerOptions>()
                     .AddOA3Mvc()

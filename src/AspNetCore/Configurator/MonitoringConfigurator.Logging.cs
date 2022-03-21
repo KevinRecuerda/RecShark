@@ -34,23 +34,15 @@ namespace RecShark.AspNetCore.Configurator
             applicationLifetime.ApplicationStopped.Register(OnStopped);
         }
 
-        public static void AddLogging(
-            this IServiceCollection     services,
-            IConfiguration              configuration,
-            Action<LoggerConfiguration> configurator   = null,
-            string[]                    excludedPaths = null)
+        public static void AddLogging(this IServiceCollection services, IConfiguration configuration, Action<LoggerConfiguration> configurator = null)
         {
-            var logger = CreateLogger(configuration, configurator, excludedPaths);
+            var logger = CreateLogger(configuration, configurator);
             services.TryAddSingleton(logger);
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
         }
 
-        public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator, string[] excludedPaths = null)
+        public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator)
         {
-            var allExcludedPaths = new List<string> {"/swagger", "/healthz", "/favicon.ico"};
-            if (excludedPaths != null)
-                allExcludedPaths.AddRange(excludedPaths);
-
             var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? "", "logs", "log.txt");
 
             var host = Dns.GetHostName();
@@ -61,15 +53,20 @@ namespace RecShark.AspNetCore.Configurator
                                .ReadFrom.Configuration(configuration)
                                .Enrich.FromLogContext()
                                .Enrich.WithProperty("server-host", host)
-                               .Filter.With(new ExcludedPathFilter(allExcludedPaths.ToArray()))
+                               .Filter.With(new ExcludedPathFilter("/swagger", "/healthz", "/favicon.ico"))
                                .WriteTo.Console(outputTemplate: OutputTemplate)
                                .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
 
             configurator?.Invoke(serilogConfig);
 
             Log.Logger      = serilogConfig.CreateLogger();
-            apiHealthLogger = Log.Logger.ForContext(new[] {new PropertyEnricher("SourceContext", "api-health")});
+            apiHealthLogger = Log.Logger.ForContext(new[] { new PropertyEnricher("SourceContext", "api-health") });
             return Log.Logger;
+        }
+
+        public static Action<LoggerConfiguration> PathFilterConfigurator(params string[] excludedPaths)
+        {
+            return config => config.Filter.With(new ExcludedPathFilter(excludedPaths));
         }
 
         private static void OnStarted()
@@ -90,11 +87,17 @@ namespace RecShark.AspNetCore.Configurator
 
         public class ExcludedPathFilter : ILogEventFilter
         {
-            private readonly string[] excludedPaths;
+            private readonly List<string> excludedPaths;
 
             public ExcludedPathFilter(params string[] excludedPaths)
             {
-                this.excludedPaths = excludedPaths;
+                this.excludedPaths = excludedPaths.ToList();
+            }
+
+            public void AddExcludedPaths(IEnumerable<string> paths)
+            {
+                if (paths != null)
+                    this.excludedPaths.AddRange(paths);
             }
 
             public bool IsEnabled(LogEvent logEvent)
