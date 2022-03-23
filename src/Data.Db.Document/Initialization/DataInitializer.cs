@@ -43,6 +43,7 @@ namespace RecShark.Data.Db.Document.Initialization
                                   ? exception.InnerException.Message
                                   : exception.Message;
                 logger.LogError(exception, $"error occured: {message}");
+                throw;
             }
             finally
             {
