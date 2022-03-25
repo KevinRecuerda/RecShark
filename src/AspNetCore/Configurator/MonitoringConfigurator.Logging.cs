@@ -2,9 +2,7 @@ namespace RecShark.AspNetCore.Configurator
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Net;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
@@ -16,11 +14,10 @@ namespace RecShark.AspNetCore.Configurator
     using Serilog.Core;
     using Serilog.Core.Enrichers;
     using Serilog.Events;
+    using Serilog.Formatting.Compact;
 
     public static class LoggingConfigurator
     {
-        private const string OutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message}{NewLine}{Exception}";
-
         private static ILogger apiHealthLogger = null!;
 
         public static void UseLogging(
@@ -35,28 +32,26 @@ namespace RecShark.AspNetCore.Configurator
             applicationLifetime.ApplicationStopped.Register(OnStopped);
         }
 
-        public static void AddLogging(this IServiceCollection services, IConfiguration configuration, Action<LoggerConfiguration> configurator = null)
+        public static void AddLogging(this IServiceCollection services, IConfiguration configuration, bool useJsonFormatter = false, Action<LoggerConfiguration> configurator = null)
         {
-            var logger = CreateLogger(configuration, configurator);
+            var logger = CreateLogger(configuration, useJsonFormatter, configurator);
             services.TryAddSingleton(logger);
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
         }
 
-        public static ILogger CreateLogger(IConfiguration configuration, Action<LoggerConfiguration> configurator)
+        public static ILogger CreateLogger(IConfiguration configuration, bool useJsonFormatter = false, Action<LoggerConfiguration> configurator = null)
         {
-            var filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? "", "logs", "log.txt");
-
-            var host = Dns.GetHostName();
             var serilogConfig = new LoggerConfiguration()
-                               .MinimumLevel.Is(LogEventLevel.Information)
                                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                                .MinimumLevel.Override("System", LogEventLevel.Warning)
                                .ReadFrom.Configuration(configuration)
                                .Enrich.FromLogContext()
-                               .Enrich.WithProperty("server-host", host)
-                               .Filter.ExcludePaths("/swagger", "/healthz", "/favicon.ico")
-                               .WriteTo.Console(outputTemplate: OutputTemplate)
-                               .WriteTo.File(filename, outputTemplate: OutputTemplate, rollingInterval: RollingInterval.Day);
+                               .Filter.ExcludePaths("/swagger", "/healthz", "/favicon.ico");
+
+            if (useJsonFormatter)
+                serilogConfig.WriteTo.Console(new RenderedCompactJsonFormatter());
+            else
+                serilogConfig.WriteTo.Console();
 
             configurator?.Invoke(serilogConfig);
 
