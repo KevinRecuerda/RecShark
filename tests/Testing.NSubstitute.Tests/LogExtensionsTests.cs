@@ -7,6 +7,8 @@ using Xunit;
 
 namespace RecShark.Testing.NSubstitute.Tests
 {
+    using System.Collections.Generic;
+
     public class LogExtensionsTests
     {
         private readonly ILogger logger = Substitute.For<ILogger>();
@@ -32,6 +34,21 @@ namespace RecShark.Testing.NSubstitute.Tests
 
             // Act
             logger.Logged(LogLevel.Error, "error!", 2);
+        }
+
+        [Fact]
+        public void Logged__Should_manage_scope()
+        {
+            // Arrange
+            using (var c = this.logger.BeginScope(new Dictionary<string, string> {["id"] = "5"}))
+            {
+                logger.Log(LogLevel.Error, "{id} {name} error!", "sylvain");
+            }
+
+            // Act
+            logger.Logged(LogLevel.Error, "[5] sylvain error!");
+            //logger.Logged(null,           "error!");
+            //logger.Logged(LogLevel.Error, null);
         }
 
         [Fact]

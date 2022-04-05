@@ -7,6 +7,8 @@ using NSubstitute.Core;
 
 namespace RecShark.Testing.NSubstitute
 {
+    using System.Collections.Generic;
+
     public static class LogExtensions
     {
         public static void Logged(this ILogger logger, LogLevel? level = null, string wildcardExpression = null, int count = 1)
@@ -49,18 +51,22 @@ namespace RecShark.Testing.NSubstitute
             if (callsToAdapt.Count == 0)
                 return;
 
+            var beginScopeCalls = calls.Where(call => call.GetMethodInfo().ToString().Contains("BeginScope")).ToList();
+            //var scopeProperties = beginScopeCalls.SelectMany(c => c.GetArguments().FirstOrDefault() as Dictionary<string, string>).ToList();
+
+
             logger.ClearReceivedCalls();
-            foreach (var call in calls)
+            foreach (var call in callsToAdapt)
                 ReCall(logger, call);
         }
 
         private static void ReCall(ILogger logger, ICall call)
         {
             var args      = call.GetArguments();
-            var logLevel  = (LogLevel)args[0];
-            var eventId   = (EventId)args[1];
+            var logLevel  = (LogLevel) args[0];
+            var eventId   = (EventId) args[1];
             var message   = (args[2] as FormattedLogValuesComparable) ?? new FormattedLogValuesComparable(args[2].ToString());
-            var exception = (Exception)args[3];
+            var exception = (Exception) args[3];
 
             logger.Log<object>(logLevel, eventId, message, exception, (state, ex) => state.ToString());
         }
