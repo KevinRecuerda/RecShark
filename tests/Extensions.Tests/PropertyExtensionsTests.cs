@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
-using Xunit;
-
-namespace RecShark.Extensions.Tests
+﻿namespace RecShark.Extensions.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using FluentAssertions;
+    using Xunit;
+
     public class PropertyExtensionsTests
     {
         [Fact]
@@ -36,7 +36,7 @@ namespace RecShark.Extensions.Tests
 
             actual.Should().HaveCount(2);
             actual.Should().Contain(new KeyValuePair<string, object>("Name", "cat"));
-            actual.Should().Contain(new KeyValuePair<string, object>("Age", 10));
+            actual.Should().Contain(new KeyValuePair<string, object>("Age",  10));
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace RecShark.Extensions.Tests
             var expected = @"
 Name = 'cat'
 Age  = '10'"
-                .Remove(0, Environment.NewLine.Length);
+               .Remove(0, Environment.NewLine.Length);
             actual.Should().Be(expected);
         }
 
@@ -64,10 +64,29 @@ Age  = '10'"
             actual.Should().Be("5");
         }
 
+        [Fact]
+        public void Decompose__Should_return_selected_field()
+        {
+            // Arrange
+            var animal = new Animal {Name = "cat", Age = 10};
+
+            // Act
+            var actualName   = animal.ToAccessor(a => a.Name);
+            var actualAge    = animal.ToAccessor(a => a.Age);
+            var actualAnimal = animal.ToAccessor(a => a);
+
+            // Assert
+            actualName.Get().Should().Be("cat");
+            actualName.ToString().Should().Be("cat");
+            actualAge.Get().Should().Be(10);
+            actualAge.ToString().Should().Be("10");
+            actualAnimal.Get().Should().Be(animal);
+        }
+
         private class Animal
         {
             public string Name { get; set; }
-            public int Age { get; set; }
+            public int    Age  { get; set; }
         }
     }
 }
