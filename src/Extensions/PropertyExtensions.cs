@@ -33,7 +33,7 @@
         {
             return new PropertyAccessor<T, TResult>(item, selector);
         }
-
+        
         public class PropertyAccessor<T, TResult>
         {
             public T                Item     { get; }
@@ -52,7 +52,7 @@
 
             public override string ToString()
             {
-                return this.Selector(this.Item).ToString();
+                return this.Selector(this.Item)?.ToString();
             }
         }
     }

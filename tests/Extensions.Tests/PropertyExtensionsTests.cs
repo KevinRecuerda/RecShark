@@ -65,22 +65,29 @@ Age  = '10'"
         }
 
         [Fact]
-        public void Decompose__Should_return_selected_field()
+        public void ToAccessor__Should_return_property_values()
         {
             // Arrange
-            var animal = new Animal {Name = "cat", Age = 10};
+            var animal      = new Animal {Name = "cat", Age = 10};
+            var animalEmpty = new Animal();
 
             // Act
+            var actualAnimal = animal.ToAccessor(a => a);
             var actualName   = animal.ToAccessor(a => a.Name);
             var actualAge    = animal.ToAccessor(a => a.Age);
-            var actualAnimal = animal.ToAccessor(a => a);
+            var actualEmpty  = animalEmpty.ToAccessor(a => a.Name);
 
             // Assert
+            actualAnimal.Get().Should().Be(animal);
             actualName.Get().Should().Be("cat");
             actualName.ToString().Should().Be("cat");
+            animal.Name = "dog";
+            actualName.Get().Should().Be("dog");
+            actualName.ToString().Should().Be("dog");
             actualAge.Get().Should().Be(10);
             actualAge.ToString().Should().Be("10");
-            actualAnimal.Get().Should().Be(animal);
+            actualEmpty.ToString().Should().BeNull();
+            actualEmpty.Get().Should().BeNull();
         }
 
         private class Animal
