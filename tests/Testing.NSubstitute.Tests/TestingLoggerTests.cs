@@ -43,8 +43,10 @@ namespace RecShark.Testing.NSubstitute.Tests
         public void Logged__Should_manage_count()
         {
             // Arrange
+            logger.Log(LogLevel.Error, "Error!");
             logger.Log(LogLevel.Error, "error!");
-            logger.Log(LogLevel.Error, "error!");
+            logger.Log(LogLevel.Error, "something else");
+            logger.Log(LogLevel.Information, "error!");
 
             // Act
             logger.Logged(LogLevel.Error, "error!", count: 2);
@@ -137,6 +139,8 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Arrange
             logger.Log(LogLevel.Error, "Error!");
             logger.Log(LogLevel.Error, "error!");
+            logger.Log(LogLevel.Error, "something else");
+            logger.Log(LogLevel.Information, "error!");
 
             // Act
             logger.Logged(LogLevel.Error, "*ror*", count: 2);
