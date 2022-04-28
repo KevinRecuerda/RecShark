@@ -46,9 +46,10 @@ namespace RecShark.Extensions
             return !prefix.IsNullOrEmpty() ? $"{prefix}{space}{text}" : text;
         }
 
-        public static string Suffixing(this string text, string suffix)
+        public static string Suffixing(this string text, string suffix, bool spacing = true)
         {
-            return !suffix.IsNullOrEmpty() ? $"{text} {suffix}" : text;
+            var space = spacing ? " " : "";
+            return !suffix.IsNullOrEmpty() ? $"{text}{space}{suffix}" : text;
         }
 
         public static string Quoting(this object value, string quotes = "'")
