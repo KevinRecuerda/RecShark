@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Extensions\Extensions.csproj" />
     <ProjectReference Include="..\Testing.FluentAssertions.Tests\Testing.FluentAssertions.Tests.csproj" />
     <ProjectReference Include="..\..\src\Testing.NSubstitute\Testing.NSubstitute.csproj" />
   </ItemGroup>

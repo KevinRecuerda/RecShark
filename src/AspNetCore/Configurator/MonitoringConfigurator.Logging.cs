@@ -52,7 +52,7 @@ namespace RecShark.AspNetCore.Configurator
 
             var sinks = serilogConfig.GetFieldValue<List<ILogEventSink>>("_logEventSinks");
             if (sinks?.Any() != true)
-                serilogConfig.WriteTo.Console();
+                serilogConfig.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
 
             Log.Logger      = serilogConfig.CreateLogger();
             apiHealthLogger = Log.Logger.ForContext(new[] {new PropertyEnricher("SourceContext", "api-health")});
