@@ -8,7 +8,7 @@ namespace RecShark.Extensions
     {
         public static bool MatchAny(this string text, params string[] patterns)
         {
-            return patterns.Any(p => Regex.IsMatch(text, p, RegexOptions.Multiline));
+            return patterns.Any(p => Regex.IsMatch(text, p, RegexOptions.Singleline));
         }
 
         public static bool SmartMatchAny(this string text, params string[] wildcardPatterns)
