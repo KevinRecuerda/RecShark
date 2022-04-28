@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.Exceptions;
 using RecShark.Extensions;
+using RecShark.Testing.FluentAssertions.Tests;
 using Xunit;
 
 namespace RecShark.Testing.NSubstitute.Tests
@@ -234,6 +235,25 @@ namespace RecShark.Testing.NSubstitute.Tests
             action.Should()
                   .Throw<ReceivedCallsException>()
                   .WithMessage(@"*Log(<null>, Error, ~""jason error!"", ~""id=1"")*");
+        }
+
+        [Trait("category", "scope")]
+        [Fact]
+        public void Logged__Should_manage_scope_With_dynamic_info()
+        {
+            // Arrange
+            var item = new ObjectForTests(1, 3, DateTime.Now);
+            using (logger.WithScope(("id", item.ToAccessor(x => x.Id))))
+            {
+                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                item.Id = 5;
+                logger.Log(LogLevel.Error, "{name} error!", "jason");
+            }
+
+            // Act
+            logger.Logged(LogLevel.Error, "jason error!", count:2);
+            logger.Logged(LogLevel.Error, "jason error!", "id=1");
+            logger.Logged(LogLevel.Error, "jason error!", "id=5");
         }
 
         [Trait("category", "scope")]
