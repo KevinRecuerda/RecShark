@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Provides some NSubstitute extensions</Description>
     <PackageTags>$(PackageTags);testing;NSubstitute;extensions</PackageTags>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Extensions\Extensions.csproj" />
     <ProjectReference Include="..\Testing.FluentAssertions\Testing.FluentAssertions.csproj" />
   </ItemGroup>
 

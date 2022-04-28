@@ -26,7 +26,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
         {
             // Arrange
             var factory         = Hooks.Provider.GetService<IDocumentStoreFactory>();
-            var logger          = Substitute.For<ILogger<DataInitializer>>();
+            var logger          = Substitute.For<TestingLogger<DataInitializer>>();
             var dataInitializer = Substitute.For<DataInitializer>(factory, logger);
 
             var locker = Substitute.For<IDataLocker>();

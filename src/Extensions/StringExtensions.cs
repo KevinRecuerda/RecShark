@@ -8,12 +8,19 @@ namespace RecShark.Extensions
     {
         public static bool MatchAny(this string text, params string[] patterns)
         {
-            return patterns.Any(p => Regex.IsMatch(text, p));
+            return patterns.Any(p => Regex.IsMatch(text, p, RegexOptions.Singleline));
         }
 
-        public static bool SmartMatchAny(this string text, params string[] patterns)
+        public static bool SmartMatchAny(this string text, params string[] wildcardPatterns)
         {
-            var smartPatterns = patterns.Select(p => $"^{p.Replace("*", ".*")}$").ToArray();
+            string Build(string pattern)
+            {
+                var smartPattern = (pattern ?? "*").Replace("*", ".*")
+                                                   .Replace("?", ".");
+                return $"^{smartPattern}$";
+            }
+
+            var smartPatterns = wildcardPatterns.Select(Build).ToArray();
             return text.MatchAny(smartPatterns);
         }
 
@@ -33,14 +40,21 @@ namespace RecShark.Extensions
             return offset;
         }
 
-        public static string Prefixing(this string text, string prefix)
+        public static string Prefixing(this string text, string prefix, bool spacing = true)
         {
-            return !prefix.IsNullOrEmpty() ? $"{prefix} {text}" : text;
+            var space = spacing ? " " : "";
+            return !prefix.IsNullOrEmpty() ? $"{prefix}{space}{text}" : text;
         }
 
-        public static string Suffixing(this string text, string suffix)
+        public static string Suffixing(this string text, string suffix, bool spacing = true)
         {
-            return !suffix.IsNullOrEmpty() ? $"{text} {suffix}" : text;
+            var space = spacing ? " " : "";
+            return !suffix.IsNullOrEmpty() ? $"{text}{space}{suffix}" : text;
+        }
+
+        public static string Quoting(this object value, string quotes = "'")
+        {
+            return $"{quotes}{value}{quotes}";
         }
 
         public static string Keying(this object value, string key, bool quoteValue = false)
@@ -52,7 +66,7 @@ namespace RecShark.Extensions
         public static string Keying(this object value, string key, string quotes)
         {
             return !value.ToString().IsNullOrEmpty()
-                ? $"{key}={quotes}{value}{quotes}"
+                ? $"{key}={value.Quoting(quotes)}"
                 : "";
         }
 
@@ -83,7 +97,7 @@ namespace RecShark.Extensions
         public static string Indent(this string text, bool useSpaces = true)
         {
             var tabulation = useSpaces ? "    " : "\t";
-            var result = text.Replace(Environment.NewLine, $"{Environment.NewLine}{tabulation}");
+            var result     = text.Replace(Environment.NewLine, $"{Environment.NewLine}{tabulation}");
             return $"{tabulation}{result}";
         }
     }
