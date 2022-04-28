@@ -73,11 +73,6 @@ namespace RecShark.Testing.NSubstitute
             this.Logged(exception, level, message, scope, 0);
         }
 
-        public void LoggedInOrder(Action<TestingLogger> calls)
-        {
-            Received.InOrder(() => { calls(this); });
-        }
-
         protected abstract void Log(Exception exception, LogLevel logLevel, RenderedPattern message, RenderedPattern scope);
     }
 

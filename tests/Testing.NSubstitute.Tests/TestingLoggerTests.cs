@@ -43,7 +43,7 @@ namespace RecShark.Testing.NSubstitute.Tests
         public void Logged__Should_manage_count()
         {
             // Arrange
-            logger.Log(LogLevel.Error, "Error!");
+            logger.Log(LogLevel.Error, "error!");
             logger.Log(LogLevel.Error, "error!");
             logger.Log(LogLevel.Error, "something else");
             logger.Log(LogLevel.Information, "error!");
@@ -255,7 +255,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             }
 
             // Act
-            logger.Logged(LogLevel.Error, "jason error!", count:2);
+            logger.Logged(LogLevel.Error, "jason error!", count: 2);
             logger.Logged(LogLevel.Error, "jason error!", "id=1");
             logger.Logged(LogLevel.Error, "jason error!", "id=5");
         }
@@ -271,7 +271,7 @@ namespace RecShark.Testing.NSubstitute.Tests
                 {
                     for (var i = 1; i <= 3; i++)
                     {
-                        logger.LogInformation("{number}", ratio*i);
+                        logger.LogInformation("{number}", ratio * i);
                         Thread.Sleep(500);
                     }
                 }
@@ -365,13 +365,12 @@ namespace RecShark.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Information, "information!");
 
             // Act
-            logger.LoggedInOrder(
-                x =>
-                {
-                    x.Logged(LogLevel.Error, "error!");
-                    x.Logged(LogLevel.Warning, "warning!");
-                    x.Logged(LogLevel.Information, "information!");
-                });
+            Received.InOrder(() =>
+            {
+                logger.Logged(LogLevel.Error, "error!");
+                logger.Logged(LogLevel.Warning, "warning!");
+                logger.Logged(LogLevel.Information, "information!");
+            });
         }
 
         [Trait("category", "inOrder")]
@@ -384,13 +383,12 @@ namespace RecShark.Testing.NSubstitute.Tests
             logger.Log(LogLevel.Information, "information!");
 
             // Act
-            Action action = () => logger.LoggedInOrder(
-                x =>
-                {
-                    x.Logged(LogLevel.Information, "information!");
-                    x.Logged(LogLevel.Warning, "warning!");
-                    x.Logged(LogLevel.Error, "error!");
-                });
+            Action action = () => Received.InOrder(() =>
+            {
+                logger.Logged(LogLevel.Information, "information!");
+                logger.Logged(LogLevel.Warning, "warning!");
+                logger.Logged(LogLevel.Error, "error!");
+            });
 
             // Assert
             action.Should()
