@@ -223,8 +223,12 @@ namespace RecShark.Testing.NSubstitute.Tests
         }
 
         [Trait("category", "scope")]
-        [Fact]
-        public void Logged__Should_manage_scope_With_failure()
+        [Theory]
+        [InlineData("id=1")]
+        [InlineData("id=5")]
+        [InlineData("id=5__ex=test__other=y")]
+        [InlineData("*__ex=test2__*")]
+        public void Logged__Should_manage_scope_With_failure(string scope)
         {
             // Arrange
             using (logger.WithScope(("id", "5"), ("ex", "test")))
@@ -233,14 +237,12 @@ namespace RecShark.Testing.NSubstitute.Tests
                 logger.Log(LogLevel.Error, "{name} error!", "jason");
             }
 
-            // Act / Assert
-            var scopes = new[] {"id=1", "id=5", "id=5__ex=test__other=y", "*__ex=test2__*"};
-            foreach (var scope in scopes)
-            {
-                Action action = () => logger.Logged(LogLevel.Error, "jason error!", scope);
-                action.Should().Throw<ReceivedCallsException>()
-                      .WithMessage($@"*Log(<null>, Error, ~""jason error!"", ~""{scope}"")*");
-            }
+            // Act
+            Action action = () => logger.Logged(LogLevel.Error, "jason error!", scope);
+
+            // Assert
+            action.Should().Throw<ReceivedCallsException>()
+                  .WithMessage($@"*Log(<null>, Error, ~""jason error!"", ~""{scope}"")*");
         }
 
         [Trait("category", "scope")]
