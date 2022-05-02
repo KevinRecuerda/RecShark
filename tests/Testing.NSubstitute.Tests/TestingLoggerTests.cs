@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -269,7 +270,7 @@ namespace RecShark.Testing.NSubstitute.Tests
         public async Task Logged__Should_manage_scope_With_multiple_thread()
         {
             // Arrange
-            void LogNums(int ratio, string name)
+            Task LogNums(int ratio, string name)
             {
                 using (logger.WithScope(("name", name)))
                 {
@@ -279,6 +280,7 @@ namespace RecShark.Testing.NSubstitute.Tests
                         Thread.Sleep(500);
                     }
                 }
+                return Task.CompletedTask;
             }
 
             using (logger.WithScope(("scope", "//")))
@@ -286,8 +288,8 @@ namespace RecShark.Testing.NSubstitute.Tests
                 logger.LogInformation("Starting ...");
 
                 await Task.WhenAll(
-                    Task.Run(() => LogNums(1, "pos")),
-                    Task.Run(() => LogNums(-1, "neg"))
+                    LogNums(1, "pos"),
+                    LogNums(-1, "neg")
                 );
 
                 logger.LogInformation("Finished");
@@ -302,6 +304,49 @@ namespace RecShark.Testing.NSubstitute.Tests
             logger.Logged(LogLevel.Information, "-1", "scope=//__name=neg");
             logger.Logged(LogLevel.Information, "-2", "scope=//__name=neg");
             logger.Logged(LogLevel.Information, "-3", "scope=//__name=neg");
+        }
+
+        [Trait("category", "scope")]
+        [Fact]
+        public async Task Logged__Should_manage_scope_With_parallelization()
+        {
+            // Arrange
+            Task LogNums(int n)
+            {
+                using (logger.WithScope(("name", n)))
+                {
+                    for (var i = 1; i <= 2; i++)
+                    {
+                        logger.LogInformation("{number}", 10*n+i);
+                        Thread.Sleep(500);
+                    }
+                }
+                return Task.CompletedTask;
+            }
+
+            using (logger.WithScope(("scope", "//")))
+            {
+                logger.LogInformation("Starting ...");
+
+                var numbers = Enumerable.Range(1, 5).ToList();
+                await numbers.RunParallel(LogNums, 3);
+
+                logger.LogInformation("Finished");
+            }
+
+            // Act
+            logger.Logged(LogLevel.Information, "Starting ...", "scope=//");
+            logger.Logged(LogLevel.Information, "Finished", "scope=//");
+            logger.Logged(LogLevel.Information, "11", "scope=//__name=1");
+            logger.Logged(LogLevel.Information, "12", "scope=//__name=1");
+            logger.Logged(LogLevel.Information, "21", "scope=//__name=2");
+            logger.Logged(LogLevel.Information, "22", "scope=//__name=2");
+            logger.Logged(LogLevel.Information, "31", "scope=//__name=3");
+            logger.Logged(LogLevel.Information, "32", "scope=//__name=3");
+            logger.Logged(LogLevel.Information, "41", "scope=//__name=4");
+            logger.Logged(LogLevel.Information, "42", "scope=//__name=4");
+            logger.Logged(LogLevel.Information, "51", "scope=//__name=5");
+            logger.Logged(LogLevel.Information, "52", "scope=//__name=5");
         }
 
         [Fact]
