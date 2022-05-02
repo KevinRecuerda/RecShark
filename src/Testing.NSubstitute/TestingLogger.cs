@@ -15,7 +15,7 @@ namespace RecShark.Testing.NSubstitute
     // partial credit: https://github.com/nsubstitute/NSubstitute/issues/597#issuecomment-653555567
     public abstract class TestingLogger : ILogger
     {
-        public const string ScopePropertyDelimiter = "|";
+        public const string ScopePropertyDelimiter = "__";
 
         private static readonly AsyncLocal<List<TestingScope>> scopes = new AsyncLocal<List<TestingScope>>();
 

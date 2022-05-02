@@ -218,8 +218,8 @@ namespace RecShark.Testing.NSubstitute.Tests
 
             // Act
             logger.Logged(LogLevel.Error, "jason error!");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5|*");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5|ex=test|other=x");
+            logger.Logged(LogLevel.Error, "jason error!", "id=5__*");
+            logger.Logged(LogLevel.Error, "jason error!", "id=5__ex=test__other=x");
         }
 
         [Trait("category", "scope")]
@@ -227,18 +227,20 @@ namespace RecShark.Testing.NSubstitute.Tests
         public void Logged__Should_manage_scope_With_failure()
         {
             // Arrange
-            using (logger.WithScope(("id", "5")))
+            using (logger.WithScope(("id", "5"), ("ex", "test")))
+            using (logger.WithScope(("other", "x")))
             {
                 logger.Log(LogLevel.Error, "{name} error!", "jason");
             }
 
-            // Act
-            Action action = () => logger.Logged(LogLevel.Error, "jason error!", "id=1");
-
-            // Assert
-            action.Should()
-                  .Throw<ReceivedCallsException>()
-                  .WithMessage(@"*Log(<null>, Error, ~""jason error!"", ~""id=1"")*");
+            // Act / Assert
+            var scopes = new[] {"id=1", "id=5", "id=5__ex=test__other=y", "*__ex=test2__*"};
+            foreach (var scope in scopes)
+            {
+                Action action = () => logger.Logged(LogLevel.Error, "jason error!", scope);
+                action.Should().Throw<ReceivedCallsException>()
+                      .WithMessage($@"*Log(<null>, Error, ~""jason error!"", ~""{scope}"")*");
+            }
         }
 
         [Trait("category", "scope")]
@@ -292,12 +294,12 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Act
             logger.Logged(LogLevel.Information, "Starting ...", "scope=//");
             logger.Logged(LogLevel.Information, "Finished", "scope=//");
-            logger.Logged(LogLevel.Information, "1", "scope=//||name=pos");
-            logger.Logged(LogLevel.Information, "2", "scope=//||name=pos");
-            logger.Logged(LogLevel.Information, "3", "scope=//||name=pos");
-            logger.Logged(LogLevel.Information, "-1", "scope=//||name=neg");
-            logger.Logged(LogLevel.Information, "-2", "scope=//||name=neg");
-            logger.Logged(LogLevel.Information, "-3", "scope=//||name=neg");
+            logger.Logged(LogLevel.Information, "1", "scope=//__name=pos");
+            logger.Logged(LogLevel.Information, "2", "scope=//__name=pos");
+            logger.Logged(LogLevel.Information, "3", "scope=//__name=pos");
+            logger.Logged(LogLevel.Information, "-1", "scope=//__name=neg");
+            logger.Logged(LogLevel.Information, "-2", "scope=//__name=neg");
+            logger.Logged(LogLevel.Information, "-3", "scope=//__name=neg");
         }
 
         [Fact]
