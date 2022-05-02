@@ -15,16 +15,16 @@ namespace RecShark.Testing.NSubstitute
     // partial credit: https://github.com/nsubstitute/NSubstitute/issues/597#issuecomment-653555567
     public abstract class TestingLogger : ILogger
     {
-        public const string ScopePropertyDelimiter = "|";
+        public const string ScopePropertyDelimiter = "__";
 
         private static readonly AsyncLocal<List<TestingScope>> scopes = new AsyncLocal<List<TestingScope>>();
 
-        public static AsyncLocal<List<TestingScope>> Scopes
+        public static List<TestingScope> Scopes
         {
             get
             {
                 scopes.Value ??= new List<TestingScope>();
-                return scopes;
+                return scopes.Value;
             }
         }
 
@@ -32,7 +32,7 @@ namespace RecShark.Testing.NSubstitute
 
         void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            var scope = Scopes.Value.Where(s => !s.IsDisposed && s.Scope != null)
+            var scope = Scopes.Where(s => !s.IsDisposed && s.Scope != null)
                               .Select(s => s.Scope)
                               .Aggregate(new Dictionary<string, object>(), (all, x) => all.Apply(x))
                               .Select(x => x.Value.Keying(x.Key))
@@ -48,7 +48,7 @@ namespace RecShark.Testing.NSubstitute
         public IDisposable BeginScope<TState>(TState state)
         {
             var scope = new TestingScope() {Scope = state as Dictionary<string, object>};
-            Scopes.Value.Add(scope);
+            Scopes.Add(scope);
             return scope;
         }
 

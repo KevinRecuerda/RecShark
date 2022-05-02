@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RecShark.Extensions
 {
@@ -70,6 +72,44 @@ namespace RecShark.Extensions
             }
 
             return subLists;
+        }
+
+        public static List<T>[] Split<T>(this IEnumerable<T> items, int size)
+        {
+            if (size < 1)
+                throw new ArgumentException("Size must be strictly positive", nameof(size));
+
+            return items.Select((item, i) => new {item, i})
+                        .GroupBy(x => x.i % size, x => x.item)
+                        .Select(g => g.ToList())
+                        .ToArray();
+        }
+
+        public static List<T>[] Chunk<T>(this IEnumerable<T> items, int chunkSize)
+        {
+            if (chunkSize < 1)
+                throw new ArgumentException("Chunk size must be strictly positive", nameof(chunkSize));
+
+            return items.Select((item, i) => new {item, i})
+                        .GroupBy(x => x.i / chunkSize, x => x.item)
+                        .Select(g => g.ToList())
+                        .ToArray();
+        }
+
+        public static async Task RunParallel<T>(this IEnumerable<T> items, Func<T, Task> action, int degreeOfParallelism = 3)
+        {
+            var queue = new ConcurrentQueue<T>(items);
+
+            async Task Run()
+            {
+                while (queue.TryDequeue(out var item))
+                {
+                    await action(item);
+                }
+            }
+
+            var tasks = Enumerable.Range(1, degreeOfParallelism).Select(i => Run()).ToArray();
+            await Task.WhenAll(tasks);
         }
 
         private static int MatchCondition<T>(T item, Func<T, bool>[] conditions)

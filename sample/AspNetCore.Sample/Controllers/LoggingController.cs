@@ -30,7 +30,7 @@ namespace RecShark.AspNetCore.Sample.Controllers
                 {
                     for (var i = 1; i <= 3; i++)
                     {
-                        logger.LogInformation("{number}", ratio*i);
+                        logger.LogInformation("{number}", ratio * i);
                         Thread.Sleep(500);
                     }
                 }
