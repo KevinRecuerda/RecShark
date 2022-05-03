@@ -308,10 +308,10 @@ namespace RecShark.Testing.NSubstitute.Tests
 
         [Trait("category", "scope")]
         [Fact]
-        public async Task Logged__Should_manage_scope_With_parallelization()
+        public void Logged__Should_manage_scope_With_parallelization()
         {
             // Arrange
-            Task LogNums(int n)
+            void LogNums(int n)
             {
                 using (logger.WithScope(("name", n)))
                 {
@@ -321,7 +321,6 @@ namespace RecShark.Testing.NSubstitute.Tests
                         Thread.Sleep(100);
                     }
                 }
-                return Task.CompletedTask;
             }
 
             using (logger.WithScope(("scope", "//")))
@@ -329,7 +328,7 @@ namespace RecShark.Testing.NSubstitute.Tests
                 logger.LogInformation("Starting ...");
 
                 var numbers = Enumerable.Range(1, 5).ToList();
-                await numbers.RunParallel(LogNums, 3);
+                Parallel.ForEach(numbers, new ParallelOptions() {MaxDegreeOfParallelism = 3}, LogNums);
 
                 logger.LogInformation("Finished");
             }

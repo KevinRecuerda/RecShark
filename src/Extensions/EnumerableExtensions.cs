@@ -95,12 +95,6 @@ namespace RecShark.Extensions
                         .ToArray();
         }
 
-        public static Task RunParallel<T>(this IEnumerable<T> items, Func<T, Task> action, int degreeOfParallelism = 3)
-        {
-            var tasks = items.AsParallel().WithDegreeOfParallelism(3).Select(action).ToArray();
-            return Task.WhenAll(tasks);
-        }
-
         private static int MatchCondition<T>(T item, Func<T, bool>[] conditions)
         {
             for (var i = 0; i < conditions.Length; i++)

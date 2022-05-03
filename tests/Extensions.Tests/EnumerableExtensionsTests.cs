@@ -142,24 +142,5 @@ namespace RecShark.Extensions.Tests
             actual.Should().HaveCount(1);
             actual[0].Should().BeEquivalentTo(items);
         }
-
-        [Fact]
-        public async Task RunParallel__Should_run_in_parallel()
-        {
-            // Arrange
-            Task Do(int i)
-            {
-                Thread.Sleep(100);
-                return Task.CompletedTask;
-            }
-
-            var items = new[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
-
-            // Act
-            var actual = await Watch.Ms(() => items.RunParallel(Do, 3));
-
-            // Assert
-            actual.Should().BeInRange(300, 400);
-        }
     }
 }
