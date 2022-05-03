@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -11,7 +13,7 @@ namespace RecShark.Extensions.Tests
         [Fact]
         public void IsNullOrEmpty__Should_return_true_When_list_is_null()
         {
-            ((IEnumerable<string>)null).IsNullOrEmpty().Should().Be(true);
+            ((IEnumerable<string>) null).IsNullOrEmpty().Should().Be(true);
         }
 
         [Fact]
@@ -111,14 +113,14 @@ namespace RecShark.Extensions.Tests
         public void Partition__Should_partition_list_according_to_conditions()
         {
             // Arrange
-            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
+            var items = new[] {-15, -10, -5, 0, 5, 10, 15};
 
             // Act
             var actual = items.Partition(
                 x => x > 10,
                 x => x >= 0,
                 x => x <= -10);
-            
+
             // Assert
             actual.Should().HaveCount(4);
             actual[0].Should().ContainInOrder(15);
@@ -131,14 +133,33 @@ namespace RecShark.Extensions.Tests
         public void Partition__Should_manage_no_conditions()
         {
             // Arrange
-            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
+            var items = new[] {-15, -10, -5, 0, 5, 10, 15};
 
             // Act
             var actual = items.Partition();
-            
+
             // Assert
             actual.Should().HaveCount(1);
             actual[0].Should().BeEquivalentTo(items);
+        }
+
+        [Fact]
+        public async Task RunParallel__Should_run_in_parallel()
+        {
+            // Arrange
+            Task Do(int i)
+            {
+                Thread.Sleep(100);
+                return Task.CompletedTask;
+            }
+
+            var items = new[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+            // Act
+            var actual = await Watch.Ms(() => items.RunParallel(Do, 3));
+
+            // Assert
+            actual.Should().BeInRange(300, 400);
         }
     }
 }

@@ -318,7 +318,7 @@ namespace RecShark.Testing.NSubstitute.Tests
                     for (var i = 1; i <= 2; i++)
                     {
                         logger.LogInformation("{number}", 10*n+i);
-                        Thread.Sleep(500);
+                        Thread.Sleep(100);
                     }
                 }
                 return Task.CompletedTask;
