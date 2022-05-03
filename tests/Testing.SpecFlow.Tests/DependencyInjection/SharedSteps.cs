@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using RecShark.DependencyInjection;
-using RecShark.DependencyInjection.Tests;
 using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 

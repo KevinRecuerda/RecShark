@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RecShark.Extensions
 {
@@ -31,7 +29,7 @@ namespace RecShark.Extensions
         public static IEnumerable<TSource> ConcatIf<TSource>(this IEnumerable<TSource> source, TSource element, bool condition)
         {
             if (condition)
-                source = source.Concat(new[] { element });
+                source = source.Concat(new[] {element});
             return source;
         }
 
@@ -62,7 +60,7 @@ namespace RecShark.Extensions
         public static List<T>[] Partition<T>(this IEnumerable<T> list, params Func<T, bool>[] conditions)
         {
             if (conditions == null || conditions.Length == 0)
-                return new[] { list.ToList() };
+                return new[] {list.ToList()};
 
             var subLists = Enumerable.Range(0, conditions.Length + 1).Select(i => new List<T>()).ToArray();
             foreach (var item in list)
@@ -94,22 +92,6 @@ namespace RecShark.Extensions
                         .GroupBy(x => x.i / chunkSize, x => x.item)
                         .Select(g => g.ToList())
                         .ToArray();
-        }
-
-        public static async Task RunParallel<T>(this IEnumerable<T> items, Func<T, Task> action, int degreeOfParallelism = 3)
-        {
-            var queue = new ConcurrentQueue<T>(items);
-
-            async Task Run()
-            {
-                while (queue.TryDequeue(out var item))
-                {
-                    await action(item);
-                }
-            }
-
-            var tasks = Enumerable.Range(1, degreeOfParallelism).Select(i => Run()).ToArray();
-            await Task.WhenAll(tasks);
         }
 
         private static int MatchCondition<T>(T item, Func<T, bool>[] conditions)

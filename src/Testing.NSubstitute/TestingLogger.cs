@@ -17,9 +17,9 @@ namespace RecShark.Testing.NSubstitute
     {
         public const string ScopePropertyDelimiter = "__";
 
-        private static readonly AsyncLocal<List<TestingScope>> scopes = new AsyncLocal<List<TestingScope>>();
+        private AsyncLocal<List<TestingScope>> scopes = new AsyncLocal<List<TestingScope>>();
 
-        public static List<TestingScope> Scopes
+        public List<TestingScope> Scopes
         {
             get
             {
@@ -48,7 +48,7 @@ namespace RecShark.Testing.NSubstitute
         public IDisposable BeginScope<TState>(TState state)
         {
             var scope = new TestingScope() {Scope = state as Dictionary<string, object>};
-            Scopes.Add(scope);
+            scopes.Value = Scopes.Concat(scope.InList()).ToList(); // combine & create new list, to avoid collision caused by shallow clone of execution context
             return scope;
         }
 

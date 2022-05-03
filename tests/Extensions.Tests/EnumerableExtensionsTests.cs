@@ -11,7 +11,7 @@ namespace RecShark.Extensions.Tests
         [Fact]
         public void IsNullOrEmpty__Should_return_true_When_list_is_null()
         {
-            ((IEnumerable<string>)null).IsNullOrEmpty().Should().Be(true);
+            ((IEnumerable<string>) null).IsNullOrEmpty().Should().Be(true);
         }
 
         [Fact]
@@ -111,14 +111,14 @@ namespace RecShark.Extensions.Tests
         public void Partition__Should_partition_list_according_to_conditions()
         {
             // Arrange
-            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
+            var items = new[] {-15, -10, -5, 0, 5, 10, 15};
 
             // Act
             var actual = items.Partition(
                 x => x > 10,
                 x => x >= 0,
                 x => x <= -10);
-            
+
             // Assert
             actual.Should().HaveCount(4);
             actual[0].Should().ContainInOrder(15);
@@ -131,11 +131,11 @@ namespace RecShark.Extensions.Tests
         public void Partition__Should_manage_no_conditions()
         {
             // Arrange
-            var items = new[] { -15, -10, -5, 0, 5, 10, 15 };
+            var items = new[] {-15, -10, -5, 0, 5, 10, 15};
 
             // Act
             var actual = items.Partition();
-            
+
             // Assert
             actual.Should().HaveCount(1);
             actual[0].Should().BeEquivalentTo(items);
