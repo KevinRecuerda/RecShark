@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.DependencyInjection;
-using RecShark.DependencyInjection.Tests;
 using RecShark.Testing.DependencyInjection;
 using TechTalk.SpecFlow;
 
