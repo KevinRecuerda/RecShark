@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RecShark.DependencyInjection;
+using RecShark.Testing.NSubstitute;
 
 namespace RecShark.Testing.DependencyInjection
 {
@@ -34,11 +35,11 @@ namespace RecShark.Testing.DependencyInjection
         public IServiceCollection Services { get; set; }
         public IServiceProvider   Provider { get; private set; }
 
-        public ILogger GetLogger<T>()
+        public TestingLogger GetLogger<T>()
         {
             var factory = Provider.GetService<ILoggerFactory>();
             var logger  = factory.CreateLogger(typeof(T));
-            return logger;
+            return logger as TestingLogger;
         }
 
         public virtual void Dispose() { }
