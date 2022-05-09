@@ -3,19 +3,34 @@ name: .NET Core - CD
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   publish:
 
     runs-on: ubuntu-latest
+    env:
+      PATTERN: ${{ github.event.number == 0 && '**/*.nupkg' || '**/*-beta*.nupkg'  }}
+      PUSH_ARGS: ${{ github.event.number == 0 && '' || '--no-symbols true'  }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
-    - name: Pack
-      run: dotnet pack -c Release
-    - name: Push
-      run: dotnet nuget push **/*.nupkg --skip-duplicate -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}}
+      - uses: actions/checkout@v3
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Pack
+        run: dotnet pack -c Release
+
+      - name: Check packages
+        id: check_packages
+        uses: andstor/file-existence-action@v1
+        with:
+          files: ${{env.PATTERN}}
+
+      - name: Push
+        if: steps.check_packages.outputs.files_exists == 'true'
+        run: dotnet nuget push ${{env.PATTERN}} --skip-duplicate -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} ${{env.PUSH_ARGS}}
