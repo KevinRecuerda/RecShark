@@ -26,13 +26,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+
+    - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
-    - name: Install dependencies
+
+    - name: Install
       run: dotnet restore
+
     - name: Build
       run: dotnet build -c Release --no-restore
+
     - name: Test
       run: dotnet test -c Release --no-build

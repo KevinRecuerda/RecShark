@@ -36,7 +36,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage(@"*Log(<null>, Error, ~""error!"", <null>)*");
+                  .WithMessage(@"*Log(<null>, Error, <null>, ~""error!"")*");
         }
 
         [Trait("category", "count")]
@@ -101,7 +101,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage(@"*Log(<null>, Error, ~""error!"", <null>)*");
+                  .WithMessage(@"*Log(<null>, Error, <null>, ~""error!"")*");
         }
 
         [Trait("category", "wildcard")]
@@ -157,7 +157,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage(@"*Log(<null>, Error, ~""*ror*"", <null>)*");
+                  .WithMessage(@"*Log(<null>, Error, <null>, ~""*ror*"")*");
         }
 
         [Trait("category", "wildcard")]
@@ -176,6 +176,23 @@ namespace RecShark.Testing.NSubstitute.Tests
                   .WithMessage("*Expected to receive exactly 2 calls matching*");
         }
 
+        [Trait("category", "special char")]
+        [Theory]
+        [InlineData("[TAG] msg", "[T*G] msg")]
+        [InlineData("{TAG} msg", "{T*G} msg")]
+        [InlineData("(TAG) msg", "(T*G) msg")]
+        [InlineData("|TAG| msg", "|T*G| msg")]
+        [InlineData("+TAG+ msg", "+T*G+ msg")]
+        [InlineData("#TAG# msg", "#T*G# msg")]
+        public void Logged__Should_manage_special_char(string log, string pattern)
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, log);
+
+            // Act
+            logger.Logged(LogLevel.Error, pattern);
+        }
+
         [Trait("category", "arg params")]
         [Fact]
         public void Logged__Should_manage_arg_params()
@@ -191,6 +208,32 @@ namespace RecShark.Testing.NSubstitute.Tests
             logger.Logged(Arg.Is<Exception>(e => e.Message.Contains("error")), Arg.Any<LogLevel>());
         }
 
+        [Trait("category", "template")]
+        [Fact]
+        public void Logged__Should_manage_template()
+        {
+            // Arrange
+            logger.Log(LogLevel.Error, "{name} error!", "jason");
+
+            // Act
+            logger.Logged(LogLevel.Error, "jason error!");
+            logger.LoggedScope(LogLevel.Error, "name=jason", "jason error!");
+        }
+
+        [Trait("category", "template")]
+        [Trait("category", "scope")]
+        [Fact]
+        public void Logged__Should_manage_template_and_scope()
+        {
+            // Arrange
+            using (logger.WithScope(("name", "context")))
+                logger.Log(LogLevel.Error, "{name} error!", "jason");
+
+            // Act
+            logger.Logged(LogLevel.Error, "jason error!");
+            logger.LoggedScope(LogLevel.Error, "name=jason", "jason error!");
+        }
+
         [Trait("category", "scope")]
         [Fact]
         public void Logged__Should_manage_scope()
@@ -198,12 +241,12 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Arrange
             using (logger.WithScope(("id", "5")))
             {
-                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                logger.Log(LogLevel.Error, "jason error!");
             }
 
             // Act
             logger.Logged(LogLevel.Error, "jason error!");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5");
+            logger.LoggedScope(LogLevel.Error, "id=5", "jason error!");
         }
 
         [Trait("category", "scope")]
@@ -214,13 +257,28 @@ namespace RecShark.Testing.NSubstitute.Tests
             using (logger.WithScope(("id", "5"), ("ex", "test")))
             using (logger.WithScope(("other", "x")))
             {
-                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                logger.Log(LogLevel.Error, "jason error!");
             }
 
             // Act
             logger.Logged(LogLevel.Error, "jason error!");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5__*");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5__ex=test__other=x");
+            logger.LoggedScope(LogLevel.Error, "id=5__*", "jason error!");
+            logger.LoggedScope(LogLevel.Error, "id=5__ex=test__other=x", "jason error!");
+        }
+
+        [Trait("category", "scope")]
+        [Fact]
+        public void Logged__Should_manage_scopes_override()
+        {
+            // Arrange
+            using (logger.WithScope(("id", "5")))
+            using (logger.WithScope(("id", "3")))
+            {
+                logger.Log(LogLevel.Error, "{id} error!", 1);
+            }
+
+            // Act
+            logger.LoggedScope(LogLevel.Error, "id=1", "1 error!");
         }
 
         [Trait("category", "scope")]
@@ -235,15 +293,15 @@ namespace RecShark.Testing.NSubstitute.Tests
             using (logger.WithScope(("id", "5"), ("ex", "test")))
             using (logger.WithScope(("other", "x")))
             {
-                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                logger.Log(LogLevel.Error, "jason error!");
             }
 
             // Act
-            Action action = () => logger.Logged(LogLevel.Error, "jason error!", scope);
+            Action action = () => logger.LoggedScope(LogLevel.Error, scope, "jason error!");
 
             // Assert
             action.Should().Throw<ReceivedCallsException>()
-                  .WithMessage($@"*Log(<null>, Error, ~""jason error!"", ~""{scope}"")*");
+                  .WithMessage($@"*Log(<null>, Error, ~""{scope}"", ~""jason error!"")*");
         }
 
         [Trait("category", "scope")]
@@ -251,18 +309,18 @@ namespace RecShark.Testing.NSubstitute.Tests
         public void Logged__Should_manage_scope_With_dynamic_info()
         {
             // Arrange
-            var item = new ObjectForTests(1, 3, DateTime.Now);
+            var item = new ObjectForTests(1, 3.14, DateTime.Now);
             using (logger.WithScope(("id", item.ToAccessor(x => x.Id))))
             {
-                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                logger.Log(LogLevel.Error, "jason error!");
                 item.Id = 5;
-                logger.Log(LogLevel.Error, "{name} error!", "jason");
+                logger.Log(LogLevel.Error, "jason error!");
             }
 
             // Act
             logger.Logged(LogLevel.Error, "jason error!", count: 2);
-            logger.Logged(LogLevel.Error, "jason error!", "id=1");
-            logger.Logged(LogLevel.Error, "jason error!", "id=5");
+            logger.LoggedScope(LogLevel.Error, "id=1", "jason error!");
+            logger.LoggedScope(LogLevel.Error, "id=5", "jason error!");
         }
 
         [Trait("category", "scope")]
@@ -276,10 +334,11 @@ namespace RecShark.Testing.NSubstitute.Tests
                 {
                     for (var i = 1; i <= 3; i++)
                     {
-                        logger.LogInformation("{number}", ratio * i);
+                        logger.LogInformation($"{ratio * i}");
                         Thread.Sleep(500);
                     }
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -296,14 +355,14 @@ namespace RecShark.Testing.NSubstitute.Tests
             }
 
             // Act
-            logger.Logged(LogLevel.Information, "Starting ...", "scope=//");
-            logger.Logged(LogLevel.Information, "Finished", "scope=//");
-            logger.Logged(LogLevel.Information, "1", "scope=//__name=pos");
-            logger.Logged(LogLevel.Information, "2", "scope=//__name=pos");
-            logger.Logged(LogLevel.Information, "3", "scope=//__name=pos");
-            logger.Logged(LogLevel.Information, "-1", "scope=//__name=neg");
-            logger.Logged(LogLevel.Information, "-2", "scope=//__name=neg");
-            logger.Logged(LogLevel.Information, "-3", "scope=//__name=neg");
+            logger.LoggedScope(LogLevel.Information, "scope=//", "Starting ...");
+            logger.LoggedScope(LogLevel.Information, "scope=//", "Finished");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=pos", "1");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=pos", "2");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=pos", "3");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=neg", "-1");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=neg", "-2");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=neg", "-3");
         }
 
         [Trait("category", "scope")]
@@ -317,7 +376,7 @@ namespace RecShark.Testing.NSubstitute.Tests
                 {
                     for (var i = 1; i <= 2; i++)
                     {
-                        logger.LogInformation("{number}", 10*n+i);
+                        logger.LogInformation($"{10 * n + i}");
                         Thread.Sleep(100);
                     }
                 }
@@ -334,18 +393,18 @@ namespace RecShark.Testing.NSubstitute.Tests
             }
 
             // Act
-            logger.Logged(LogLevel.Information, "Starting ...", "scope=//");
-            logger.Logged(LogLevel.Information, "Finished", "scope=//");
-            logger.Logged(LogLevel.Information, "11", "scope=//__name=1");
-            logger.Logged(LogLevel.Information, "12", "scope=//__name=1");
-            logger.Logged(LogLevel.Information, "21", "scope=//__name=2");
-            logger.Logged(LogLevel.Information, "22", "scope=//__name=2");
-            logger.Logged(LogLevel.Information, "31", "scope=//__name=3");
-            logger.Logged(LogLevel.Information, "32", "scope=//__name=3");
-            logger.Logged(LogLevel.Information, "41", "scope=//__name=4");
-            logger.Logged(LogLevel.Information, "42", "scope=//__name=4");
-            logger.Logged(LogLevel.Information, "51", "scope=//__name=5");
-            logger.Logged(LogLevel.Information, "52", "scope=//__name=5");
+            logger.LoggedScope(LogLevel.Information, "scope=//", "Starting ...");
+            logger.LoggedScope(LogLevel.Information, "scope=//", "Finished");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=1", "11");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=1", "12");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=2", "21");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=2", "22");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=3", "31");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=3", "32");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=4", "41");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=4", "42");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=5", "51");
+            logger.LoggedScope(LogLevel.Information, "scope=//__name=5", "52");
         }
 
         [Fact]
@@ -373,7 +432,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage(@"Expected to receive no calls matching*Log(<null>, Error, ~""error!"", <null>)*");
+                  .WithMessage(@"Expected to receive no calls matching*Log(<null>, Error, <null>, ~""error!"")*");
         }
 
         [Trait("category", "wildcard")]
@@ -400,7 +459,7 @@ namespace RecShark.Testing.NSubstitute.Tests
             // Assert
             action.Should()
                   .Throw<ReceivedCallsException>()
-                  .WithMessage(@"Expected to receive no calls matching*Log(<null>, Error, ~""e*or!"", <null>)*");
+                  .WithMessage(@"Expected to receive no calls matching*Log(<null>, Error, <null>, ~""e*or!"")*");
         }
 
         [Trait("category", "inOrder")]
@@ -443,9 +502,9 @@ namespace RecShark.Testing.NSubstitute.Tests
                   .Throw<CallSequenceNotFoundException>()
                   .WithMessage(@"*Actually received matching calls in this order:
 
-    Log(<null>, Error, ""error!"", """")
-    Log(<null>, Warning, ""warning!"", """")
-    Log(<null>, Information, ""information!"", """")*");
+    Log(<null>, Error, """", ""error!"")
+    Log(<null>, Warning, """", ""warning!"")
+    Log(<null>, Information, """", ""information!"")*");
         }
     }
 }
