@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -26,7 +27,11 @@ namespace RecShark.AspNetCore.Configurator
 
         public class ExceptionHandler
         {
-            private static readonly ErrorResponse DefaultResponse = new ErrorResponse("InternalServerError", "Internal server error");
+            private static readonly ProblemDetails DefaultResponse = new ProblemDetails()
+            {
+                Title = "InternalServerError",
+                Detail = "Internal server error"
+            };
 
             private readonly ExceptionOption option;
             private readonly ILogger<ExceptionHandler> logger;
@@ -57,7 +62,14 @@ namespace RecShark.AspNetCore.Configurator
                 if (option.ExceptionStatusCodes.ContainsKey(type))
                 {
                     code = option.ExceptionStatusCodes[type];
-                    error = new ErrorResponse(type.Name, exception.Message);
+                    error = new ProblemDetails
+                    {
+                        Status =  (int)code,
+                        Type = exception.HelpLink,
+                        Title = type.Name,
+                        Detail = exception.Message,
+                        Instance = context.Request.Path
+                    };
                 }
 
                 var result = JsonConvert.SerializeObject(error);
@@ -65,18 +77,6 @@ namespace RecShark.AspNetCore.Configurator
                 context.Response.StatusCode = (int)code;
                 await context.Response.WriteAsync(result);
             }
-        }
-
-        public class ErrorResponse
-        {
-            public ErrorResponse(string code, string message)
-            {
-                Code = code;
-                Message = message;
-            }
-
-            public string Code { get; }
-            public string Message { get; }
         }
     }
 }
