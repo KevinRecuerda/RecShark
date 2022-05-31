@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Configurator
@@ -44,16 +39,20 @@ namespace RecShark.AspNetCore.Configurator
 
             public void Build()
             {
+                BuildOptions();
                 BuildStatusCodes();
                 BuildAggregatedProblemDetails();
-                problemDetailsOption.Rethrow<Exception>();
+            }
+
+            private void BuildOptions()
+            {
                 problemDetailsOption.IncludeExceptionDetails = (ctx, ex) =>
                 {
                     var env = ctx.RequestServices.GetRequiredService<IWebHostEnvironment>();
                     return env.IsDevelopment();
                 };
             }
-
+            
             private void BuildStatusCodes()
             {
                 MethodInfo mappingMethod = typeof(ProblemDetailsOptions).GetMethod("MapToStatusCode");
@@ -82,12 +81,10 @@ namespace RecShark.AspNetCore.Configurator
                         exception = exception.InnerException ?? except;
                     
                     ProblemsDetails problemsDetails = ProblemsDetails.Build(exception, ctx);
-                    ctx.Response.StatusCode = (int)exceptionOptions.ExceptionStatusCodes[exception.GetType()];
                     problemsDetails.Errors = errors;
                     
                     return problemsDetails;
                 });
-               
             }
         }
 
