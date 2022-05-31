@@ -26,81 +26,86 @@ namespace RecShark.AspNetCore.Configurator
             return app;
         }
 
-        public static IServiceCollection AddException(this IServiceCollection services, IWebHostEnvironment env, ExceptionOption option)
+        public static IServiceCollection AddException(this IServiceCollection services, ExceptionOption option)
         {
-            return services.AddProblemDetails((setup) =>
-            {
-                var problemHandler = new ProblemHandler(option, setup);
-
-                problemHandler.Build();
-                setup.IncludeExceptionDetails = (ctx, ex) => env.IsDevelopment();
-
-            }).AddProblemDetailsConventions();
+            return services.AddProblemDetails((setup) => new ProblemDetailsBuilder(option, setup).Build()).AddProblemDetailsConventions();
         }
 
-        public class ProblemHandler
+        public class ProblemDetailsBuilder
         {
-            private readonly ExceptionOption option;
-            private readonly ProblemDetailsOptions setup;
+            private readonly ExceptionOption exceptionOptions;
+            private readonly ProblemDetailsOptions problemDetailsOption;
             
-            public ProblemHandler(ExceptionOption option,  ProblemDetailsOptions setup)
+            public ProblemDetailsBuilder(ExceptionOption exceptionOptions,  ProblemDetailsOptions problemDetailsOption)
             {
-                this.option = option;
-                this.setup = setup;
+                this.exceptionOptions = exceptionOptions;
+                this.problemDetailsOption = problemDetailsOption;
             }
 
             public void Build()
             {
-                BuildStatusCodeMapping();
-                BuildMultiProblemMapping();
+                BuildStatusCodes();
+                BuildAggregatedProblemDetails();
+                problemDetailsOption.Rethrow<Exception>();
+                problemDetailsOption.IncludeExceptionDetails = (ctx, ex) =>
+                {
+                    var env = ctx.RequestServices.GetRequiredService<IWebHostEnvironment>();
+                    return env.IsDevelopment();
+                };
             }
 
-            private void BuildStatusCodeMapping()
+            private void BuildStatusCodes()
             {
-                MethodInfo method = typeof(ProblemDetailsOptions).GetMethod("MapToStatusCode");
+                MethodInfo mappingMethod = typeof(ProblemDetailsOptions).GetMethod("MapToStatusCode");
 
-                foreach (var exceptionStatusCode in option.ExceptionStatusCodes)
+                foreach (var exceptionStatusCode in exceptionOptions.ExceptionStatusCodes)
                 {
-                    var key = exceptionStatusCode.Key;
-                    var value = exceptionStatusCode.Value;
-                    MethodInfo genericMethod = method.MakeGenericMethod(key);
-                    genericMethod.Invoke(setup, new object?[] {(int)value});
+                    var exceptionType = exceptionStatusCode.Key;
+                    var statusCode = exceptionStatusCode.Value;
+                    MethodInfo genericMethod = mappingMethod?.MakeGenericMethod(exceptionType);
+                    
+                    genericMethod?.Invoke(problemDetailsOption, new object[] {(int)statusCode});
                 }
             }
 
-            private void BuildMultiProblemMapping()
+            private void BuildAggregatedProblemDetails()
             {
-                setup.Map<AggregateException>((ctx, except) =>
+                problemDetailsOption.Map<AggregateException>((ctx, except) =>
                 {
-                    var multiProblemDetail = new MultiProblemDetail()
-                    {
-                        Detail = except.InnerException?.Message ?? except.Message,
-                        Instance = ctx.Request.Path,
-                        Status = ctx.Response.StatusCode,
-                        Type = except.HelpLink,
-                        Title = except!.GetType().Name,
-                    };
-
-                    if (!option.SkipAggregateException)
-                    {
-                        multiProblemDetail.errors = except.InnerExceptions.Select(innerExcept => new ProblemDetails()
-                        {
-                            Detail = innerExcept.InnerException?.Message ?? except.Message,
-                            Instance = ctx.Request.Path,
-                            Status = ctx.Response.StatusCode,
-                            Type = innerExcept.HelpLink,
-                            Title = innerExcept!.GetType().Name,
-                        }).ToArray();
-                    }
-                    return multiProblemDetail;
+                    Exception exception = except;
+                    ProblemDetails[] errors = null;
+                    
+                    if (!exceptionOptions.SkipAggregateException)
+                        errors = except.InnerExceptions
+                                .Select(innerExcept => (ProblemDetails) ProblemsDetails.Build(innerExcept, ctx)).ToArray();
+                    else
+                        exception = exception.InnerException ?? except;
+                    
+                    ProblemsDetails problemsDetails = ProblemsDetails.Build(exception, ctx);
+                    ctx.Response.StatusCode = (int)exceptionOptions.ExceptionStatusCodes[exception.GetType()];
+                    problemsDetails.Errors = errors;
+                    
+                    return problemsDetails;
                 });
                
             }
         }
 
-        public class MultiProblemDetail : ProblemDetails
+        public class ProblemsDetails : ProblemDetails
         {
-            public ProblemDetails[] errors { get; set; }
+            public ProblemDetails[] Errors { get; set; }
+
+            public static ProblemsDetails Build(Exception except, HttpContext ctx)
+            {
+                return new ProblemsDetails()
+                {
+                    Detail = except.Message,
+                    Instance = ctx.Request.Path,
+                    Status = ctx.Response.StatusCode,
+                    Type = except.HelpLink,
+                    Title = except!.GetType().Name,
+                };
+            }
         }
     }
 }
