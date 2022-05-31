@@ -23,7 +23,7 @@ namespace RecShark.AspNetCore.Sample
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
         {
             services.AddConfig<SwaggerConfigurator.ApiInfo>("ApiInfo");
             services.AddHostedService<ShortStartupHealthService>();
@@ -36,6 +36,7 @@ namespace RecShark.AspNetCore.Sample
                     .AddOA3Routing()
                     .AddMonitoring(this.Configuration, loggerConfigurator: config => config.Filter.ExcludePaths("/api/v2/enum"))
                      // .AddSecurity()
+                    .AddException(env, new ExceptionOption() {SkipAggregateException = false})
                     .AddOA3Swagger<CustomSwaggerOptions>()
                     .AddOA3Mvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -54,7 +55,7 @@ namespace RecShark.AspNetCore.Sample
 
             app.UseRouting()
                .UseMonitoring(applicationLifetime)
-               .UseException(new ExceptionOption() {SkipAggregateException = true})
+               .UseException()
                 // .UseSecurity()
                .UseOA3Swagger()
                .UseEndpoints(
