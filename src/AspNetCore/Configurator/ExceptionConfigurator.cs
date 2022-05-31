@@ -70,10 +70,12 @@ namespace RecShark.AspNetCore.Configurator
                         Detail = exception.Message,
                         Instance = context.Request.Path
                     };
+                    context.Response.ContentType = "problem+json";
                 }
-
+                else
+                    context.Response.ContentType = "application/json";
+                
                 var result = JsonConvert.SerializeObject(error);
-                context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)code;
                 await context.Response.WriteAsync(result);
             }
