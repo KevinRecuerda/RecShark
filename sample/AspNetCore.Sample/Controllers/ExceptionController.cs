@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RecShark.AspNetCore.Configurator;
 using RecShark.AspNetCore.Extensions;
-using RecShark.AspNetCore.Options;
 
 namespace RecShark.AspNetCore.Sample.Controllers
 {

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using RecShark.AspNetCore.Options;
 using RecShark.Extensions;
 
 namespace RecShark.AspNetCore.Configurator
@@ -18,7 +17,7 @@ namespace RecShark.AspNetCore.Configurator
             return app;
         }
 
-        public static IServiceCollection AddException(this IServiceCollection services, ExceptionOption option)
+        public static IServiceCollection AddException(this IServiceCollection services, Action<ProblemDetailsOptions> configureProblemDetails = null)
         {
             return services.AddProblemDetails(options =>
                            {
@@ -39,9 +38,21 @@ namespace RecShark.AspNetCore.Configurator
                                options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status403Forbidden);
                                options.MapToStatusCode<NotFoundException>(StatusCodes.Status404NotFound);
 
-                               // TODO: param.configure()
+                               configureProblemDetails?.Invoke(options);
                            })
                            .AddProblemDetailsConventions();
+        }
+    }
+
+
+    public class NotFoundException : Exception
+    {
+        public NotFoundException() : base("Not found")
+        {
+        }
+
+        public NotFoundException(object id) : base($"'${id}' not found")
+        {
         }
     }
 }
