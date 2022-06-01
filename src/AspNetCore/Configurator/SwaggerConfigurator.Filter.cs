@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NJsonSchema.Converters;
@@ -58,6 +61,20 @@ namespace RecShark.AspNetCore.Configurator
                     if (requiredParams.Contains(parameter.Name))
                         parameter.Required = true;
                 }
+            }
+        }
+
+        /// <summary> This filter aims to manage ValidationProblemDetails for 400 status. </summary>
+        public class ValidationProblemDetailsOperationFilter : IOperationFilter
+        {
+            public void Apply(OpenApiOperation operation, OperationFilterContext context)
+            {
+                var status400 = operation.Responses.GetValueOrDefault(StatusCodes.Status400BadRequest.ToString());
+                if (status400 == null)
+                    return;
+
+                foreach (var openApiMediaType in status400.Content.Values)
+                    openApiMediaType.Schema.Reference.Id = nameof(ValidationProblemDetails);
             }
         }
 
