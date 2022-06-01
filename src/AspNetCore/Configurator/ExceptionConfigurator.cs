@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using RecShark.AspNetCore.Options;
+using RecShark.Extensions;
 
 namespace RecShark.AspNetCore.Configurator
 {
@@ -23,86 +20,28 @@ namespace RecShark.AspNetCore.Configurator
 
         public static IServiceCollection AddException(this IServiceCollection services, ExceptionOption option)
         {
-            return services.AddProblemDetails((setup) => new ProblemDetailsBuilder(option, setup).Build()).AddProblemDetailsConventions();
-        }
+            return services.AddProblemDetails(options =>
+                           {
+                               options.ValidationProblemStatusCode = StatusCodes.Status400BadRequest;
 
-        public class ProblemDetailsBuilder
-        {
-            private readonly ExceptionOption exceptionOptions;
-            private readonly ProblemDetailsOptions problemDetailsOption;
-            
-            public ProblemDetailsBuilder(ExceptionOption exceptionOptions,  ProblemDetailsOptions problemDetailsOption)
-            {
-                this.exceptionOptions = exceptionOptions;
-                this.problemDetailsOption = problemDetailsOption;
-            }
+                               options.Map<ArgumentException>((ctx, ex) =>
+                               {
+                                   var pb = StatusCodeProblemDetails.Create(StatusCodes.Status400BadRequest);
+                                   pb.Detail = ex.Message;
 
-            public void Build()
-            {
-                BuildOptions();
-                BuildStatusCodes();
-                BuildAggregatedProblemDetails();
-            }
+                                   var validationPb = new ValidationProblemDetails();
+                                   pb.CloneTo(validationPb);
+                                   if (ex.ParamName != null)
+                                       validationPb.Errors[ex.ParamName] = new[] {ex.Message};
 
-            private void BuildOptions()
-            {
-                problemDetailsOption.IncludeExceptionDetails = (ctx, ex) =>
-                {
-                    var env = ctx.RequestServices.GetRequiredService<IWebHostEnvironment>();
-                    return env.IsDevelopment();
-                };
-            }
-            
-            private void BuildStatusCodes()
-            {
-                MethodInfo mappingMethod = typeof(ProblemDetailsOptions).GetMethod("MapToStatusCode");
+                                   return validationPb;
+                               });
+                               options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status403Forbidden);
+                               options.MapToStatusCode<NotFoundException>(StatusCodes.Status404NotFound);
 
-                foreach (var exceptionStatusCode in exceptionOptions.ExceptionStatusCodes)
-                {
-                    var exceptionType = exceptionStatusCode.Key;
-                    var statusCode = exceptionStatusCode.Value;
-                    MethodInfo genericMethod = mappingMethod?.MakeGenericMethod(exceptionType);
-                    
-                    genericMethod?.Invoke(problemDetailsOption, new object[] {(int)statusCode});
-                }
-            }
-
-            private void BuildAggregatedProblemDetails()
-            {
-                problemDetailsOption.Map<AggregateException>((ctx, except) =>
-                {
-                    Exception exception = except;
-                    ProblemDetails[] errors = null;
-                    
-                    if (!exceptionOptions.SkipAggregateException)
-                        errors = except.InnerExceptions
-                                .Select(innerExcept => (ProblemDetails) ProblemsDetails.Build(innerExcept, ctx)).ToArray();
-                    else
-                        exception = exception.InnerException ?? except;
-                    
-                    ProblemsDetails problemsDetails = ProblemsDetails.Build(exception, ctx);
-                    problemsDetails.Errors = errors;
-                    
-                    return problemsDetails;
-                });
-            }
-        }
-
-        public class ProblemsDetails : ProblemDetails
-        {
-            public ProblemDetails[] Errors { get; set; }
-
-            public static ProblemsDetails Build(Exception except, HttpContext ctx)
-            {
-                return new ProblemsDetails()
-                {
-                    Detail = except.Message,
-                    Instance = ctx.Request.Path,
-                    Status = ctx.Response.StatusCode,
-                    Type = except.HelpLink,
-                    Title = except!.GetType().Name,
-                };
-            }
+                               // TODO: param.configure()
+                           })
+                           .AddProblemDetailsConventions();
         }
     }
 }

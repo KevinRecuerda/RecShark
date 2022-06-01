@@ -16,5 +16,14 @@ namespace RecShark.AspNetCore.Options
         };
     }
 
-    public class NotFoundException : Exception { }
+    public class NotFoundException : Exception
+    {
+        public NotFoundException() : base("Not found")
+        {
+        }
+
+        public NotFoundException(object id) : base($"'${id}' not found")
+        {
+        }
+    }
 }
