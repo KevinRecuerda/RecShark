@@ -23,10 +23,10 @@ namespace RecShark.AspNetCore.Configurator
                            {
                                options.ValidationProblemStatusCode = StatusCodes.Status400BadRequest;
 
-                               options.Map<ArgumentException>((ctx, ex) =>
+                               options.Map<ArgumentException>((_, ex) =>
                                {
                                    var pb = StatusCodeProblemDetails.Create(StatusCodes.Status400BadRequest);
-                                   pb.Detail = ex.Message;
+                                   pb.Detail = ex.Message.Tag(ex.ParamName);
 
                                    var validationPb = new ValidationProblemDetails();
                                    pb.CloneTo(validationPb);
