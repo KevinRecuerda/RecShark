@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NJsonSchema.Converters;
@@ -58,6 +61,33 @@ namespace RecShark.AspNetCore.Configurator
                     if (requiredParams.Contains(parameter.Name))
                         parameter.Required = true;
                 }
+            }
+        }
+
+        /// <summary> This filter aims to manage ValidationProblemDetails for 400 status. </summary>
+        public class ValidationProblemDetailsFilter : IOperationFilter, IDocumentFilter
+        {
+            public void Apply(OpenApiOperation operation, OperationFilterContext context)
+            {
+                var status400 = operation.Responses.GetValueOrDefault(StatusCodes.Status400BadRequest.ToString());
+                if (status400 == null)
+                    return;
+
+                foreach (var openApiMediaType in status400.Content.Values)
+                    openApiMediaType.Schema.Reference.Id = nameof(ValidationProblemDetails);
+            }
+
+            public void Apply(OpenApiDocument doc, DocumentFilterContext context)
+            {
+                context.SchemaGenerator.GenerateSchema(typeof(ValidationProblemDetails), context.SchemaRepository);
+
+                // Adapt schema for inheritance
+                var validationSchema = context.SchemaRepository.Schemas[nameof(ValidationProblemDetails)];
+                var baseReference    = new OpenApiReference() {Id = nameof(ProblemDetails), Type = ReferenceType.Schema};
+                validationSchema.AllOf = new OpenApiSchema() {Reference = baseReference}.InList();
+
+                var baseProperties = context.SchemaRepository.Schemas[nameof(ProblemDetails)].Properties.Keys.ToArray();
+                validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.In(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
             }
         }
 

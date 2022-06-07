@@ -9,7 +9,6 @@ namespace RecShark.AspNetCore.Sample
     using Microsoft.Extensions.Hosting;
     using RecShark.AspNetCore.Configurator;
     using RecShark.AspNetCore.Extensions;
-    using RecShark.AspNetCore.Options;
     using RecShark.DependencyInjection;
     using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -36,6 +35,7 @@ namespace RecShark.AspNetCore.Sample
                     .AddOA3Routing()
                     .AddMonitoring(this.Configuration, loggerConfigurator: config => config.Filter.ExcludePaths("/api/v2/enum"))
                      // .AddSecurity()
+                    .AddException()
                     .AddOA3Swagger<CustomSwaggerOptions>()
                     .AddOA3Mvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -54,7 +54,7 @@ namespace RecShark.AspNetCore.Sample
 
             app.UseRouting()
                .UseMonitoring(applicationLifetime)
-               .UseException(new ExceptionOption() {SkipAggregateException = true})
+               .UseException()
                 // .UseSecurity()
                .UseOA3Swagger()
                .UseEndpoints(
