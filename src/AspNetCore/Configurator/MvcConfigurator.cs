@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -43,28 +45,36 @@ namespace RecShark.AspNetCore.Configurator
             Action<MvcNewtonsoftJsonOptions> configureNewtonsoft = null)
         {
             return services
-                  .AddControllers(
-                       options =>
+                   .AddControllers(options =>
+                   {
+                       ConfigureMvc(options);
+                       configureMvc?.Invoke(options);
+                   })
+                   .AddJsonOptions(options =>
+                   {
+                       ConfigureJson(options);
+                       configureJson?.Invoke(options);
+                   })
+                   .ConfigureApiBehaviorOptions(options =>
+                   {
+                       options.InvalidModelStateResponseFactory = ctx =>
                        {
-                           ConfigureMvc(options);
-                           configureMvc?.Invoke(options);
-                       })
-                  .AddJsonOptions(
-                       options =>
-                       {
-                           ConfigureJson(options);
-                           configureJson?.Invoke(options);
-                       })
+                           var defaultResult = new BadRequestObjectResult(ctx.ModelState);
+
+                           var errors         = ((IDictionary<string, object>) defaultResult.Value).ToDictionary(x => x.Key, x => (string[]) x.Value);
+                           var problemDetails = ExceptionConfigurator.CreateValidationProblemDetails("", errors);
+                           return new BadRequestObjectResult(problemDetails);
+                       };
+                   })
 
                    // use newtonsoft for some specific serialization (Polymorphism, Dictionary...)
                    // https://github.com/dotnet/runtime/issues/30524#issuecomment-534386814
                    // managed in 5.0 => https://github.com/dotnet/runtime/issues/30524#issuecomment-539666802
-                  .AddNewtonsoftJson(
-                       options =>
-                       {
-                           ConfigureNewtonsoft(options.SerializerSettings);
-                           configureNewtonsoft?.Invoke(options);
-                       });
+                   .AddNewtonsoftJson(options =>
+                   {
+                       ConfigureNewtonsoft(options.SerializerSettings);
+                       configureNewtonsoft?.Invoke(options);
+                   });
         }
 
         public static void ConfigureMvc(MvcOptions options)
@@ -98,7 +108,7 @@ namespace RecShark.AspNetCore.Configurator
 
             settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             settings.NullValueHandling     = NullValueHandling.Ignore;
-            settings.ContractResolver      = new DefaultContractResolver { NamingStrategy = namingStrategy };
+            settings.ContractResolver      = new DefaultContractResolver {NamingStrategy = namingStrategy};
             settings.Converters.Add(new StringEnumConverter(namingStrategy, false));
             settings.Converters.Add(new DictionaryWithEnumKeyConverter(settings));
         }
@@ -130,11 +140,11 @@ namespace RecShark.AspNetCore.Configurator
         {
             writer.WriteStartObject();
 
-            var dictionary = (IDictionary)value;
+            var dictionary = (IDictionary) value;
             foreach (DictionaryEntry entry in dictionary)
             {
                 var propertyNameQuoted = JsonConvert.SerializeObject(entry.Key, settings);
-                var propertyName = propertyNameQuoted[1..^1];
+                var propertyName       = propertyNameQuoted[1..^1];
                 writer.WritePropertyName(propertyName);
 
                 serializer.Serialize(writer, entry.Value);
@@ -146,7 +156,7 @@ namespace RecShark.AspNetCore.Configurator
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var createdType = serializer.ContractResolver.ResolveContract(objectType).CreatedType;
-            var dictionary  = (IDictionary)Activator.CreateInstance(createdType, BindingFlags.Instance|BindingFlags.Public);
+            var dictionary  = (IDictionary) Activator.CreateInstance(createdType, BindingFlags.Instance | BindingFlags.Public);
 
             var innerTypes = objectType.GetDictionaryInnerTypes();
 

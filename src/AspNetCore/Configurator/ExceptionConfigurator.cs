@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Builder;
@@ -25,15 +26,12 @@ namespace RecShark.AspNetCore.Configurator
 
                                options.Map<ArgumentException>((_, ex) =>
                                {
-                                   var pb = StatusCodeProblemDetails.Create(StatusCodes.Status400BadRequest);
-                                   pb.Detail = ex.Message.Tag(ex.ParamName);
-
-                                   var validationPb = new ValidationProblemDetails();
-                                   pb.CloneTo(validationPb);
+                                   var errors = new Dictionary<string, string[]>();
                                    if (ex.ParamName != null)
-                                       validationPb.Errors[ex.ParamName] = new[] {ex.Message};
+                                       errors[ex.ParamName] = new[] {ex.Message};
 
-                                   return validationPb;
+                                   var problemDetails = CreateValidationProblemDetails(ex.Message.Tag(ex.ParamName), errors);
+                                   return problemDetails;
                                });
                                options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status403Forbidden);
                                options.MapToStatusCode<NotFoundException>(StatusCodes.Status404NotFound);
@@ -41,6 +39,16 @@ namespace RecShark.AspNetCore.Configurator
                                configureProblemDetails?.Invoke(options);
                            })
                            .AddProblemDetailsConventions();
+        }
+
+        public static ValidationProblemDetails CreateValidationProblemDetails(string detail, IDictionary<string, string[]> errors)
+        {
+            var pb = StatusCodeProblemDetails.Create(StatusCodes.Status400BadRequest);
+            pb.Detail = detail;
+
+            var validationPb = new ValidationProblemDetails(errors);
+            pb.CloneTo(validationPb);
+            return validationPb;
         }
     }
 
