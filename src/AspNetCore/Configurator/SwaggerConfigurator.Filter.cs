@@ -65,7 +65,7 @@ namespace RecShark.AspNetCore.Configurator
         }
 
         /// <summary> This filter aims to manage ValidationProblemDetails for 400 status. </summary>
-        public class ValidationProblemDetailsOperationFilter : IOperationFilter
+        public class ValidationProblemDetailsFilter : IOperationFilter, IDocumentFilter
         {
             public void Apply(OpenApiOperation operation, OperationFilterContext context)
             {
@@ -75,6 +75,11 @@ namespace RecShark.AspNetCore.Configurator
 
                 foreach (var openApiMediaType in status400.Content.Values)
                     openApiMediaType.Schema.Reference.Id = nameof(ValidationProblemDetails);
+            }
+
+            public void Apply(OpenApiDocument doc, DocumentFilterContext context)
+            {
+                context.SchemaGenerator.GenerateSchema(typeof(ValidationProblemDetails), context.SchemaRepository);
             }
         }
 
