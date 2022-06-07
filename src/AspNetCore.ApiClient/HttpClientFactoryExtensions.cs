@@ -52,9 +52,9 @@ namespace RecShark.AspNetCore.ApiClient
             return services;
         }
 
-        private static IHttpClientBuilder AddErrorPolicies(this IHttpClientBuilder builder, bool useDefaultPolicies)
+        private static IHttpClientBuilder AddErrorPolicies(this IHttpClientBuilder builder, bool useDefaultPolicy)
         {
-            return useDefaultPolicies
+            return useDefaultPolicy
                        ? builder.AddTransientHttpErrorPolicy(DefaultPolicy)
                        : builder;
         }
