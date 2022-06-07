@@ -80,6 +80,14 @@ namespace RecShark.AspNetCore.Configurator
             public void Apply(OpenApiDocument doc, DocumentFilterContext context)
             {
                 context.SchemaGenerator.GenerateSchema(typeof(ValidationProblemDetails), context.SchemaRepository);
+
+                // Adapt schema for inheritance
+                var validationSchema = context.SchemaRepository.Schemas[nameof(ValidationProblemDetails)];
+                var baseReference    = new OpenApiReference() {Id = nameof(ProblemDetails), Type = ReferenceType.Schema};
+                validationSchema.AllOf = new OpenApiSchema() {Reference = baseReference}.InList();
+
+                var baseProperties = context.SchemaRepository.Schemas[nameof(ProblemDetails)].Properties.Keys.ToArray();
+                validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.In(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
             }
         }
 
