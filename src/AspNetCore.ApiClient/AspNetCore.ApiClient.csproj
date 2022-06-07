@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Provide http client extensions to request apis.</Description>
     <PackageTags>$(PackageTags);client;httpclient;aspnetcore;extensions</PackageTags>
-    <Version>1.0.1-beta1</Version>
+    <Version>1.1.0-beta1</Version>
   </PropertyGroup>
 
   <ItemGroup>
