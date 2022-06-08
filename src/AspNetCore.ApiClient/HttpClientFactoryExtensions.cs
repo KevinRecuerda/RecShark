@@ -12,8 +12,12 @@ namespace RecShark.AspNetCore.ApiClient
 
     public static class HttpClientFactoryExtensions
     {
-        public static Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> DefaultPolicy =
-            builder => builder.WaitAndRetryAsync(new[] {TimeSpan.FromMilliseconds(500)});
+        public static ICollection<Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>>> DefaultPolicies =
+            new List<Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>>>()
+            {
+                builder => builder.WaitAndRetryAsync(new[] {TimeSpan.FromMilliseconds(500)}),
+                builder => builder.CircuitBreakerAsync(handledEventsAllowedBeforeBreaking: 3, durationOfBreak: TimeSpan.FromSeconds(30))
+            };
 
         public static IHttpClientBuilder AddApiClient<T, TImpl>(
             this IServiceCollection services,
@@ -26,37 +30,40 @@ namespace RecShark.AspNetCore.ApiClient
             return services.AddClientConfig<T>(config)
                            .AddHttpClient<T, TImpl>()
                            .ConfigureClient(config, configure)
-                           .AddErrorPolicy(useDefaultPolicies);
+                           .AddErrorPolicies(useDefaultPolicies);
         }
 
         public static IHttpClientBuilder AddRefitApiClient<T>(
             this IServiceCollection services,
             ApiClientConfig         config,
-            Action<HttpClient>      configure        = null,
-            bool                    useDefaultPolicy = true)
+            Action<HttpClient>      configure          = null,
+            bool                    useDefaultPolicies = true)
             where T : class
         {
             return services.AddClientConfig<T>(config)
                            .AddRefitClient<T>()
                            .ConfigureClient(config, configure)
-                           .AddErrorPolicy(useDefaultPolicy);
+                           .AddErrorPolicies(useDefaultPolicies);
         }
 
         public static IServiceCollection AddClientConfig<T>(this IServiceCollection services, ApiClientConfig config)
             where T : class
         {
-            var injectableConfig = new ApiClientConfig<T>() {Value = config};
+            var injectableConfig = new ApiClientConfig<T>() { Value = config };
             services.AddSingleton<IApiClientConfig<T>>(injectableConfig);
 
             services.Load<SecurityModule>();
             return services;
         }
 
-        private static IHttpClientBuilder AddErrorPolicy(this IHttpClientBuilder builder, bool useDefaultPolicy)
+        private static IHttpClientBuilder AddErrorPolicies(this IHttpClientBuilder builder, bool useDefaultPolicies)
         {
-            return useDefaultPolicy
-                       ? builder.AddTransientHttpErrorPolicy(DefaultPolicy)
-                       : builder;
+            if (useDefaultPolicies)
+            {
+                foreach (var defaultPolicy in DefaultPolicies)
+                    builder = builder.AddTransientHttpErrorPolicy(defaultPolicy);
+            }
+            return builder;
         }
 
         private static IHttpClientBuilder ConfigureClient(this IHttpClientBuilder builder, ApiClientConfig config, Action<HttpClient> configure)
