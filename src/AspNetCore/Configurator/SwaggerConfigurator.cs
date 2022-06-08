@@ -65,6 +65,8 @@ namespace RecShark.AspNetCore.Configurator
             options.SupportNonNullableReferenceTypes();
             options.SchemaFilter<RequiredPropertiesSchemaFilter>();
             options.OperationFilter<RequiredParametersOperationFilter>();
+            options.OperationFilter<ValidationProblemDetailsFilter>();
+            options.DocumentFilter<ValidationProblemDetailsFilter>();
 
             // https://github.com/mattfrear/Swashbuckle.AspNetCore.Filters
             options.ExampleFilters();
