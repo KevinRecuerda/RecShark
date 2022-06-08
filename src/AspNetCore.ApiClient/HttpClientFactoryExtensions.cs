@@ -26,20 +26,20 @@ namespace RecShark.AspNetCore.ApiClient
             return services.AddClientConfig<T>(config)
                            .AddHttpClient<T, TImpl>()
                            .ConfigureClient(config, configure)
-                           .AddErrorPolicies(useDefaultPolicies);
+                           .AddErrorPolicy(useDefaultPolicies);
         }
 
         public static IHttpClientBuilder AddRefitApiClient<T>(
             this IServiceCollection services,
             ApiClientConfig         config,
-            Action<HttpClient>      configure          = null,
-            bool                    useDefaultPolicies = true)
+            Action<HttpClient>      configure        = null,
+            bool                    useDefaultPolicy = true)
             where T : class
         {
             return services.AddClientConfig<T>(config)
                            .AddRefitClient<T>()
                            .ConfigureClient(config, configure)
-                           .AddErrorPolicies(useDefaultPolicies);
+                           .AddErrorPolicy(useDefaultPolicy);
         }
 
         public static IServiceCollection AddClientConfig<T>(this IServiceCollection services, ApiClientConfig config)
@@ -52,7 +52,7 @@ namespace RecShark.AspNetCore.ApiClient
             return services;
         }
 
-        private static IHttpClientBuilder AddErrorPolicies(this IHttpClientBuilder builder, bool useDefaultPolicy)
+        private static IHttpClientBuilder AddErrorPolicy(this IHttpClientBuilder builder, bool useDefaultPolicy)
         {
             return useDefaultPolicy
                        ? builder.AddTransientHttpErrorPolicy(DefaultPolicy)
