@@ -2,8 +2,10 @@
 
 namespace RecShark.Data.Db.Document.Initialization
 {
+    using System.Threading;
+
     public interface IDataInitializer
     {
-        Task Init();
+        Task Init(CancellationToken? cs = null);
     }
 }
