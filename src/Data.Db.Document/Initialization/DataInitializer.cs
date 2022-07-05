@@ -21,7 +21,7 @@ namespace RecShark.Data.Db.Document.Initialization
             this.logger  = logger;
         }
 
-        public async Task Init(CancellationToken? cs = null)
+        public async Task Init(CancellationToken? token = null)
         {
             logger.LogInformation("Initializing store for schema {schema} ...", factory.Schema);
             var store = factory.CreateDocumentStore();
@@ -32,12 +32,12 @@ namespace RecShark.Data.Db.Document.Initialization
 
             try
             {
-                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges, cs);
+                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges, token);
 
                 logger.LogInformation("applying auto schema change ...");
                 store.Schema.ApplyAllConfiguredChangesToDatabase();
 
-                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges, cs);
+                await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges, token);
             }
             catch (Exception exception)
             {
@@ -54,7 +54,7 @@ namespace RecShark.Data.Db.Document.Initialization
             }
         }
 
-        public virtual async Task ApplyChanges(IDocumentStore store, DataChange[] dataChanges, ExecutionMode executionMode, CancellationToken? cs = null)
+        public virtual async Task ApplyChanges(IDocumentStore store, DataChange[] dataChanges, ExecutionMode executionMode, CancellationToken? token = null)
         {
             var changesToExecute = await GetChangesToExecute(store, dataChanges, executionMode);
 
@@ -67,7 +67,7 @@ namespace RecShark.Data.Db.Document.Initialization
                     session.Store(change.ToLog());
                     session.SaveChanges();
                 }
-                cs?.ThrowIfCancellationRequested();
+                token?.ThrowIfCancellationRequested();
             }
         }
 

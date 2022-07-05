@@ -6,6 +6,6 @@ namespace RecShark.Data.Db.Document.Initialization
 
     public interface IDataInitializer
     {
-        Task Init(CancellationToken? cs = null);
+        Task Init(CancellationToken? token = null);
     }
 }
