@@ -65,7 +65,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             string[]                                 patterns)
         {
             var likePatterns = patterns.Select(x => x.Replace("*", "%")).ToArray();
-            return WhereArray(source, session, arraySelector, filterSelector, "like", likePatterns);
+            return WhereArray(source, session, arraySelector, filterSelector, "ilike", likePatterns);
         }
 
         private static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
