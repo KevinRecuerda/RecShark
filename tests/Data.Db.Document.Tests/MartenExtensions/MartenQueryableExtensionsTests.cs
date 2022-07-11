@@ -412,5 +412,33 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             // Assert
             actual.Should().BeEquivalentTo(controls);
         }
+
+        [Fact]
+        public async Task WhereArray__Should_return_controls_with_matching_patterns()
+        {
+            // Arrange
+            var controls = new[]
+            {
+                new Control(new DateTime(2000, 12, 30), null, 10, new Log("FR002")),
+                new Control(new DateTime(2000, 12, 30), null, 20),
+                new Control(new DateTime(2000, 12, 31), null, 25, new Log("FR001")),
+                new Control(new DateTime(2000, 12, 30), null, 30, new Log("FR00001"), new Log("FR004")),
+                new Control(new DateTime(2000, 12, 30), null, 10, new Log("US003"))
+            };
+
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            session.Store(controls);
+            await session.SaveChangesAsync();
+
+            // Act
+            var actual = session.Query<Control>()
+                                .WhereLikeArray(session, c => c.Logs, a => a.Description, new[] {"FR*1", "*3"})
+                                .ToList();
+
+            // Assert
+            controls[3].Logs = new[] {new Log("FR00001")};
+            actual.Should().HaveCount(3);
+            actual.Should().BeEquivalentTo(controls[2], controls[3], controls[4]);
+        }
     }
 }

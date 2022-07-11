@@ -54,6 +54,28 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             Expression<Func<TArray, TFilter>>        filterSelector,
             TFilter[]                                parameters)
         {
+            return WhereArray(source, session, arraySelector, filterSelector, "=", parameters);
+        }
+
+        public static IReadOnlyList<T> WhereLikeArray<T, TArray>(
+            this IQueryable<T>                       source,
+            IDocumentSession                         session,
+            Expression<Func<T, IEnumerable<TArray>>> arraySelector,
+            Expression<Func<TArray, string>>         filterSelector,
+            string[]                                 patterns)
+        {
+            var likePatterns = patterns.Select(x => x.Replace("*", "%")).ToArray();
+            return WhereArray(source, session, arraySelector, filterSelector, "like", likePatterns);
+        }
+
+        private static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
+            this IQueryable<T>                       source,
+            IDocumentSession                         session,
+            Expression<Func<T, IEnumerable<TArray>>> arraySelector,
+            Expression<Func<TArray, TFilter>>        filterSelector,
+            string                                   filterOperator,
+            TFilter[]                                parameters)
+        {
             if (parameters == null || parameters.Length == 0)
                 return source.ToList();
 
@@ -63,7 +85,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             // sql
             var pivot = $@"
 select arr.* from jsonb_array_elements(d.data -> '{arrayCol}') arr
-where arr ->> '{filterCol}' = ANY (:arrayParams)
+where arr ->> '{filterCol}' {filterOperator} ANY (:arrayParams)
 ";
 
             var command = source.Explain().Command;
@@ -165,7 +187,7 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             findMembers.Visit(selector);
             var members = findMembers.Members.ToArray();
 
-            var mapping = ((DocumentStore)session.DocumentStore).Options.Storage.MappingFor(typeof(T));
+            var mapping = ((DocumentStore) session.DocumentStore).Options.Storage.MappingFor(typeof(T));
             var field   = mapping.FieldFor(members);
             return field;
         }
