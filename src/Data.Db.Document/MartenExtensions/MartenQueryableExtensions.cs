@@ -52,30 +52,15 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             IDocumentSession                         session,
             Expression<Func<T, IEnumerable<TArray>>> arraySelector,
             Expression<Func<TArray, TFilter>>        filterSelector,
-            TFilter[]                                parameters)
+            TFilter[]                                parameters,
+            bool                                     usePatterns = false)
         {
-            return WhereArray(source, session, arraySelector, filterSelector, "=", parameters);
-        }
+            if (usePatterns && typeof(TFilter) != typeof(string))
+                throw new ArgumentException("parameters must be of type string when usePatterns is true");
 
-        public static IReadOnlyList<T> WhereLikeArray<T, TArray>(
-            this IQueryable<T>                       source,
-            IDocumentSession                         session,
-            Expression<Func<T, IEnumerable<TArray>>> arraySelector,
-            Expression<Func<TArray, string>>         filterSelector,
-            string[]                                 patterns)
-        {
-            var likePatterns = patterns.Select(x => x.Replace("*", "%")).ToArray();
-            return WhereArray(source, session, arraySelector, filterSelector, "ilike", likePatterns);
-        }
+            parameters = usePatterns ? parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray() : parameters;
+            var filterOperator = usePatterns ? "ilike" : "=";
 
-        private static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
-            this IQueryable<T>                       source,
-            IDocumentSession                         session,
-            Expression<Func<T, IEnumerable<TArray>>> arraySelector,
-            Expression<Func<TArray, TFilter>>        filterSelector,
-            string                                   filterOperator,
-            TFilter[]                                parameters)
-        {
             if (parameters == null || parameters.Length == 0)
                 return source.ToList();
 
