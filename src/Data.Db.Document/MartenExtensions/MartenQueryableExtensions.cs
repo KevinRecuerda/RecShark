@@ -53,13 +53,14 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             Expression<Func<T, IEnumerable<TArray>>> arraySelector,
             Expression<Func<TArray, TFilter>>        filterSelector,
             TFilter[]                                parameters,
-            bool                                     usePatterns = false)
+            bool                                     useWildcard = false)
         {
-            if (usePatterns && typeof(TFilter) != typeof(string))
-                throw new ArgumentException("parameters must be of type string when usePatterns is true");
-
-            parameters = usePatterns ? parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray() : parameters;
-            var filterOperator = usePatterns ? "ilike" : "=";
+            var filterOperator = "=";
+            if (useWildcard && typeof(TFilter) == typeof(string))
+            {
+                filterOperator = "ilike";
+                parameters     = parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray();
+            }
 
             if (parameters == null || parameters.Length == 0)
                 return source.ToList();

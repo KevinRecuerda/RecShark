@@ -414,7 +414,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         }
 
         [Fact]
-        public async Task WhereArray__Should_manage_patterns()
+        public async Task WhereArray__Should_manage_wildcard()
         {
             // Arrange
             var controls = new[]
@@ -439,23 +439,6 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             controls[3].Logs = new[] {new Log("FR0 0001")};
             actual.Should().HaveCount(3);
             actual.Should().BeEquivalentTo(controls[2], controls[3], controls[4]);
-        }
-
-        [Fact]
-        public void WhereArray__Should_throw_exception__When_patterns_are_not_string()
-        {
-            // Arrange
-            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
-
-            // Act
-            Action action = () => session.Query<Control>()
-                                         .WhereArray(session, c => c.Logs, a => 6, new[] {6}, true)
-                                         .ToList();
-
-            // Assert
-            action.Should()
-                  .Throw<ArgumentException>()
-                  .WithMessage("parameters must be of type string when usePatterns is true");
         }
     }
 }
