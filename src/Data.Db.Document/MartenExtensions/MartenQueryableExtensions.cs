@@ -55,15 +55,15 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             TFilter[]                                parameters,
             bool                                     useWildcard = false)
         {
+            if (parameters == null || parameters.Length == 0)
+                return source.ToList();
+
             var filterOperator = "=";
             if (useWildcard && typeof(TFilter) == typeof(string))
             {
                 filterOperator = "ilike";
                 parameters     = parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray();
             }
-
-            if (parameters == null || parameters.Length == 0)
-                return source.ToList();
 
             var arrayCol  = SelectorToField(session, arraySelector).MemberName;
             var filterCol = SelectorToField(session, filterSelector).MemberName;
