@@ -442,7 +442,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         }
 
         [Fact]
-        public async Task WhereArray__Should_throw_exception__When_patterns_are_not_string()
+        public void WhereArray__Should_throw_exception__When_patterns_are_not_string()
         {
             // Arrange
             using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
