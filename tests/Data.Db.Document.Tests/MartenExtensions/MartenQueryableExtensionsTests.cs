@@ -335,15 +335,15 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             session.Store(controls);
 
             items[0].FirstControlId = controls[0].Id;
-            items[0].LastControlId = controls[1].Id;
+            items[0].LastControlId  = controls[1].Id;
             items[1].FirstControlId = controls[2].Id;
-            items[1].LastControlId = controls[2].Id;
+            items[1].LastControlId  = controls[2].Id;
             session.Store(items);
             await session.SaveChangesAsync();
 
             // Act
             var actualFirstControls = new Dictionary<Guid, Control>();
-            var actualLastControls = new Dictionary<Guid, Control>();
+            var actualLastControls  = new Dictionary<Guid, Control>();
             var actual = session.Query<Item>()
                                 .Include(i => i.FirstControlId, actualFirstControls)
                                 .Include(i => i.LastControlId,  actualLastControls)
@@ -411,6 +411,34 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
             // Assert
             actual.Should().BeEquivalentTo(controls);
+        }
+
+        [Fact]
+        public async Task WhereArray__Should_manage_wildcard()
+        {
+            // Arrange
+            var controls = new[]
+            {
+                new Control(new DateTime(2000, 12, 30), null, 10, new Log("FR002")),
+                new Control(new DateTime(2000, 12, 30), null, 20),
+                new Control(new DateTime(2000, 12, 31), null, 25, new Log("fR001")),
+                new Control(new DateTime(2000, 12, 30), null, 30, new Log("FR0 0001"), new Log("FR004")),
+                new Control(new DateTime(2000, 12, 30), null, 10, new Log("US003"))
+            };
+
+            using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+            session.Store(controls);
+            await session.SaveChangesAsync();
+
+            // Act
+            var actual = session.Query<Control>()
+                                .WhereArray(session, c => c.Logs, a => a.Description, new[] {"*Fr*1*", "*3"}, true)
+                                .ToList();
+
+            // Assert
+            controls[3].Logs = new[] {new Log("FR0 0001")};
+            actual.Should().HaveCount(3);
+            actual.Should().BeEquivalentTo(controls[2], controls[3], controls[4]);
         }
     }
 }

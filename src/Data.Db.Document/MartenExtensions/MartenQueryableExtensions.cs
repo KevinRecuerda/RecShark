@@ -52,8 +52,16 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             IDocumentSession                         session,
             Expression<Func<T, IEnumerable<TArray>>> arraySelector,
             Expression<Func<TArray, TFilter>>        filterSelector,
-            TFilter[]                                parameters)
+            TFilter[]                                parameters,
+            bool                                     useWildcard = false)
         {
+            var filterOperator = "=";
+            if (useWildcard && typeof(TFilter) == typeof(string))
+            {
+                filterOperator = "ilike";
+                parameters     = parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray();
+            }
+
             if (parameters == null || parameters.Length == 0)
                 return source.ToList();
 
@@ -63,7 +71,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             // sql
             var pivot = $@"
 select arr.* from jsonb_array_elements(d.data -> '{arrayCol}') arr
-where arr ->> '{filterCol}' = ANY (:arrayParams)
+where arr ->> '{filterCol}' {filterOperator} ANY (:arrayParams)
 ";
 
             var command = source.Explain().Command;
@@ -165,7 +173,7 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             findMembers.Visit(selector);
             var members = findMembers.Members.ToArray();
 
-            var mapping = ((DocumentStore)session.DocumentStore).Options.Storage.MappingFor(typeof(T));
+            var mapping = ((DocumentStore) session.DocumentStore).Options.Storage.MappingFor(typeof(T));
             var field   = mapping.FieldFor(members);
             return field;
         }
