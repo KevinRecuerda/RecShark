@@ -388,8 +388,12 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             actual.Should().BeEquivalentTo(controls[0], controls[2], controls[3]);
         }
 
-        [Fact]
-        public async Task WhereArray__Should_not_apply_filter_When_empty_parameters()
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public async Task WhereArray__Should_not_apply_filter_When_empty_parameters(bool useWildcard, bool isNull)
         {
             // Arrange
             object[] controls =
@@ -406,7 +410,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
             // Act
             var actual = session.Query<Control>()
-                                .WhereArray(session, c => c.Logs, a => a.Description, Array.Empty<string>())
+                                .WhereArray(session, c => c.Logs, a => a.Description, isNull ? null : Array.Empty<string>(), useWildcard)
                                 .ToList();
 
             // Assert
