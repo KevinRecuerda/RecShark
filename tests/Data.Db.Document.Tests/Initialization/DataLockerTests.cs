@@ -52,6 +52,24 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             var exception = await Assert.ThrowsAsync<DataLockException>(Action);
             exception.Message.Should().Be("Could not acquire database lock after 6 retry");
         }
+        
+        [Fact]
+        public async Task AcquireLock__Should_acquire_lock__When_lock_expired()
+        {
+            // Arrange
+            dataLocker.MaxLockTime = TimeSpan.FromSeconds(1);
+            dataLocker.SleepTime   = 500;
+            await dataLocker.AcquireLock();
+
+            // Act
+            await dataLocker.AcquireLock();
+
+            // Assert
+            var actual = await dataLocker.GetLock();
+            actual.Should().NotBeNull();
+            actual.Id.Should().Be(1);
+            actual.Host.Should().Be(Environment.MachineName);
+        }        
 
         [Fact]
         public async Task TryLock__Should_lock()

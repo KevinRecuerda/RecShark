@@ -5,10 +5,13 @@ using Marten;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
+    using Marten.Linq.LastModified;
+
     public class DataLocker : BaseDocumentDataAccess, IDataLocker
     {
-        public int SleepTime { get; set; } = 10000;
-        public int MaxRetry  { get; set; } = 6;
+        public int      SleepTime   { get; set; } = 10000;
+        public int      MaxRetry    { get; set; } = 6;
+        public TimeSpan MaxLockTime { get; set; } = TimeSpan.FromHours(4);
 
         public DataLocker(IDocumentStore documentStore) : base(documentStore) { }
 
@@ -42,6 +45,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
                 using (var session = DocumentStore.OpenSession())
                 {
+                    session.DeleteWhere<DataLock>(l => l.ModifiedBefore(DateTimeOffset.Now.Subtract(this.MaxLockTime)));
                     session.Insert(@lock);
                     await session.SaveChangesAsync();
                 }
