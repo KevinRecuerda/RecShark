@@ -27,7 +27,7 @@ jobs:
 
       - name: Check packages
         id: check_packages
-        uses: andstor/file-existence-action@v1
+        uses: andstor/file-existence-action@v2
         with:
           files: ${{env.PATTERN}}
 
