@@ -86,8 +86,11 @@ namespace RecShark.AspNetCore.Configurator
                 var baseReference    = new OpenApiReference() {Id = nameof(ProblemDetails), Type = ReferenceType.Schema};
                 validationSchema.AllOf = new OpenApiSchema() {Reference = baseReference}.InList();
 
-                var baseProperties = context.SchemaRepository.Schemas[nameof(ProblemDetails)].Properties.Keys.ToArray();
-                validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.In(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
+                if (context.SchemaRepository.Schemas.ContainsKey(nameof(ProblemDetails)))
+                {
+                    var baseProperties = context.SchemaRepository.Schemas[nameof(ProblemDetails)].Properties.Keys.ToArray();
+                    validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.In(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
+                }
             }
         }
 
