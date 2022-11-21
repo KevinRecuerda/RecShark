@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -40,6 +43,8 @@ namespace RecShark.AspNetCore.Configurator
 
             public virtual void Configure(SwaggerGenOptions options)
             {
+                var entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+                options.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, $"{entryAssemblyName}.xml"));
                 options.SwaggerGeneratorOptions.SwaggerDocs = provider.ApiVersionDescriptions
                                                                       .OrderByDescending(x => x.ApiVersion)
                                                                       .ToDictionary(x => x.GroupName, BuildApiInfo);
