@@ -9,11 +9,11 @@ using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    public class In : IMethodCallParser
+    public class RecIn : IMethodCallParser
     {
         public bool Matches(MethodCallExpression expression)
         {
-            return expression.Method.Name == nameof(RangeExtensions.In);
+            return expression.Method.Name == nameof(RangeExtensions.RecIn);
         }
 
         public IWhereFragment Parse(IQueryableDocument mapping, ISerializer serializer, MethodCallExpression expression)

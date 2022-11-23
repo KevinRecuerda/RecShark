@@ -31,7 +31,7 @@ namespace RecShark.Data.Db.Document
             options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
             options.Linq.MethodCallParsers.Add(new ContainsAny());
             options.Linq.MethodCallParsers.Add(new IsBetween());
-            options.Linq.MethodCallParsers.Add(new In());
+            options.Linq.MethodCallParsers.Add(new RecIn());
             options.Linq.MethodCallParsers.Add(new SmartMatchAny());
             options.UseDefaultSerialization(EnumStorage.AsString);
             options.HiloSequenceDefaults.MaxLo = 10;

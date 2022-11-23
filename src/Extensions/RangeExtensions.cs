@@ -18,6 +18,11 @@ namespace RecShark.Extensions
                 && (right < 0 || maxIncluded && right == 0);
         }
 
+        public static bool RecIn<T>(this T item, params T[] items)
+        {
+            return In(item, items);
+        }
+        
         public static bool In<T>(this T item, params T[] items)
         {
             return items?.Contains(item) ?? false;

@@ -77,9 +77,9 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             params object[] expected)
         {
             var actual = await session.Query<Item>()
-                                      .Where(x => x.Id.In(ids))
-                                      .Where(x => x.Name.In(names))
-                                      .Where(x => x.Type.In(types))
+                                      .Where(x => x.Id.RecIn(ids))
+                                      .Where(x => x.Name.RecIn(names))
+                                      .Where(x => x.Type.RecIn(types))
                                       .ToListAsync();
 
             actual.Should().BeEquivalentTo(expected);
