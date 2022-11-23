@@ -4,10 +4,10 @@ using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 {
-    //TODO: remove (In is now implemented by Marten)
     public class InTests : BaseDocTests
     {
         public InTests(DocHooks hooks = null) : base(hooks) { }
