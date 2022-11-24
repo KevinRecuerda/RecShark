@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PATTERN: ${{ github.event.number == 0 && '**/*.nupkg' || '**/*-beta*.nupkg'  }}
-      PUSH_ARGS: ${{ github.event.number == 0 && '' || '--no-symbols true'  }}
+      PUSH_ARGS: ${{ github.event.number == 0 && '' || '--no-symbols'  }}
 
     steps:
       - uses: actions/checkout@v3
