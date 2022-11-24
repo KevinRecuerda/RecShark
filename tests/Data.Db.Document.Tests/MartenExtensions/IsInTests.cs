@@ -10,7 +10,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 {
     public class IsInTests : BaseDocTests
     {
-        public InTests(DocHooks hooks = null) : base(hooks) { }
+        public IsInTests(DocHooks hooks = null) : base(hooks) { }
 
         public override void Dispose()
         {
