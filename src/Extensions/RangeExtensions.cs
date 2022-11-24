@@ -18,7 +18,8 @@ namespace RecShark.Extensions
                 && (right < 0 || maxIncluded && right == 0);
         }
 
-        public static bool RecIn<T>(this T item, params T[] items)
+        // Alias of In to avoid collision with Marten In() operator
+        public static bool IsIn<T>(this T item, params T[] items)
         {
             return In(item, items);
         }

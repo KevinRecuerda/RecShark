@@ -8,7 +8,7 @@ using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 {
-    public class InTests : BaseDocTests
+    public class IsInTests : BaseDocTests
     {
         public InTests(DocHooks hooks = null) : base(hooks) { }
 
@@ -18,7 +18,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         }
 
         [Fact]
-        public async Task In__Should_return_items_according_to_filter()
+        public async Task IsIn__Should_return_items_according_to_filter()
         {
             // Arrange
             var items = new[]
@@ -34,21 +34,21 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             await session.SaveChangesAsync();
 
             // Act & Assert
-            await AssertIn(session, null,             null,               null, items[0], items[1], items[2]);
-            await AssertIn(session, null,             new ItemType[] { }, null, items[0], items[1], items[2]);
-            await AssertIn(session, new string[] { }, null,               null, items[0], items[1], items[2]);
+            await AssertIsIn(session, null,             null,               null, items[0], items[1], items[2]);
+            await AssertIsIn(session, null,             new ItemType[] { }, null, items[0], items[1], items[2]);
+            await AssertIsIn(session, new string[] { }, null,               null, items[0], items[1], items[2]);
             
-            await AssertIn(session, new[] {"10", "30"}, null, null, items[0], items[2]);
-            await AssertIn(session, new[] {"40"},       null);
+            await AssertIsIn(session, new[] {"10", "30"}, null, null, items[0], items[2]);
+            await AssertIsIn(session, new[] {"40"},       null);
 
-            await AssertIn(session, null, new[] {ItemType.B},             null, items[2]);
-            await AssertIn(session, null, new[] {ItemType.A, ItemType.B}, null, items[0], items[1], items[2]);
+            await AssertIsIn(session, null, new[] {ItemType.B},             null, items[2]);
+            await AssertIsIn(session, null, new[] {ItemType.A, ItemType.B}, null, items[0], items[1], items[2]);
 
-            await AssertIn(session, new[] {"10"}, new[] {ItemType.A}, null, items[0]);
+            await AssertIsIn(session, new[] {"10"}, new[] {ItemType.A}, null, items[0]);
         }
 
         [Fact]
-        public async Task In__Should_manage_null_values()
+        public async Task IsIn__Should_manage_null_values()
         {
             // Arrange
             var items = new[]
@@ -64,12 +64,12 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             await session.SaveChangesAsync();
 
             // Act & Assert
-            await AssertIn(session, null, null, new[] {"test 1"}, items[0]);
-            await AssertIn(session, null, null, new[] {""},       items[2]);
-            await AssertIn(session, null, null, new[] {(string) null});
+            await AssertIsIn(session, null, null, new[] {"test 1"}, items[0]);
+            await AssertIsIn(session, null, null, new[] {""},       items[2]);
+            await AssertIsIn(session, null, null, new[] {(string) null});
         }
 
-        private static async Task AssertIn(
+        private static async Task AssertIsIn(
             IQuerySession   session,
             string[]        ids   = null,
             ItemType[]      types = null,
