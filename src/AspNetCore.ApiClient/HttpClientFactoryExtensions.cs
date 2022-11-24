@@ -33,11 +33,12 @@ namespace RecShark.AspNetCore.ApiClient
             this IServiceCollection services,
             ApiClientConfig         config,
             Action<HttpClient>      configure        = null,
-            bool                    useDefaultPolicy = true)
+            bool                    useDefaultPolicy = true,
+            RefitSettings           refitSettings    = null)
             where T : class
         {
             return services.AddClientConfig<T>(config)
-                           .AddRefitClient<T>()
+                           .AddRefitClient<T>(refitSettings)
                            .ConfigureClient(config, configure)
                            .AddDefaultPolicy(useDefaultPolicy);
         }
