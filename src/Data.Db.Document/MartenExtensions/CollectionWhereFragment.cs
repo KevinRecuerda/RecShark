@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Marten.Linq;
+using Weasel.Postgresql.SqlGeneration;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    
+
     public class CollectionWhereFragment : CustomizableWhereFragment
     {
         public CollectionWhereFragment(string sql, params object[] parameters) : base(

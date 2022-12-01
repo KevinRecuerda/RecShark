@@ -8,6 +8,8 @@ using Marten.Linq;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Marten.Linq.Parsing;
+
     public static class SearchSimilarExtensions
     {
         public static async Task<IReadOnlyList<T>> SearchSimilarAsync<T>(

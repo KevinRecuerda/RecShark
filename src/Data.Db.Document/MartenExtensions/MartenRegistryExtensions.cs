@@ -8,6 +8,9 @@ using Marten.Util;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Marten.Linq.Parsing;
+    using Weasel.Postgresql.Tables;
+
     public static class MartenRegistryExtensions
     {
         public static StoreOptions GinIndex<T>(this StoreOptions options, string shortName, string column, string op = "")
@@ -31,7 +34,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             var shortName = member.ToTableAlias();
 
             var doc = options.Storage.MappingFor(typeof(T));
-            var sql = doc.FieldFor(member).SqlLocator.Replace("d.", "");
+            var sql = doc.FieldFor(member).RawLocator.Replace("d.", "");
 
             return options.Index<T>(shortName, sql, method, op);
         }

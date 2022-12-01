@@ -9,6 +9,9 @@ using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Marten.Linq.Fields;
+    using Weasel.Postgresql.SqlGeneration;
+
     public class SmartMatchAny : IMethodCallParser
     {
         public bool Matches(MethodCallExpression expression)
@@ -16,11 +19,11 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             return expression.Method.Name == nameof(StringExtensions.SmartMatchAny);
         }
 
-        public IWhereFragment Parse(IQueryableDocument mapping, ISerializer serializer, MethodCallExpression expression)
+        public ISqlFragment Parse(IFieldMapping mapping, ISerializer serializer, MethodCallExpression expression)
         {
             var members = FindMembers.Determine(expression);
 
-            var locator = mapping.FieldFor(members).SqlLocator;
+            var locator = mapping.FieldFor(members).RawLocator;
             var arr     = expression.Arguments[1].Value();
 
             if (!(arr is Array array) || array.Length == 0)

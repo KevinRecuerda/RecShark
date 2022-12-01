@@ -5,16 +5,15 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Baseline;
 using Marten;
-using Marten.Linq;
 using Marten.Linq.MatchesSql;
-using Marten.Schema;
-using Marten.Services.Includes;
-using Marten.Util;
 using Npgsql;
-using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Baseline.Reflection;
+    using Marten.Linq.Fields;
+    using Marten.Linq.Parsing;
+
     public static class MartenQueryableExtensions
     {
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(

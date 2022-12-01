@@ -4,6 +4,8 @@ using RecShark.Data.Db.Document.MartenExtensions;
 
 namespace RecShark.Data.Db.Document
 {
+    using Weasel.Core;
+
     public abstract class BaseDocumentStoreFactory : IDocumentStoreFactory
     {
         private readonly IConnectionString connectionString;
@@ -34,9 +36,10 @@ namespace RecShark.Data.Db.Document
             options.Linq.MethodCallParsers.Add(new IsIn());
             options.Linq.MethodCallParsers.Add(new SmartMatchAny());
             options.UseDefaultSerialization(EnumStorage.AsString);
-            options.HiloSequenceDefaults.MaxLo = 10;
+            options.Advanced.HiloSequenceDefaults.MaxLo = 10;
 
-            options.PLV8Enabled = false;
+            // TODO: check if need to enable PLV8
+            //options.Advanced.PLV8Enabled = false;
 
             options.Schema.For<DataChangeLog>().DatabaseSchemaName(Schema);
             options.Schema.For<DataLock>().DatabaseSchemaName(Schema);

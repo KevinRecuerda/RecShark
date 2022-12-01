@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Marten;
-using Marten.Schema;
 using Microsoft.Extensions.Logging;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
     using System.Threading;
+    using Marten.Exceptions;
 
     public class DataInitializer : IDataInitializer
     {
@@ -35,7 +35,7 @@ namespace RecShark.Data.Db.Document.Initialization
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges, token);
 
                 logger.LogInformation("applying auto schema change ...");
-                store.Schema.ApplyAllConfiguredChangesToDatabase();
+                await store.Schema.ApplyAllConfiguredChangesToDatabaseAsync();
 
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges, token);
             }

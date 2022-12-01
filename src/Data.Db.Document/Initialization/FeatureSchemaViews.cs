@@ -5,9 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Marten;
-using Marten.Schema;
-using Marten.Storage;
-using Marten.Util;
+using System.Threading.Tasks;
+using Weasel.Core;
+using Weasel.Core.Migrations;
+using Weasel.Postgresql;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
@@ -17,7 +18,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public FeatureSchemaViews(StoreOptions options) : base($"{options.DatabaseSchemaName}._views", options)
         {
-            schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(Identifier, Options.DatabaseSchemaName, BuildViews()));
+            schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(Identifier, options.DatabaseSchemaName, BuildViews()));
         }
 
         public abstract string Filename { get; }
@@ -50,32 +51,44 @@ namespace RecShark.Data.Db.Document.Initialization
     {
         public SchemaViews(string identifier, string schema, Dictionary<string, string> views)
         {
-            Identifier = new DbObjectName(identifier);
-            Schema     = schema;
+            Identifier = new DbObjectName(schema, identifier);
             Views      = views;
         }
 
         public DbObjectName Identifier { get; }
 
-        public string Schema { get; }
-
         public Dictionary<string, string> Views { get; }
 
-        public IEnumerable<DbObjectName> AllNames()
+        public void WriteCreateStatement(Migrator migrator, TextWriter writer)
         {
-            return Views.Keys.Select(v => new DbObjectName(Schema, v)).ToList();
+            var drops   = Views.Keys.Reverse().Select(ToDrop).ToList();
+            var creates = Views.Select(x => ToCreate(x.Key, x.Value)).ToList();
+
+            var statements = drops.Union(creates).ToList();
+            var sql        = string.Join(Environment.NewLine, statements);
+            writer.WriteLine(sql);
         }
 
-        public void ConfigureQueryCommand(CommandBuilder builder)
+        public void WriteDropStatement(Migrator rules, TextWriter writer)
         {
-            var schema = builder.AddParameter(Schema).ParameterName;
+            var drops = Views.Keys.Reverse().Select(ToDrop).ToList();
+            var sql   = string.Join(Environment.NewLine, drops);
+            writer.WriteLine(sql);
+        }
 
-            builder.Append(
-                $@"
-select viewname, definition
-from pg_catalog.pg_views
-where schemaname = :{schema};
-");
+        public void ConfigureQueryCommand(DbCommandBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader)
+        {
+            var diff = CheckDifference(reader);
+            if (diff != SchemaPatchDifference.None)
+            {
+                WriteCreateStatement(patch.Rules, patch.UpWriter);
+                WriteDropStatement(patch.Rules, patch.DownWriter);
+            }
         }
 
         public SchemaPatchDifference CreatePatch(DbDataReader reader, SchemaPatch patch, AutoCreate autoCreate)
@@ -90,21 +103,21 @@ where schemaname = :{schema};
             return diff;
         }
 
-        public void Write(DdlRules rules, StringWriter writer)
+        public IEnumerable<DbObjectName> AllNames()
         {
-            var drops   = Views.Keys.Reverse().Select(ToDrop).ToList();
-            var creates = Views.Select(x => ToCreate(x.Key, x.Value)).ToList();
-
-            var statements = drops.Union(creates).ToList();
-            var sql        = string.Join(Environment.NewLine, statements);
-            writer.WriteLine(sql);
+            return Views.Keys.Select(v => new DbObjectName(Identifier.Schema, v)).ToList();
         }
 
-        public void WriteDropStatement(DdlRules rules, StringWriter writer)
+        public void ConfigureQueryCommand(CommandBuilder builder)
         {
-            var drops = Views.Keys.Reverse().Select(ToDrop).ToList();
-            var sql   = string.Join(Environment.NewLine, drops);
-            writer.WriteLine(sql);
+            var schema = builder.AddParameter(Identifier.Schema).ParameterName;
+
+            builder.Append(
+                $@"
+select viewname, definition
+from pg_catalog.pg_views
+where schemaname = :{schema};
+");
         }
 
         private SchemaPatchDifference CheckDifference(DbDataReader reader)
@@ -133,14 +146,14 @@ where schemaname = :{schema};
 
         private string ToCreate(string name, string body)
         {
-            var sql = $@"CREATE VIEW {Schema}.{name} AS 
+            var sql = $@"CREATE VIEW {Identifier.Schema}.{name} AS 
 {body};";
             return sql;
         }
 
         private string ToDrop(string name)
         {
-            var sql = $@"DROP VIEW IF EXISTS {Schema}.{name};";
+            var sql = $@"DROP VIEW IF EXISTS {Identifier.Schema}.{name};";
             return sql;
         }
     }
@@ -186,7 +199,8 @@ where schemaname = :{schema};
 
         public static List<string> GetSelectors(this string sql)
         {
-            var splits = sql.Split(new[] {"SELECT "}, StringSplitOptions.None).RemoveAt(0);
+            var splits = sql.Split(new[] {"SELECT "}, StringSplitOptions.None).ToList();
+            splits.RemoveAt(0);
             var selectors = splits.Select(
                                        s =>
                                        {
