@@ -89,7 +89,7 @@ namespace RecShark.AspNetCore.Configurator
                 if (context.SchemaRepository.Schemas.ContainsKey(nameof(ProblemDetails)))
                 {
                     var baseProperties = context.SchemaRepository.Schemas[nameof(ProblemDetails)].Properties.Keys.ToArray();
-                    validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.In(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
+                    validationSchema.Properties = validationSchema.Properties.Where(x => !x.Key.IsIn(baseProperties)).ToDictionary(x => x.Key, x => x.Value);
                 }
             }
         }

@@ -20,7 +20,7 @@ namespace RecShark.Extensions
 
         public static bool IsWeekend(this DateTime date)
         {
-            return date.DayOfWeek.In(DayOfWeek.Saturday, DayOfWeek.Sunday);
+            return date.DayOfWeek.IsIn(DayOfWeek.Saturday, DayOfWeek.Sunday);
         }
 
         public static bool IsWeekDay(this DateTime date)
