@@ -6,7 +6,7 @@
     <IsPackable>true</IsPackable>
     <Description>Provide api testing.</Description>
     <PackageTags>$(PackageTags);aspnetcore;api;testing</PackageTags>
-    <Version>2.0.0-beta1</Version>
+    <Version>2.0.0-beta4</Version>
   </PropertyGroup>
 
   <ItemGroup>

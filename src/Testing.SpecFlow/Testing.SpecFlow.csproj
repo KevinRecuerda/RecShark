@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Description>Provides some SpecFlow extensions</Description>
     <PackageTags>$(PackageTags);testing;specflow;extensions</PackageTags>
-    <Version>2.0.0-beta1</Version>
+    <Version>2.0.0-beta4</Version>
   </PropertyGroup>
 
   <ItemGroup>
