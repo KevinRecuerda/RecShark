@@ -10,15 +10,14 @@ using Npgsql;
 using Baseline.Reflection;
 using Marten.Linq.Fields;
 using Marten.Linq.Parsing;
+using System.Collections;
+using System.Reflection;
+using RecShark.Extensions;
+using Weasel.Postgresql;
+using CommandExtensions = Weasel.Postgresql.CommandExtensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    using System.Collections;
-    using System.Reflection;
-    using RecShark.Extensions;
-    using Weasel.Postgresql;
-    using CommandExtensions = Weasel.Postgresql.CommandExtensions;
-
     public static class MartenQueryableExtensions
     {
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
@@ -105,29 +104,76 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             return RunCommand<T>(session, command);
         }
 
-        // TODO: implement Where with join
-        // public static IQueryable<TSource> Where<TSource, TInclude>(
-        //     this IQueryable<TSource>         source,
-        //     Expression<Func<TInclude, bool>> predicate,
-        //     IQuerySession                    session,
-        //     int                              includeIndex = 0)
-        // {
-        //     var command    = session.Query<TInclude>().Where(predicate).ToCommand();
-        //     var parameters = command.Parameters.Select(p => p.Value).ToArray();
-        //
-        //     var query       = command.CommandText;
-        //     var whereClause = query.Substring(query.IndexOf("where ") + 5);
-        //
-        //     //  public MartenQueryExecutor Executor => this.Provider.As<MartenQueryProvider>().Executor.As<MartenQueryExecutor>();
-        //     var executor = source.As<MartenQueryable<TSource>>().Executor;
-        //     var includes = executor.Includes.OfType<IncludeJoin<TInclude>>().ToArray();
-        //     var include  = includes[includeIndex];
-        //
-        //     whereClause = whereClause.Replace("d.", include.TableAlias + ".");
-        //     whereClause = Regex.Replace(whereClause, @":arg(\d+)", "?");
-        //
-        //     return source.Where(x => x.MatchesSql(whereClause, parameters));
-        // }
+        public static IQueryable<TSource> Where<TSource, TInclude>(
+            this IQueryable<TSource>         source,
+            Expression<Func<TInclude, bool>> predicate,
+            IQuerySession                    session,
+            int                              includeIndex = 0)
+        {
+            const string includeTableAliasPrefix = "incl";
+            const string martenDefaultAlias      = "d.";
+
+            var (includeTable, includeId, condition, parameters) = GetEntityNames<TInclude>(session, predicate);
+            var (sourceTable, sourceId, _, _)                    = GetEntityNames<TSource>(session);
+            var includes = GetIncludes(source);
+
+            //TODO: check if includes are always in same order
+            var joins = "";
+            foreach (var (include, i) in includes.Select((v, i) => (v, i)))
+            {
+                var connectingField = GetConnectingField(include);
+                var locator         = connectingField.TypedLocator.Replace(martenDefaultAlias, "src.");
+                joins += $" INNER JOIN {includeTable} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{includeId}";
+            }
+
+            condition = condition.Replace(martenDefaultAlias, $"{includeTableAliasPrefix}{includeIndex}.");
+            condition = Regex.Replace(condition, @":p(\d+)", "?");
+
+            // TODO: check if there is a limit on number of elements of "in" list
+            var matchSql = @$"{sourceId} in (
+select src.{sourceId} 
+from {sourceTable} as src {joins} 
+where {condition}
+)";
+            return source.Where(x => x.MatchesSql(matchSql, parameters));
+        }
+
+        private static IField GetConnectingField(object include)
+        {
+            return (IField) include?.GetType().GetProperty("ConnectingField").GetValue(include);
+        }
+
+        private static IEnumerable<object> GetIncludes(IQueryable source)
+        {
+            var provider = source.GetType().GetProperty("MartenProvider").GetValue(source);
+            var includes = (ICollection) provider.GetType()
+                                                 .GetProperty("AllIncludes", BindingFlags.NonPublic|BindingFlags.Instance)
+                                                 .GetValue(provider);
+            return includes.Cast<object>();
+        }
+
+        private static (string tableName, string idName, string whereClause, object[] parameters) GetEntityNames<T>(
+            IQuerySession             session,
+            Expression<Func<T, bool>> predicate = null)
+        {
+            // select d.id, d.data from document_store_tests.mt_doc_control as d where CAST(d.data ->> 'Result' as integer) = :p0
+            IQueryable<T> query = session.Query<T>();
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            var command    = query.ToCommand();
+            var parameters = command.Parameters.Select(p => p.Value).ToArray();
+
+            var commandText    = command.CommandText;
+            var indexStartFrom = commandText.IndexOf("from ") + 5;
+            var indexEndFrom   = commandText.IndexOf(" as d");
+
+            var tableName      = commandText.Substring(indexStartFrom, indexEndFrom             - indexStartFrom);
+            var idColumn       = commandText.Substring(9,              commandText.IndexOf(",") - 9);
+            var whereCondition = commandText.Substring(commandText.IndexOf("where ")            + 5);
+
+            return (tableName, idColumn, whereCondition, parameters);
+        }
 
         //TODO: implement Latest
         public static IQueryable<T> Latest<T>(
@@ -148,9 +194,7 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             var command    = source.ToCommand();
             var parameters = command.Parameters.Select(p => p.Value).ToArray();
 
-            // Use reflection to get private field MartenLinqQueryable.MartenProvider.AllIncludes
-            var provider     = source.GetType().GetProperty("MartenProvider").GetValue(source);
-            var includes     = (IEnumerable) provider.GetType().GetProperty("AllIncludes", BindingFlags.NonPublic| BindingFlags.Instance).GetValue(provider);
+            var includes = GetIncludes(source);
 
             var aliases = new List<string>();
             foreach (var include in includes)
@@ -167,11 +211,8 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
                     break;
                 }
             }
+
             var includeAlias = (string) myInclude?.GetType().GetProperty("TempTableSelector").GetValue(myInclude);
-
-
-             //var includes = source.As<MartenLinqQueryable<TSource>>().Executor.Includes.ToList();
-            // var includeAlias = includes.OfType<IncludeJoin<TInclude>>().FirstOrDefault()?.TableAlias;
 
             var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, includeAlias)).Join(",");
             var max     = SelectorToSqlSafely(session, maxSelector, includeAlias);
@@ -181,14 +222,15 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             var initialQuery     = query.Substring(indexOfFirstFrom);
             if (aliases.Any())
             {
+                // when there is no includes query is just a select ...
                 // in case there are includes only ?
-                var endOfFirstQuery  = query.IndexOf(");");
-                initialQuery     = query.Substring(indexOfFirstFrom, endOfFirstQuery - indexOfFirstFrom);
+                var endOfFirstQuery = query.IndexOf(");");
+                initialQuery = query.Substring(indexOfFirstFrom, endOfFirstQuery - indexOfFirstFrom);
             }
 
             //TODO manage group by on an Included object !
             // Marten does not generates the join query => can't group on included field
-            
+
             query = $"SELECT {groupBy}, max({max}) {initialQuery} GROUP BY {groupBy}";
             query = Regex.Replace(query, @":arg(\d+)", "?");
 
