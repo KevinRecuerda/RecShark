@@ -12,11 +12,21 @@ using Weasel.Postgresql;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
+    using Baseline;
+    using DbCommandBuilder = Weasel.Core.DbCommandBuilder;
+
     public abstract class FeatureSchemaViews : FeatureSchemaBase
     {
         private readonly Lazy<SchemaViews> schemaViews;
 
-        public FeatureSchemaViews(StoreOptions options) : base($"{options.DatabaseSchemaName}._views", options)
+        /**
+         *     protected FeatureSchemaBase(string identifier, StoreOptions options)
+         *  -> protected FeatureSchemaBase(string identifier, Migrator migrator)
+         * TODO: need to implement FeatureSchemaViewsMigrator ?
+         *
+         * TODO: check if migrator.DefaultSchemaName <-> options.DatabaseSchemaName
+         */
+        public FeatureSchemaViews(StoreOptions options) : base($"{options.DatabaseSchemaName}._views", options.Advanced.Migrator)
         {
             schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(Identifier, options.DatabaseSchemaName, BuildViews()));
         }
@@ -59,6 +69,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public Dictionary<string, string> Views { get; }
 
+        // DdlRules rules -> Migrator, StringWriter -> TextWriter
         public void WriteCreateStatement(Migrator migrator, TextWriter writer)
         {
             var drops   = Views.Keys.Reverse().Select(ToDrop).ToList();
@@ -69,46 +80,16 @@ namespace RecShark.Data.Db.Document.Initialization
             writer.WriteLine(sql);
         }
 
-        public void WriteDropStatement(Migrator rules, TextWriter writer)
+        // DdlRules rules -> Migrator, StringWriter -> TextWriter
+        public void WriteDropStatement(Migrator migrator, TextWriter writer)
         {
             var drops = Views.Keys.Reverse().Select(ToDrop).ToList();
             var sql   = string.Join(Environment.NewLine, drops);
             writer.WriteLine(sql);
         }
 
+        // CommandBuilder -> DbCommandBuilder
         public void ConfigureQueryCommand(DbCommandBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader)
-        {
-            var diff = CheckDifference(reader);
-            if (diff != SchemaPatchDifference.None)
-            {
-                WriteCreateStatement(patch.Rules, patch.UpWriter);
-                WriteDropStatement(patch.Rules, patch.DownWriter);
-            }
-        }
-
-        public SchemaPatchDifference CreatePatch(DbDataReader reader, SchemaPatch patch, AutoCreate autoCreate)
-        {
-            var diff = CheckDifference(reader);
-            if (diff != SchemaPatchDifference.None)
-            {
-                Write(patch.Rules, patch.UpWriter);
-                WriteDropStatement(patch.Rules, patch.DownWriter);
-            }
-
-            return diff;
-        }
-
-        public IEnumerable<DbObjectName> AllNames()
-        {
-            return Views.Keys.Select(v => new DbObjectName(Identifier.Schema, v)).ToList();
-        }
-
-        public void ConfigureQueryCommand(CommandBuilder builder)
         {
             var schema = builder.AddParameter(Identifier.Schema).ParameterName;
 
@@ -118,6 +99,41 @@ select viewname, definition
 from pg_catalog.pg_views
 where schemaname = :{schema};
 ");
+        }
+
+        /***
+         *     SchemaPatchDifference CreatePatch(DbDataReader reader,SchemaPatch patch,AutoCreate autoCreate);
+         *      Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader);
+         */
+        
+        public Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader)
+        {
+            var diff = CheckDifference(reader);
+            // if (diff != SchemaPatchDifference.None)
+            // {
+            //     WriteCreateStatement(patch.Rules, patch.UpWriter);
+            //     WriteDropStatement(patch.Rules, patch.DownWriter);
+            // }
+            
+            ISchemaObjectDelta delta = new SchemaObjectDelta(this, diff);
+            return Task.FromResult(delta);
+        }
+
+        // public SchemaPatchDifference CreatePatch(DbDataReader reader, SchemaPatch patch, AutoCreate autoCreate)
+        // {
+        //     var diff = CheckDifference(reader);
+        //     if (diff != SchemaPatchDifference.None)
+        //     {
+        //         Write(patch.Rules, patch.UpWriter);
+        //         WriteDropStatement(patch.Rules, patch.DownWriter);
+        //     }
+        //
+        //     return diff;
+        // }
+
+        public IEnumerable<DbObjectName> AllNames()
+        {
+            return Views.Keys.Select(v => new DbObjectName(Identifier.Schema, v)).ToList();
         }
 
         private SchemaPatchDifference CheckDifference(DbDataReader reader)
@@ -162,7 +178,9 @@ where schemaname = :{schema};
     {
         public static string CanonicalizeSql(this string sql)
         {
-            var replaced = sql.CanonicizeSql()
+            // CanonicizeSql moved to Weasel.Postgresql.Canonicalization (internal class)
+            // should generate SQL using Weasel ?
+            var replaced = sql.MartenCanonicizeSql()
                               .Replace("\"",                       "")
                               .Replace("(",                        "")
                               .Replace(")",                        "")
@@ -177,6 +195,53 @@ where schemaname = :{schema};
                 replaced = Regex.Replace(replaced, keyword, keyword, RegexOptions.IgnoreCase);
 
             return replaced;
+        }
+        
+        // TODO - check if can use Weasel to generate Canonical sql
+        // => remove Marten* extensions
+        public static string MartenCanonicizeSql(this string sql)
+        {
+            var replaced = sql
+                          .Trim()
+                          .Replace('\n', ' ')
+                          .Replace('\r', ' ')
+                          .Replace('\t', ' ')
+                          .Replace("!=", "<>")
+                          .MartenReplaceMultiSpace(" ")
+                          .Replace(" ;",                             ";")
+                          .Replace("SECURITY INVOKER",               "")
+                          .Replace("  ",                             " ")
+                          .Replace("LANGUAGE plpgsql AS $function$", "")
+                          .Replace("$$ LANGUAGE plpgsql",            "$function$")
+                          .Replace("AS $$ DECLARE",                  "DECLARE")
+                          .Replace("character varying",              "varchar")
+                          .Replace("Boolean",                        "boolean")
+                          .Replace("bool,",                          "boolean,")
+                          .Replace("int[]",                          "integer[]")
+                          .Replace("numeric",                        "decimal").TrimEnd(';').TrimEnd();
+
+
+            if (replaced.ContainsIgnoreCase("PLV8"))
+            {
+                replaced = replaced
+                   .Replace("LANGUAGE plv8 IMMUTABLE STRICT AS $function$", "AS $$");
+
+                const string languagePlv8ImmutableStrict = "$$ LANGUAGE plv8 IMMUTABLE STRICT";
+                const string functionMarker              = "$function$";
+                if (replaced.EndsWith(functionMarker))
+                {
+                    replaced = replaced.Substring(0, replaced.LastIndexOf(functionMarker)) + languagePlv8ImmutableStrict;
+                }
+            }
+
+            return replaced
+                  .Replace("  ", " ").TrimEnd().TrimEnd(';');
+        }
+        
+        public static string MartenReplaceMultiSpace(this string str, string newStr)
+        {
+            var regex = new Regex("\\s+");
+            return regex.Replace(str, newStr);
         }
 
         public static string ExtendSelect(this string sql, string comparison)

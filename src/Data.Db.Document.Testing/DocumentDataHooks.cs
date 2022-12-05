@@ -8,6 +8,9 @@ using RecShark.Testing.DependencyInjection;
 
 namespace RecShark.Data.Db.Document.Testing
 {
+    using System;
+    using Weasel.Core;
+
     public class DocumentDataHooks : Hooks
     {
         protected DocumentDataHooks(params DIModule[] modules) : base(modules)
@@ -24,7 +27,15 @@ namespace RecShark.Data.Db.Document.Testing
     public class DocumentStoreFactoryTesting : IDocumentStoreFactory
     {
         public DocumentStoreFactoryTesting(BaseDocumentStoreFactory innerFactory)
-        {
+        { 
+            /*
+             * TODO: this a workaround to avoid below error
+             * Cannot write DateTimeOffset with Offset=01:00:00 to PostgreSQL type 'timestamp with time zone', only offset 0 (UTC) is supported.
+             * Other solution: set app TZ to UTC ?
+             * //TODO: check where should call this
+             */
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            
             InnerFactory = innerFactory;
 
             InnerFactory.Schema += "_tests";

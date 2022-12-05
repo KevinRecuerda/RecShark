@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Marten;
-using Marten.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -53,9 +52,9 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
             // Arrange
             var factory = Substitute.For<IDocumentStoreFactory>();
             var store   = Substitute.For<IDocumentStore>();
-            var schema  = Substitute.For<IDocumentSchema>();
+            var schema  = Substitute.For<IMartenStorage>();
 
-            store.Schema.Returns(schema);
+            store.Storage.Returns(schema);
             factory.CreateDocumentStore().Returns(store);
 
             var dataChanges = new DataChange[] {new ObjectDataChange()};
@@ -72,7 +71,7 @@ namespace RecShark.Data.Db.Document.Tests.Initialization
                 async () =>
                 {
                     await dataInitializer.ApplyChanges(store, dataChanges.AsArg(), ExecutionMode.PreSchemaChanges);
-                    schema.ApplyAllConfiguredChangesToDatabase();
+                    await schema.ApplyAllConfiguredChangesToDatabaseAsync();
                     await dataInitializer.ApplyChanges(store, dataChanges.AsArg(), ExecutionMode.PostSchemaChanges);
                 });
         }

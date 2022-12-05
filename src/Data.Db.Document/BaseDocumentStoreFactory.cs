@@ -4,6 +4,7 @@ using RecShark.Data.Db.Document.MartenExtensions;
 
 namespace RecShark.Data.Db.Document
 {
+    using System;
     using Weasel.Core;
 
     public abstract class BaseDocumentStoreFactory : IDocumentStoreFactory
@@ -21,6 +22,14 @@ namespace RecShark.Data.Db.Document
 
         public IDocumentStore CreateDocumentStore()
         {
+            /*
+            * TODO: this a workaround to avoid below error
+            * Cannot write DateTimeOffset with Offset=01:00:00 to PostgreSQL type 'timestamp with time zone', only offset 0 (UTC) is supported.
+            * Other solution: set app TZ to UTC ?
+            * //TODO: check where should call this
+            */
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var store = DocumentStore.For(ConfigureDocumentStore);
             return store;
         }
@@ -38,7 +47,7 @@ namespace RecShark.Data.Db.Document
             options.UseDefaultSerialization(EnumStorage.AsString);
             options.Advanced.HiloSequenceDefaults.MaxLo = 10;
 
-            // TODO: check if need to enable PLV8
+            // TODO: check if need to enable PLV8 https://martendb.io/documents/plv8.html
             //options.Advanced.PLV8Enabled = false;
 
             options.Schema.For<DataChangeLog>().DatabaseSchemaName(Schema);

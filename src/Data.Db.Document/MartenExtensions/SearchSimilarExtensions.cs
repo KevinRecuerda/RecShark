@@ -5,10 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Marten;
 using Marten.Linq;
+using Marten.Linq.Parsing;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    using Marten.Linq.Parsing;
+    using Marten.Internal.Sessions;
 
     public static class SearchSimilarExtensions
     {
@@ -19,8 +20,10 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             int                         top)
         {
             var members = FindMembers.Determine(selector);
-            var doc     = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
-            var locator = doc.FieldFor(members).SqlLocator;
+            
+            var doc = ((QuerySession) session.DocumentStore.QuerySession()).StorageFor(typeof(T)).Fields;
+            //var doc     = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
+            var locator = doc.FieldFor(members).RawLocator;
 
             var sql = " where 1=1";
             sql += $" order by {locator} <-> :{nameof(search)}";

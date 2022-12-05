@@ -35,7 +35,7 @@ namespace RecShark.Data.Db.Document.Initialization
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges, token);
 
                 logger.LogInformation("applying auto schema change ...");
-                await store.Schema.ApplyAllConfiguredChangesToDatabaseAsync();
+                await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync();
 
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges, token);
             }

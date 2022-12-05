@@ -7,6 +7,8 @@ using Xunit;
 
 namespace RecShark.Data.Db.Document.Tests
 {
+    using Marten.Internal.Sessions;
+
     public class BaseDocumentStoreFactoryTests : BaseDocTests
     {
         private readonly IDocumentStoreFactory factory;
@@ -29,8 +31,12 @@ namespace RecShark.Data.Db.Document.Tests
         {
             var actual = (DocumentStore) factory.CreateDocumentStore();
 
-            actual.Storage.MappingFor(typeof(DataChange)).DatabaseSchemaName.Should().Be(factory.Schema);
-            actual.Storage.MappingFor(typeof(DataLock)).DatabaseSchemaName.Should().Be(factory.Schema);
+            ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataChange)).TableName.Schema.Should().Be(factory.Schema);
+            ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataLock)).TableName.Schema.Should().Be(factory.Schema);
+
+            // TODO: remove comment
+            // actual.Storage.MappingFor(typeof(DataChange)).DatabaseSchemaName.Should().Be(factory.Schema);
+            // actual.Storage.MappingFor(typeof(DataLock)).DatabaseSchemaName.Should().Be(factory.Schema);
         }
 
         [Fact]

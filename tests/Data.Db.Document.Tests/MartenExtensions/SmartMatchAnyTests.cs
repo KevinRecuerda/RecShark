@@ -14,7 +14,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public override void Dispose()
         {
-            Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
+            Hooks.Cleaner.CompletelyRemove(typeof(Item));
         }
 
         [Fact]

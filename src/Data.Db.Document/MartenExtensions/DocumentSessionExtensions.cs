@@ -3,14 +3,19 @@ using Marten;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Marten.Internal.Sessions;
+    using Marten.Storage;
+
     public static class DocumentSessionExtensions
     {
+        //TODO: find how to get MappingFor from T
         public static void RenameColumn<T>(this IDocumentSession session, string oldName, string newName)
         {
-            var doc = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
+            //var doc = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
+            var doc = ((QuerySession) session.DocumentStore.QuerySession()).StorageFor(typeof(T));
 
             var query = $@"
-update {doc.Table.Schema}.{doc.Table.Name}
+update {doc.TableName.Schema}.{doc.TableName.Name}
 set data = data - '{oldName}' || jsonb_build_object('{newName}', data->'{oldName}')
 where data ? '{oldName}'
 ";
