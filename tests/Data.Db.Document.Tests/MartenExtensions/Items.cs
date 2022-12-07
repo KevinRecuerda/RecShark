@@ -47,4 +47,13 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public string Description { get; set; }
     }
+
+    public class Aggregate
+    {
+        public Guid      Id     { get; set; }
+        public int       Result { get; set; }
+        public ItemType? Type   { get; set; }
+        public string    Name   { get; set; }
+        public Item      Item   { get; set; }
+    }
 }

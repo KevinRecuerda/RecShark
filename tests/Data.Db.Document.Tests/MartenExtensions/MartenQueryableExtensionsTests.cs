@@ -49,7 +49,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             // Assert
             actual.Single().Should().BeEquivalentTo(new Item {Id = "1", Name = "NameOverride"});
         }
-        
+
         [Fact]
         public async Task SelectFields__Should_return_selected_fields_with_filter()
         {
@@ -75,8 +75,9 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                      new[]
                                      {
                                          ("Id", "d.id"),
-                                         ("Name",  $":{nameof(param)}")
-                                     },new {param = param});
+                                         ("Name", $":{nameof(param)}")
+                                     },
+                                     new {param = param});
 
             // Assert
             actual.Single().Should().BeEquivalentTo(new Item {Id = "1", Name = "NameOverride"});
@@ -480,7 +481,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             actualItems.Should().BeEquivalentTo(items[1]);
         }
 
-        [Fact(Skip = "SelectFields not supported with Include queries")]
+        [Fact]
         public async Task SelectFields__map_fields_with_include()
         {
             // Arrange
@@ -510,7 +511,6 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             var actual = session.Query<Control>()
                                 .Include(c => c.ItemId, actualItems)
                                 .Where<Control, Item>(i => i.Type == ItemType.A, session)
-                                .Latest<Control, Item>(session, i => i.Id, i => i.Type)
                                 .SelectFields<Control, Control>(
                                      session,
                                      new[]
@@ -519,17 +519,16 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                          ("Result", "(d.data ->> 'Result')::integer * 10")
                                      });
 
+            var control0 = new Control {Id = controls[0].Id, Result = 100};
             var control1 = new Control {Id = controls[1].Id, Result = 200};
-            var control3 = new Control {Id = controls[3].Id, Result = 300};
+            var control3 = new Control {Id = controls[3].Id, Result = 400};
 
             // Assert
-            actual.Should().HaveCount(2);
-            actual.Should().BeEquivalentTo(control1, control3);
-            actualItems.Should().HaveCount(1);
-            actualItems.Should().BeEquivalentTo(items[1]);
-        }        
-        
-        [Fact(Skip = "SelectFields not supported with Include queries")]
+            actual.Should().HaveCount(3);
+            actual.Should().BeEquivalentTo(control0, control1, control3);
+        }
+
+        [Fact]
         public async Task SelectFields__LatestInclude__Should_return_latest_controls_according_to_filter_on_include()
         {
             // Arrange
@@ -542,10 +541,10 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             };
             var controls = new[]
             {
-                new Control {ItemId = "1", Result = 10},
-                new Control {ItemId = "2", Result = 20},
+                new Control {ItemId = "1", Result = 10}, // A 
+                new Control {ItemId = "2", Result = 20}, // A
                 new Control {ItemId = "3", Result = 30},
-                new Control {ItemId = "2", Result = 40}
+                new Control {ItemId = "2", Result = 40} // A
             };
 
             var             documentStore = Hooks.Provider.GetService<IDocumentStore>();
@@ -560,22 +559,23 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                 .Include(c => c.ItemId, actualItems)
                                 .Where<Control, Item>(i => i.Type == ItemType.A, session)
                                 .Latest<Control, Item>(session, i => i.Id, i => i.Type)
-                                .SelectFields<Control, Control>(
+                                .SelectFields<Control, Aggregate>(
                                      session,
                                      new[]
                                      {
                                          ("Id", "d.id"),
-                                         ("Result", "(d.data ->> 'Result')::integer * 10")
+                                         ("Result", "(d.data ->> 'Result')::integer * 10"),
+                                         ("Type", "sfin0.data ->> 'Type'"),
+                                         ("Name", "sfin0.data ->> 'Name'"),
+                                         ("Item", "sfin0.data")
                                      });
 
-            var control1 = new Control {Id = controls[1].Id, Result = 200};
-            var control3 = new Control {Id = controls[3].Id, Result = 300};
+            var aggregate1 = new Aggregate {Id = controls[1].Id, Result = 200, Type = ItemType.A, Name = "test 2", Item = items[1]};
+            var aggregate3 = new Aggregate {Id = controls[3].Id, Result = 400, Type = ItemType.A, Name = "test 2", Item = items[1]};
 
             // Assert
             actual.Should().HaveCount(2);
-            actual.Should().BeEquivalentTo(control1, control3);
-            actualItems.Should().HaveCount(1);
-            actualItems.Should().BeEquivalentTo(items[1]);
+            actual.Should().BeEquivalentTo(aggregate1, aggregate3);
         }
 
         [Fact]
@@ -698,8 +698,8 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             var actual = session.Query<Item>()
                                 .Include(i => i.FirstControlId, actualFirstControls)
                                 .Include(i => i.LastControlId,  actualLastControls)
-                                .Where<Item, Control>(c => c.Result == 20, session, 1)
-                                .Where<Item, Control>(c => c.Date == new DateTime(2000, 12, 31), session, 1)
+                                .Where<Item, Control>(c => c.Result == 20,                         session, 1)
+                                .Where<Item, Control>(c => c.Date   == new DateTime(2000, 12, 31), session, 1)
                                 .ToList();
 
             // Assert
@@ -712,7 +712,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             actualLastControls.Should().HaveCount(1);
             actualLastControls.Values.Should().ContainEquivalentOf(controls[2]);
         }
-        
+
         [Fact]
         public async Task WhereArray__Should_return_controls_with_only_filtered_logs()
         {

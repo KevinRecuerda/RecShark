@@ -14,10 +14,11 @@ using System.Collections;
 using System.Reflection;
 using RecShark.Extensions;
 using Weasel.Postgresql;
-using CommandExtensions = Weasel.Postgresql.CommandExtensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
+    using Marten.Internal.Storage;
+
     public static class MartenQueryableExtensions
     {
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
@@ -26,23 +27,40 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             (string, string)[]   fields,
             params object[]      parameters)
         {
-            // TODO: make SelectFields work with includes !
-            var command = queryable.ToCommand();
+            const string includeTableAlias = "sfin";
             
-            // sql
-            var jsonFields   = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
-            
-            var commandText     = command.CommandText;
-            if (commandText.ContainsIgnoreCase("create temp table"))
-                throw new NotSupportedException("SelectFields cannot be uses with includes");
-            //TODO: manage includes => build joins + remove create table + sub queries
-            
-            var indexOfFrom     = commandText.IndexOf("from");
-            var baseSql         = commandText.Substring(indexOfFrom);
-            var sql             = $"select json_build_object({jsonFields}) as data {baseSql}";
-            
-            var builder = new CommandBuilder(command);
+            var          command           = queryable.ToCommand();
+            var          jsonFields        = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
 
+            var          includes          = GetIncludes(queryable);
+            
+            var          joins             = "";
+            foreach (var (include, i) in includes.Select((v, i) => (v, i)))
+            {
+                var connectingField = GetProp<IField>(include, "ConnectingField");
+                var locator         = connectingField.TypedLocator;
+                var storage         = GetStorage(include);
+                var table           = storage.TableName;
+
+                //TODO: check if may need to OUTER JOIN
+                const string includeId = "id"; //TODO: find id column selector
+                joins += $" INNER JOIN {table.QualifiedName} as {includeTableAlias}{i} on {locator} = {includeTableAlias}{i}.{includeId}";
+            }
+
+            var commandText = command.CommandText;
+            if (commandText.Contains("create temp table"))
+            {
+                var indexOfSelect   = commandText.IndexOf("select");
+                var indexOfEndQuery = commandText.IndexOf(");");
+                commandText = commandText.Substring(indexOfSelect, indexOfEndQuery - indexOfSelect);
+                commandText = commandText.Replace(" as d ", $" as d {joins}");
+            }
+
+            var indexOfFrom = commandText.IndexOf("from");
+            var baseSql     = commandText.Substring(indexOfFrom);
+            var sql         = $"select json_build_object({jsonFields}) as data {baseSql}";
+
+            var builder = new CommandBuilder(command);
             foreach (var parameter in parameters)
             {
                 if (parameter.IsAnonymousType())
@@ -50,7 +68,6 @@ namespace RecShark.Data.Db.Document.MartenExtensions
                 else
                     builder.AddParameter(parameter);
             }
-            
             command.CommandText = sql;
             return RunCommand<TOut>(session, command);
         }
@@ -93,7 +110,7 @@ from cte
 where cte.data -> '{arrayCol}' != '[]'::jsonb";
 
             // parameters
-            CommandExtensions.AddNamedParameter(command, "arrayParams", parameters);
+            command.AddNamedParameter("arrayParams", parameters);
             command.CommandText = sql;
 
             return RunCommand<T>(session, command);
@@ -108,19 +125,24 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
             const string includeTableAliasPrefix = "incl";
             const string martenDefaultAlias      = "d.";
 
-            var (includeTable, includeId, condition, parameters) = GetEntityNames<TInclude>(session, predicate);
+            var (_, _, condition, parameters) = GetEntityNames<TInclude>(session, predicate);
             var (sourceTable, sourceId, _, _)                    = GetEntityNames<TSource>(session);
             var includes = GetIncludes(source);
 
             //TODO: check if includes are always in same order
-            //TODO: manage includes on multiple types ?
+            //TODO: manage includes on multiple types ? => table name won't be the same
+            //TODO: test multiple Where conditions
             var joins = "";
             foreach (var (include, i) in includes.Select((v, i) => (v, i)))
             {
-                var connectingField = GetConnectingField(include);
-                var locator         = connectingField.TypedLocator.Replace(martenDefaultAlias, "src.");
+                var          connectingField = GetProp<IField>(include, "ConnectingField");
+                var          locator         = connectingField.TypedLocator.Replace(martenDefaultAlias, "src.");
+                var          storage         = GetStorage(include);
+                var          table           = storage.TableName;
+                const string id              = "id"; //TODO: need to get this name dynamically
+                
                 //TODO: check if may need to OUTER JOIN
-                joins += $" INNER JOIN {includeTable} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{includeId}";
+                joins += $" INNER JOIN {table} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{id}";
             }
 
             condition = condition.Replace(martenDefaultAlias, $"{includeTableAliasPrefix}{includeIndex}.");
@@ -132,12 +154,15 @@ select src.{sourceId}
 from {sourceTable} as src {joins} 
 where {condition}
 )";
-            return source.Where(x => x.MatchesSql(matchSql, parameters));
+
+            var queryable = source.Where(x => x.MatchesSql(matchSql, parameters));
+            return queryable;
         }
 
-        private static IField GetConnectingField(object include)
+        // called with IncludePlan
+        private static T GetProp<T>(object includePlan, string propName)
         {
-            return (IField) include?.GetType().GetProperty("ConnectingField").GetValue(include);
+            return (T) includePlan?.GetType().GetProperty(propName).GetValue(includePlan);
         }
 
         private static IEnumerable<object> GetIncludes(IQueryable source)
@@ -147,6 +172,11 @@ where {condition}
                                                  .GetProperty("AllIncludes", BindingFlags.NonPublic|BindingFlags.Instance)
                                                  .GetValue(provider);
             return includes.Cast<object>();
+        }
+
+        private static IDocumentStorage GetStorage(object includePlan)
+        {
+            return (IDocumentStorage) includePlan?.GetType().GetField("_storage", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(includePlan);
         }
 
         private static (string tableName, string idName, string whereClause, object[] parameters) GetEntityNames<T>(
@@ -192,23 +222,24 @@ where {condition}
             const string grpAlias           = "grp";
             const string srcLatestAlias     = "srclast";
             const string incAlias           = "inclast";
-            
-            var          command            = source.ToCommand();
-            var          parameters         = command.Parameters.Select(p => p.Value).ToArray();
+
+            var command    = source.ToCommand();
+            var parameters = command.Parameters.Select(p => p.Value).ToArray();
 
             var (sourceTable, _, _, _)          = GetEntityNames<TSource>(session);
             var (includeTable, includeId, _, _) = GetEntityNames<TInclude>(session);
 
-            var includes       = GetIncludes(source);
-            var myInclude      = includes.FirstOrDefault(i => i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude));
+            var includes  = GetIncludes(source);
+            var myInclude = includes.FirstOrDefault(i => i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude));
+
             // connectorField.TypedLocator contains d. prefix
-            var connectorField = GetConnectingField(myInclude);
-            
-            var groupBy        = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
-            var max            = SelectorToSqlSafely(session, maxSelector, grpAlias);
-            
+            var connectorField = GetProp<IField>(myInclude, "ConnectingField");
+
+            var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
+            var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
+
             var joinNeeded = sourceTable != includeTable;
-            
+
             var whereCondition = GetWhereCondition(command, includes);
 
             var groupByFieldSelect = joinNeeded
