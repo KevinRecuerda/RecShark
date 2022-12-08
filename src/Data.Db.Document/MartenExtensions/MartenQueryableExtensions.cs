@@ -132,20 +132,16 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
             var includes = GetIncludes(source);
 
             //TODO: check if includes are always in same order
-            //TODO: optimize query when multiple Where<,> (single in)
-            var joins = "";
-            foreach (var (include, i) in includes.Select((v, i) => (v, i)))
-            {
-                var          connectingField = GetPropValue<IField>(include, "ConnectingField");
-                var          locator         = connectingField.TypedLocator.Replace(MartenDefaultTableAlias, "src.");
-                var          storage         = GetStorage(include);
-                var          table           = storage.TableName;
+            //TODO: optimize query when multiple Where<,>: apply all conditions on a single in ()
+            var include         = includes.Where(IsIncludeOfType<TInclude>).ElementAt(includeIndex);
+            var connectingField = GetPropValue<IField>(include, "ConnectingField");
+            var locator         = connectingField.TypedLocator.Replace(MartenDefaultTableAlias, "src.");
+            var table           = GetStorage(include).TableName;
 
-                //TODO: check if may need to OUTER JOIN
-                joins += $" INNER JOIN {table} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{MartenDefaultIdCol}";
-            }
+            //TODO: check if may need to OUTER JOIN
+            var joins = $" INNER JOIN {table} as {includeTableAliasPrefix} on {locator} = {includeTableAliasPrefix}.{MartenDefaultIdCol}";
 
-            condition = condition.Replace(MartenDefaultTableAlias, $"{includeTableAliasPrefix}{includeIndex}.");
+            condition = condition.Replace(MartenDefaultTableAlias, $"{includeTableAliasPrefix}.");
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
             // TODO: check if there is a limit on number of elements of "in" list
@@ -174,9 +170,9 @@ where {condition}
             Expression<Func<TInclude, object>>          maxSelector,
             params Expression<Func<TInclude, object>>[] groupBySelectors)
         {
-            const string grpAlias              = "grp";
-            const string srcLatestAlias        = "srclast";
-            const string incAlias              = "inclast";
+            const string grpAlias       = "grp";
+            const string srcLatestAlias = "srclast";
+            const string incAlias       = "inclast";
 
             var command    = source.ToCommand();
             var parameters = command.Parameters.Select(p => p.Value).ToArray();
@@ -185,11 +181,11 @@ where {condition}
             var (includeTable, _, _, _) = GetEntityNames<TInclude>(session);
 
             var includes  = GetIncludes(source);
-            var myInclude = includes.FirstOrDefault(i => i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude));
+            var myInclude = includes.FirstOrDefault(IsIncludeOfType<TInclude>);
 
             // connectorField.TypedLocator contains d. prefix
             var connectorField = GetPropValue<IField>(myInclude, "ConnectingField");
-            
+
             var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
             var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
 
@@ -221,6 +217,11 @@ group by {groupByAliased}
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
             return source.Where(x => x.MatchesSql(condition, parameters));
+        }
+
+        private static bool IsIncludeOfType<TInclude>(object i)
+        {
+            return i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude);
         }
 
         // called with IncludePlan
