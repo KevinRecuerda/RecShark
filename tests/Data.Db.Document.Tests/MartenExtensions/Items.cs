@@ -36,6 +36,8 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
         public int      Result { get; set; }
 
         public Log[] Logs { get; set; }
+
+        public string[] Data { get; set; }
     }
 
     public class Log

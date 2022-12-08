@@ -52,7 +52,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
                 return true;
             }
-            catch (Marten.Exceptions.DocumentAlreadyExistsException e) // when (e.Message.Contains("duplicate key value violates"))
+            catch (Marten.Exceptions.DocumentAlreadyExistsException)
             {
                 return false;
             }

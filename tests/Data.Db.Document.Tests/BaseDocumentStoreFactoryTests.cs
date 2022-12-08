@@ -33,10 +33,6 @@ namespace RecShark.Data.Db.Document.Tests
 
             ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataChange)).TableName.Schema.Should().Be(factory.Schema);
             ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataLock)).TableName.Schema.Should().Be(factory.Schema);
-
-            // TODO: remove comment
-            // actual.Storage.MappingFor(typeof(DataChange)).DatabaseSchemaName.Should().Be(factory.Schema);
-            // actual.Storage.MappingFor(typeof(DataLock)).DatabaseSchemaName.Should().Be(factory.Schema);
         }
 
         [Fact]

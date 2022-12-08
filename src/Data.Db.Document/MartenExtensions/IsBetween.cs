@@ -18,7 +18,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
         {
             var members = FindMembers.Determine(expression);
 
-            var locator = mapping.FieldFor(members).RawLocator;
+            var locator = mapping.FieldFor(members).TypedLocator;
             var from    = expression.Arguments[1].Value();
             var to      = expression.Arguments[2].Value();
 

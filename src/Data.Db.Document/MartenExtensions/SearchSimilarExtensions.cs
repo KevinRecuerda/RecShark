@@ -13,6 +13,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
 
     public static class SearchSimilarExtensions
     {
+        // TODO: manage Includes
         public static async Task<IReadOnlyList<T>> SearchSimilarAsync<T>(
             this IQuerySession          session,
             Expression<Func<T, string>> selector,
