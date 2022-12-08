@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Baseline;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -8,24 +9,14 @@ using Marten;
 using System.Threading.Tasks;
 using Weasel.Core;
 using Weasel.Core.Migrations;
-using Weasel.Postgresql;
+using DbCommandBuilder = Weasel.Core.DbCommandBuilder;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
-    using Baseline;
-    using DbCommandBuilder = Weasel.Core.DbCommandBuilder;
-
     public abstract class FeatureSchemaViews : FeatureSchemaBase
     {
         private readonly Lazy<SchemaViews> schemaViews;
 
-        /**
-         *     protected FeatureSchemaBase(string identifier, StoreOptions options)
-         *  -> protected FeatureSchemaBase(string identifier, Migrator migrator)
-         * TODO: need to implement FeatureSchemaViewsMigrator ?
-         *
-         * TODO: check if migrator.DefaultSchemaName <-> options.DatabaseSchemaName
-         */
         public FeatureSchemaViews(StoreOptions options) : base($"{options.DatabaseSchemaName}._views", options.Advanced.Migrator)
         {
             schemaViews = new Lazy<SchemaViews>(() => new SchemaViews(Identifier, options.DatabaseSchemaName, BuildViews()));
@@ -69,7 +60,6 @@ namespace RecShark.Data.Db.Document.Initialization
 
         public Dictionary<string, string> Views { get; }
 
-        // DdlRules rules -> Migrator, StringWriter -> TextWriter
         public void WriteCreateStatement(Migrator migrator, TextWriter writer)
         {
             var drops   = Views.Keys.Reverse().Select(ToDrop).ToList();
@@ -80,7 +70,6 @@ namespace RecShark.Data.Db.Document.Initialization
             writer.WriteLine(sql);
         }
 
-        // DdlRules rules -> Migrator, StringWriter -> TextWriter
         public void WriteDropStatement(Migrator migrator, TextWriter writer)
         {
             var drops = Views.Keys.Reverse().Select(ToDrop).ToList();
@@ -88,7 +77,6 @@ namespace RecShark.Data.Db.Document.Initialization
             writer.WriteLine(sql);
         }
 
-        // CommandBuilder -> DbCommandBuilder
         public void ConfigureQueryCommand(DbCommandBuilder builder)
         {
             var schema = builder.AddParameter(Identifier.Schema).ParameterName;
@@ -100,37 +88,15 @@ from pg_catalog.pg_views
 where schemaname = :{schema};
 ");
         }
-
-        /***
-         *     SchemaPatchDifference CreatePatch(DbDataReader reader,SchemaPatch patch,AutoCreate autoCreate);
-         *      Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader);
-         */
         
         public Task<ISchemaObjectDelta> CreateDelta(DbDataReader reader)
         {
             var diff = CheckDifference(reader);
-            // if (diff != SchemaPatchDifference.None)
-            // {
-            //     WriteCreateStatement(patch.Rules, patch.UpWriter);
-            //     WriteDropStatement(patch.Rules, patch.DownWriter);
-            // }
-            
+
             ISchemaObjectDelta delta = new SchemaObjectDelta(this, diff);
             return Task.FromResult(delta);
         }
-
-        // public SchemaPatchDifference CreatePatch(DbDataReader reader, SchemaPatch patch, AutoCreate autoCreate)
-        // {
-        //     var diff = CheckDifference(reader);
-        //     if (diff != SchemaPatchDifference.None)
-        //     {
-        //         Write(patch.Rules, patch.UpWriter);
-        //         WriteDropStatement(patch.Rules, patch.DownWriter);
-        //     }
-        //
-        //     return diff;
-        // }
-
+        
         public IEnumerable<DbObjectName> AllNames()
         {
             return Views.Keys.Select(v => new DbObjectName(Identifier.Schema, v)).ToList();
@@ -196,7 +162,7 @@ where schemaname = :{schema};
 
             return replaced;
         }
-        
+
         // TODO - check if can use Weasel to generate Canonical sql
         // => remove Marten* extensions
         public static string MartenCanonicizeSql(this string sql)
@@ -218,8 +184,9 @@ where schemaname = :{schema};
                           .Replace("Boolean",                        "boolean")
                           .Replace("bool,",                          "boolean,")
                           .Replace("int[]",                          "integer[]")
-                          .Replace("numeric",                        "decimal").TrimEnd(';').TrimEnd();
-
+                          .Replace("numeric",                        "decimal")
+                          .TrimEnd(';')
+                          .TrimEnd();
 
             if (replaced.ContainsIgnoreCase("PLV8"))
             {
@@ -235,9 +202,11 @@ where schemaname = :{schema};
             }
 
             return replaced
-                  .Replace("  ", " ").TrimEnd().TrimEnd(';');
+                  .Replace("  ", " ")
+                  .TrimEnd()
+                  .TrimEnd(';');
         }
-        
+
         public static string MartenReplaceMultiSpace(this string str, string newStr)
         {
             var regex = new Regex("\\s+");
