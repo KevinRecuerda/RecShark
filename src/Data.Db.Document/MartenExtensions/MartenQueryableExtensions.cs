@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Baseline.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -6,10 +7,10 @@ using System.Text.RegularExpressions;
 using Baseline;
 using Marten;
 using Marten.Linq.MatchesSql;
-using Npgsql;
-using Baseline.Reflection;
+using Marten.Internal.Storage;
 using Marten.Linq.Fields;
 using Marten.Linq.Parsing;
+using Npgsql;
 using System.Collections;
 using System.Reflection;
 using RecShark.Extensions;
@@ -17,10 +18,11 @@ using Weasel.Postgresql;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    using Marten.Internal.Storage;
-
     public static class MartenQueryableExtensions
     {
+        private const string MartenDefaultIdCol      = "id"; //duplicated id column is always named id
+        private const string MartenDefaultTableAlias = "d.";
+
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
             this IQueryable<TIn> queryable,
             IDocumentSession     session,
@@ -28,23 +30,22 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             params object[]      parameters)
         {
             const string includeTableAlias = "sfin";
-            
-            var          command           = queryable.ToCommand();
-            var          jsonFields        = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
 
-            var          includes          = GetIncludes(queryable);
-            
-            var          joins             = "";
+            var command    = queryable.ToCommand();
+            var jsonFields = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
+
+            var includes = GetIncludes(queryable);
+
+            var joins = "";
             foreach (var (include, i) in includes.Select((v, i) => (v, i)))
             {
-                var connectingField = GetProp<IField>(include, "ConnectingField");
+                var connectingField = GetPropValue<IField>(include, "ConnectingField");
                 var locator         = connectingField.TypedLocator;
                 var storage         = GetStorage(include);
                 var table           = storage.TableName;
 
-                //TODO: check if may need to OUTER JOIN
-                const string includeId = "id"; //TODO: find id column selector
-                joins += $" INNER JOIN {table.QualifiedName} as {includeTableAlias}{i} on {locator} = {includeTableAlias}{i}.{includeId}";
+                //TODO: check if may need to OUTER JOIN (add parameter ?)
+                joins += $" INNER JOIN {table.QualifiedName} as {includeTableAlias}{i} on {locator} = {includeTableAlias}{i}.{MartenDefaultIdCol}";
             }
 
             var commandText = command.CommandText;
@@ -68,10 +69,12 @@ namespace RecShark.Data.Db.Document.MartenExtensions
                 else
                     builder.AddParameter(parameter);
             }
+
             command.CommandText = sql;
             return RunCommand<TOut>(session, command);
         }
 
+        //TODO make if works with includes ?
         public static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
             this IQueryable<T>                       source,
             IDocumentSession                         session,
@@ -123,33 +126,30 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
             int                              includeIndex = 0)
         {
             const string includeTableAliasPrefix = "incl";
-            const string martenDefaultAlias      = "d.";
 
             var (_, _, condition, parameters) = GetEntityNames<TInclude>(session, predicate);
-            var (sourceTable, sourceId, _, _)                    = GetEntityNames<TSource>(session);
+            var (sourceTable, sourceId, _, _) = GetEntityNames<TSource>(session);
             var includes = GetIncludes(source);
 
             //TODO: check if includes are always in same order
-            //TODO: manage includes on multiple types ? => table name won't be the same
-            //TODO: test multiple Where conditions
+            //TODO: optimize query when multiple Where<,> (single in)
             var joins = "";
             foreach (var (include, i) in includes.Select((v, i) => (v, i)))
             {
-                var          connectingField = GetProp<IField>(include, "ConnectingField");
-                var          locator         = connectingField.TypedLocator.Replace(martenDefaultAlias, "src.");
+                var          connectingField = GetPropValue<IField>(include, "ConnectingField");
+                var          locator         = connectingField.TypedLocator.Replace(MartenDefaultTableAlias, "src.");
                 var          storage         = GetStorage(include);
                 var          table           = storage.TableName;
-                const string id              = "id"; //TODO: need to get this name dynamically
-                
+
                 //TODO: check if may need to OUTER JOIN
-                joins += $" INNER JOIN {table} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{id}";
+                joins += $" INNER JOIN {table} as {includeTableAliasPrefix}{i} on {locator} = {includeTableAliasPrefix}{i}.{MartenDefaultIdCol}";
             }
 
-            condition = condition.Replace(martenDefaultAlias, $"{includeTableAliasPrefix}{includeIndex}.");
+            condition = condition.Replace(MartenDefaultTableAlias, $"{includeTableAliasPrefix}{includeIndex}.");
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
             // TODO: check if there is a limit on number of elements of "in" list
-            var matchSql = @$"d.{sourceId} in (
+            var matchSql = @$"{MartenDefaultTableAlias}{sourceId} in (
 select src.{sourceId} 
 from {sourceTable} as src {joins} 
 where {condition}
@@ -159,8 +159,72 @@ where {condition}
             return queryable;
         }
 
+        public static IQueryable<T> Latest<T>(
+            this IQueryable<T>                   source,
+            IDocumentSession                     session,
+            Expression<Func<T, object>>          maxSelector,
+            params Expression<Func<T, object>>[] groupBySelectors)
+        {
+            return source.Latest<T, T>(session, maxSelector, groupBySelectors);
+        }
+
+        public static IQueryable<TSource> Latest<TSource, TInclude>(
+            this IQueryable<TSource>                    source,
+            IDocumentSession                            session,
+            Expression<Func<TInclude, object>>          maxSelector,
+            params Expression<Func<TInclude, object>>[] groupBySelectors)
+        {
+            const string grpAlias              = "grp";
+            const string srcLatestAlias        = "srclast";
+            const string incAlias              = "inclast";
+
+            var command    = source.ToCommand();
+            var parameters = command.Parameters.Select(p => p.Value).ToArray();
+
+            var (sourceTable, _, _, _)  = GetEntityNames<TSource>(session);
+            var (includeTable, _, _, _) = GetEntityNames<TInclude>(session);
+
+            var includes  = GetIncludes(source);
+            var myInclude = includes.FirstOrDefault(i => i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude));
+
+            // connectorField.TypedLocator contains d. prefix
+            var connectorField = GetPropValue<IField>(myInclude, "ConnectingField");
+            
+            var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
+            var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
+
+            var joinNeeded = sourceTable != includeTable;
+
+            var whereCondition = GetWhereCondition(command, includes);
+
+            var groupByFieldSelect = joinNeeded
+                                         ? $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})"
+                                         : $"{groupBy.Replace($"{grpAlias}.", MartenDefaultTableAlias)}";
+            var maxFieldSelect = joinNeeded
+                                     ? $"(select {max} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})"
+                                     : $"{max.Replace($"{grpAlias}.", MartenDefaultTableAlias)}";
+
+            var joinId         = joinNeeded ? connectorField.TypedLocator.Replace(MartenDefaultTableAlias, $"{srcLatestAlias}.") : null;
+            var groupByAliased = groupBy.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
+            var maxAliased     = max.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
+
+            var join = joinNeeded ? $"inner join {includeTable} as {incAlias} on {incAlias}.{MartenDefaultIdCol} = {joinId}" : "";
+
+            var inQuery = @$"(
+select {groupByAliased}, max({maxAliased})
+from {sourceTable} as {srcLatestAlias} {join}
+where {whereCondition.Replace(MartenDefaultTableAlias, $"{srcLatestAlias}.")}
+group by {groupByAliased}
+)";
+
+            var condition = $"({groupByFieldSelect}, {maxFieldSelect}) in {inQuery}";
+            condition = Regex.Replace(condition, @":p(\d+)", "?");
+
+            return source.Where(x => x.MatchesSql(condition, parameters));
+        }
+
         // called with IncludePlan
-        private static T GetProp<T>(object includePlan, string propName)
+        private static T GetPropValue<T>(object includePlan, string propName)
         {
             return (T) includePlan?.GetType().GetProperty(propName).GetValue(includePlan);
         }
@@ -183,7 +247,8 @@ where {condition}
             IQuerySession             session,
             Expression<Func<T, bool>> predicate = null)
         {
-            // select d.id, d.data from document_store_tests.mt_doc_control as d where CAST(d.data ->> 'Result' as integer) = :p0
+            // generated query template:
+            // select d.id, d.data from schema.table as d where condition
             IQueryable<T> query = session.Query<T>();
             if (predicate != null)
                 query = query.Where(predicate);
@@ -202,74 +267,13 @@ where {condition}
             return (tableName, idColumn, whereCondition, parameters);
         }
 
-        //TODO: implement Latest
-        public static IQueryable<T> Latest<T>(
-            this IQueryable<T>                   source,
-            IDocumentSession                     session,
-            Expression<Func<T, object>>          maxSelector,
-            params Expression<Func<T, object>>[] groupBySelectors)
-        {
-            return source.Latest<T, T>(session, maxSelector, groupBySelectors);
-        }
-
-        public static IQueryable<TSource> Latest<TSource, TInclude>(
-            this IQueryable<TSource>                    source,
-            IDocumentSession                            session,
-            Expression<Func<TInclude, object>>          maxSelector,
-            params Expression<Func<TInclude, object>>[] groupBySelectors)
-        {
-            const string martenDefaultAlias = "d.";
-            const string grpAlias           = "grp";
-            const string srcLatestAlias     = "srclast";
-            const string incAlias           = "inclast";
-
-            var command    = source.ToCommand();
-            var parameters = command.Parameters.Select(p => p.Value).ToArray();
-
-            var (sourceTable, _, _, _)          = GetEntityNames<TSource>(session);
-            var (includeTable, includeId, _, _) = GetEntityNames<TInclude>(session);
-
-            var includes  = GetIncludes(source);
-            var myInclude = includes.FirstOrDefault(i => i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude));
-
-            // connectorField.TypedLocator contains d. prefix
-            var connectorField = GetProp<IField>(myInclude, "ConnectingField");
-
-            var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
-            var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
-
-            var joinNeeded = sourceTable != includeTable;
-
-            var whereCondition = GetWhereCondition(command, includes);
-
-            var groupByFieldSelect = joinNeeded
-                                         ? $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{includeId} = {connectorField.TypedLocator})"
-                                         : $"{groupBy.Replace($"{grpAlias}.", martenDefaultAlias)}";
-            var maxFieldSelect = joinNeeded
-                                     ? $"(select {max} from {includeTable} as {grpAlias} where {grpAlias}.{includeId} = {connectorField.TypedLocator})"
-                                     : $"{max.Replace($"{grpAlias}.", martenDefaultAlias)}";
-
-            var joinId         = joinNeeded ? connectorField.TypedLocator.Replace(martenDefaultAlias, $"{srcLatestAlias}.") : null;
-            var groupByAliased = groupBy.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
-            var maxAliased     = max.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
-
-            var join = joinNeeded ? $"inner join {includeTable} as {incAlias} on {incAlias}.{includeId} = {joinId}" : "";
-
-            var inQuery = @$"(
-select {groupByAliased}, max({maxAliased})
-from {sourceTable} as {srcLatestAlias} {join}
-where {whereCondition.Replace(martenDefaultAlias, $"{srcLatestAlias}.")}
-group by {groupByAliased}
-)";
-
-            var condition = $"({groupByFieldSelect}, {maxFieldSelect}) in {inQuery}";
-            condition = Regex.Replace(condition, @":p(\d+)", "?");
-
-            return source.Where(x => x.MatchesSql(condition, parameters));
-        }
-
         private static string GetWhereCondition(NpgsqlCommand command, IEnumerable<object> includes)
         {
+            // generated queries templates
+            //  - when includes
+            // drop temp table temp0; create temp table temp0 as (select id, ... from table where condition);select ...
+            // - without includes
+            // select id,... from table where condition
             var query             = command.CommandText;
             var indexOfFirstWhere = query.IndexOf("where ");
             var endOfFirstQuery   = includes.Any() ? query.IndexOf(");") : query.Length; // when no includes => single query 
