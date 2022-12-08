@@ -29,8 +29,6 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             (string, string)[]   fields,
             params object[]      parameters)
         {
-            const string includeTableAlias = "sfin";
-
             var command    = queryable.ToCommand();
             var jsonFields = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
 
@@ -39,13 +37,13 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             var joins = "";
             foreach (var (include, i) in includes.Select((v, i) => (v, i)))
             {
-                var connectingField = GetPropValue<IField>(include, "ConnectingField");
+                var connectingField = GetPropValue<DuplicatedField>(include, "ConnectingField");
                 var locator         = connectingField.TypedLocator;
                 var storage         = GetStorage(include);
                 var table           = storage.TableName;
 
                 //TODO: check if may need to OUTER JOIN (add parameter ?)
-                joins += $" INNER JOIN {table.QualifiedName} as {includeTableAlias}{i} on {locator} = {includeTableAlias}{i}.{MartenDefaultIdCol}";
+                joins += $" INNER JOIN {table.QualifiedName} as {connectingField.ColumnName} on {locator} = {connectingField.ColumnName}.{MartenDefaultIdCol}";
             }
 
             var commandText = command.CommandText;
@@ -74,7 +72,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             return RunCommand<TOut>(session, command);
         }
 
-        //TODO make if works with includes ?
+        //TODO make it works with includes ?
         public static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
             this IQueryable<T>                       source,
             IDocumentSession                         session,
