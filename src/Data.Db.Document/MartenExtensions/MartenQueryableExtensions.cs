@@ -26,6 +26,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
             this IQueryable<TIn> queryable,
             IDocumentSession     session,
+            bool                 leftOuter,
             (string, string)[]   fields,
             params object[]      parameters)
         {
@@ -43,7 +44,8 @@ namespace RecShark.Data.Db.Document.MartenExtensions
                 var table           = storage.TableName;
 
                 //TODO: check if may need to OUTER JOIN (add parameter ?)
-                joins += $" INNER JOIN {table.QualifiedName} as {connectingField.ColumnName} on {locator} = {connectingField.ColumnName}.{MartenDefaultIdCol}";
+                var joinType = leftOuter ? "LEFT OUTER JOIN" : "INNER JOIN";
+                joins += $" {joinType} {table.QualifiedName} as {connectingField.ColumnName} on {locator} = {connectingField.ColumnName}.{MartenDefaultIdCol}";
             }
 
             var commandText = command.CommandText;
@@ -339,33 +341,5 @@ group by {groupByAliased}
 
             return results;
         }
-
-        // public async Task<TDataReader> ExecuteReaderAsync(TConnection       conn,
-        //                                                   CancellationToken cancellation = default, TTransaction? tx = null)
-        // {
-        //     var cmd = Compile();
-        //     cmd.Connection  = conn;
-        //     cmd.Transaction = tx;
-        //
-        //     return (TDataReader) await cmd.ExecuteReaderAsync(cancellation).ConfigureAwait(false);
-        // }
-        //
-        // public async Task<IReadOnlyList<T>> FetchList<T>(TConnection       conn,                   Func<DbDataReader, Task<T>> transform,
-        //                                                  CancellationToken cancellation = default, TTransaction?               tx = null)
-        // {
-        //     var cmd = Compile();
-        //     cmd.Connection  = conn;
-        //     cmd.Transaction = tx;
-        //
-        //     var list = new List<T>();
-        //
-        //     using var reader = await cmd.ExecuteReaderAsync(cancellation).ConfigureAwait(false);
-        //     while (await reader.ReadAsync(cancellation).ConfigureAwait(false))
-        //     {
-        //         list.Add(await transform(reader).ConfigureAwait(false));
-        //     }
-        //
-        //     return list;
-        // }        
     }
 }

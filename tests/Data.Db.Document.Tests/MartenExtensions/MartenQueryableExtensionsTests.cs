@@ -38,7 +38,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             // Act
             var actual = session.Query<Item>()
                                 .SelectFields<Item, Item>(
-                                     session,
+                                     session, false,
                                      new[]
                                      {
                                          ("Id", "d.id"),
@@ -71,7 +71,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             var actual = session.Query<Item>()
                                 .Where(i => i.Id == "1")
                                 .SelectFields<Item, Item>(
-                                     session,
+                                     session, false,
                                      new[]
                                      {
                                          ("Id", "d.id"),
@@ -109,7 +109,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             var actual = session.Query<Control>()
                                 .Latest(session, c => c.Date, c => c.ItemId)
                                 .SelectFields<Control, Control>(
-                                     session,
+                                     session, false,
                                      new (string, string)[]
                                      {
                                          ("Id", "d.id"),
@@ -512,7 +512,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                 .Include(c => c.ItemId, actualItems)
                                 .Where<Control, Item>(i => i.Type == ItemType.A, session)
                                 .SelectFields<Control, Control>(
-                                     session,
+                                     session, false,
                                      new[]
                                      {
                                          ("Id", "d.id"),
@@ -561,6 +561,7 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                 .Latest<Control, Item>(session, i => i.Id, i => i.Type)
                                 .SelectFields<Control, Aggregate>(
                                      session,
+                                     false,
                                      new[]
                                      {
                                          ("Id", "d.id"),
