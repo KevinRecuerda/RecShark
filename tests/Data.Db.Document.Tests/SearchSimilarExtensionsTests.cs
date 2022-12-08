@@ -16,8 +16,7 @@ public class SearchSimilarExtensionsTests : BaseDocTests
         Hooks.Cleaner.CompletelyRemove(typeof(Item));
     }
 
-    //[Fact(Skip="postgresql extension pg_trgm not installed")]
-    [Fact]
+    [Fact(Skip="postgresql extension pg_trgm not installed")]
     public async Task SearchSimilarAsync__Should_return_items_according_to_search()
     {
         // Arrange

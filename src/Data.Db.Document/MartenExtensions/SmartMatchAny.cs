@@ -2,16 +2,13 @@
 using System.Linq;
 using System.Linq.Expressions;
 using Marten;
-using Marten.Linq;
+using Marten.Linq.Fields;
 using Marten.Linq.Parsing;
-using Marten.Schema;
 using RecShark.Extensions;
+using Weasel.Postgresql.SqlGeneration;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    using Marten.Linq.Fields;
-    using Weasel.Postgresql.SqlGeneration;
-
     public class SmartMatchAny : IMethodCallParser
     {
         public bool Matches(MethodCallExpression expression)

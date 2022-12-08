@@ -1,12 +1,11 @@
-﻿using Marten;
+﻿using System;
+using Marten;
 using RecShark.Data.Db.Document.Initialization;
 using RecShark.Data.Db.Document.MartenExtensions;
+using Weasel.Core;
 
 namespace RecShark.Data.Db.Document
 {
-    using System;
-    using Weasel.Core;
-
     public abstract class BaseDocumentStoreFactory : IDocumentStoreFactory
     {
         private readonly IConnectionString connectionString;

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Marten;
+using Marten.Internal.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Document.Initialization;
 using RecShark.Data.Db.Document.Testing;
@@ -7,8 +8,6 @@ using Xunit;
 
 namespace RecShark.Data.Db.Document.Tests
 {
-    using Marten.Internal.Sessions;
-
     public class BaseDocumentStoreFactoryTests : BaseDocTests
     {
         private readonly IDocumentStoreFactory factory;
@@ -40,7 +39,7 @@ namespace RecShark.Data.Db.Document.Tests
         {
             factory.CreateDocumentStore();
 
-            var innerFactory = (DocumentStoreFactory)((DocumentStoreFactoryTesting) factory).InnerFactory;
+            var innerFactory = (DocumentStoreFactory) ((DocumentStoreFactoryTesting) factory).InnerFactory;
             innerFactory.ConfigureCalled.Should().BeTrue();
         }
     }

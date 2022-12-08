@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
+using Marten.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
-    using System.Threading;
-    using Marten.Exceptions;
-
     public class DataInitializer : IDataInitializer
     {
         private readonly ILogger               logger;
@@ -67,6 +66,7 @@ namespace RecShark.Data.Db.Document.Initialization
                     session.Store(change.ToLog());
                     session.SaveChanges();
                 }
+
                 token?.ThrowIfCancellationRequested();
             }
         }

@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using Marten;
+using Marten.Internal.Sessions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-    using Marten.Internal.Sessions;
-
     public static class DocumentSessionExtensions
     {
         public static void RenameColumn<T>(this IDocumentSession session, string oldName, string newName)
