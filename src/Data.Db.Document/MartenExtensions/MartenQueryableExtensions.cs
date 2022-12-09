@@ -22,7 +22,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
     public static class MartenQueryableExtensions
     {
         private const string MartenDefaultIdCol      = "id"; //duplicated id column is always named id
-        private const string MartenDefaultTableAlias = "d.";
+        private const string MartenDefaultTableAlias = "d";
 
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
             this IQueryable<TIn> queryable,
@@ -131,10 +131,10 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
 
             //var join = $" INNER JOIN {table} as {includeTableAliasPrefix} on {locator} = {includeTableAliasPrefix}.{MartenDefaultIdCol}";
 
-            condition = condition.Replace(MartenDefaultTableAlias, $"{includeTableAliasPrefix}.");
+            condition = RenameAlias(condition, MartenDefaultTableAlias, includeTableAliasPrefix);
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
-            var matchSql = @$"{MartenDefaultTableAlias}{sourceId} in (
+            var matchSql = @$"{MartenDefaultTableAlias}.{sourceId} in (
 select src.{sourceId} 
 from {sourceTable} as {sourceTableAlias} {join} 
 where {condition}
@@ -169,35 +169,46 @@ where {condition}
             var (sourceTable, _, _, _)  = GetEntityNames<TSource>(session);
             var (includeTable, _, _, _) = GetEntityNames<TInclude>(session);
 
-            var include = GetIncludes(source).FirstOrDefault(IsIncludeOfType<TInclude>);
-
-            // connectorField.TypedLocator contains d. prefix
-            var connectorField = GetPropValue<IField>(include, "ConnectingField");
-
             var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
             var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
 
-            var joinNeeded = sourceTable != includeTable;
+            string groupByFieldSelect, maxFieldSelect;
+            string groupByAliased,     maxAliased, join = "";
+            if (sourceTable != includeTable)
+            {
+                var include = GetIncludes(source).FirstOrDefault(IsIncludeOfType<TInclude>);
+
+                // connectorField.TypedLocator contains d. prefix
+                var connectorField = GetPropValue<IField>(include, "ConnectingField");
+
+                groupByFieldSelect =
+                    $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})";
+                maxFieldSelect =
+                    $"(select {max} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})";
+
+                groupByAliased = RenameAlias(groupBy, grpAlias, incAlias);
+                maxAliased     = RenameAlias(max,     grpAlias, incAlias);
+
+                var joinId = RenameAlias(connectorField.TypedLocator, MartenDefaultTableAlias, srcLatestAlias);
+                join = $"inner join {includeTable} as {incAlias} on {incAlias}.{MartenDefaultIdCol} = {joinId}";
+            }
+            else
+            {
+                groupByFieldSelect = RenameAlias(groupBy, grpAlias, MartenDefaultTableAlias);
+                maxFieldSelect     = RenameAlias(max,     grpAlias, MartenDefaultTableAlias);
+                groupByAliased     = RenameAlias(groupBy, grpAlias, srcLatestAlias);
+                maxAliased         = RenameAlias(max,     grpAlias, srcLatestAlias);
+            }
 
             var whereCondition = GetWhereCondition(command, GetIncludes(source));
 
-            var groupByFieldSelect = joinNeeded
-                                         ? $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})"
-                                         : $"{groupBy.Replace($"{grpAlias}.", MartenDefaultTableAlias)}";
-            var maxFieldSelect = joinNeeded
-                                     ? $"(select {max} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})"
-                                     : $"{max.Replace($"{grpAlias}.", MartenDefaultTableAlias)}";
-
-            var joinId         = joinNeeded ? connectorField.TypedLocator.Replace(MartenDefaultTableAlias, $"{srcLatestAlias}.") : null;
-            var groupByAliased = groupBy.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
-            var maxAliased     = max.Replace($"{grpAlias}.", $"{(joinNeeded ? incAlias : srcLatestAlias)}.");
-
-            var join = joinNeeded ? $"inner join {includeTable} as {incAlias} on {incAlias}.{MartenDefaultIdCol} = {joinId}" : "";
+            // TODO! need to replace all aliases !
+            whereCondition = RenameAlias(whereCondition, MartenDefaultTableAlias, srcLatestAlias);
 
             var inQuery = @$"(
 select {groupByAliased}, max({maxAliased})
 from {sourceTable} as {srcLatestAlias} {join}
-where {whereCondition.Replace($"{MartenDefaultTableAlias}", $"{srcLatestAlias}.")}
+where {whereCondition}
 group by {groupByAliased}
 )";
 
@@ -208,16 +219,21 @@ group by {groupByAliased}
             return queryable;
         }
 
+        private static string RenameAlias(string expression, string alias, string newAlias)
+        {
+            return expression.Replace($"{alias}.", $"{newAlias}.");
+        }
+
         private static (string join, string includeTableAlias) BuildJoin(object include, string sourceTableAlias = null, bool leftOuter = false)
         {
-            var connectingField   = GetPropValue<IField>(include, "ConnectingField");
-            
+            var connectingField = GetPropValue<IField>(include, "ConnectingField");
+
             var locator           = connectingField.TypedLocator;
             var includeTable      = GetStorage(include).TableName;
             var includeTableAlias = $"{connectingField.Members.Last().Name}_"; // avoid table alias ending by d
 
             if (sourceTableAlias != null)
-                locator = locator.Replace(MartenDefaultTableAlias, $"{sourceTableAlias}.");
+                locator = RenameAlias(locator, MartenDefaultTableAlias, sourceTableAlias);
 
             var joinType = leftOuter ? "LEFT OUTER JOIN" : "INNER JOIN";
             var join     = $" {joinType} {includeTable.QualifiedName} as {includeTableAlias} on {locator} = {includeTableAlias}.{MartenDefaultIdCol}";
