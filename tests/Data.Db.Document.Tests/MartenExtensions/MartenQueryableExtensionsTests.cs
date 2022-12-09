@@ -261,6 +261,42 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             actualItems.Should().HaveCount(1);
             actualItems.Should().BeEquivalentTo(items[0]);
         }
+        
+        [Fact]
+        public async Task Latest__Should_return_latest_controls_according_to_multiple_filters()
+        {
+            // Arrange
+            var items = new[]
+            {
+                new Item {Id = "1", Name = "test 1"},
+                new Item {Id = "2", Name = "test 2"},
+                new Item {Id = "3", Name = "test 3"}
+            };
+            
+            var controls = new[]
+            {
+                new Control {Date = new DateTime(2000, 12, 30), ItemId = "1", Result = 10},
+                new Control {Date = new DateTime(2000, 12, 31), ItemId = "1", Result = 20},
+                new Control {Date = new DateTime(2000, 12, 30), ItemId = "2", Result = 30},
+                new Control {Date = new DateTime(2000, 12, 29), ItemId = "3", Result = 30}
+            };
+
+            var             documentStore = Hooks.Provider.GetService<IDocumentStore>();
+            await using var session       = documentStore.OpenSession();
+            session.Store(items);
+            session.Store(controls);
+            await session.SaveChangesAsync();
+
+            // Act
+            var actual = await session.Query<Control>()
+                                      .Where(c => c.Result == 10 || c.ItemId == "3")
+                                      .Latest(session, c => c.Date, c => c.ItemId)
+                                      .ToListAsync();
+
+            // Assert
+            actual.Should().HaveCount(2);
+            actual.Should().BeEquivalentTo(controls[0], controls[3]);
+        }        
 
         [Fact]
         public async Task Latest__Should_return_latest_controls_When_grouping_on_multiple_columns()
