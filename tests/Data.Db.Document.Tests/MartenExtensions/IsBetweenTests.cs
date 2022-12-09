@@ -30,9 +30,9 @@ public class IsBetweenTests : BaseDocTests
             new Control {Date = new DateTime(2000, 12, 30)},
             new Control {Date = new DateTime(2000, 12, 31)},
         };
-
+    
         var             documentStore = Hooks.Provider.GetService<IDocumentStore>();
-        await using var session       = documentStore.OpenSession();
+        using var session       = documentStore.OpenSession();
         session.Store(controls);
         await session.SaveChangesAsync();
         

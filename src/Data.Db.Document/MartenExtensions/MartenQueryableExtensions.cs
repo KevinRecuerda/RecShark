@@ -242,10 +242,9 @@ group by {groupByAliased}
 
         private static bool IsIncludeOfType<TInclude>(object i)
         {
-            return i.GetType().GetProperty("DocumentType").GetValue(i) == typeof(TInclude);
+            return i.GetType().GetProperty("DocumentType").GetValue(i) as Type == typeof(TInclude);
         }
 
-        // called with IncludePlan
         private static T GetPropValue<T>(object includePlan, string propName)
         {
             return (T) includePlan?.GetType().GetProperty(propName).GetValue(includePlan);

@@ -30,7 +30,7 @@ public class ContainsAnyTests : BaseDocTests
             new Control() {Data = new[] {"C"}}
         };
 
-        await using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
+        using var session = Hooks.Provider.GetService<IDocumentStore>().OpenSession();
         session.Store(controls);
         await session.SaveChangesAsync();
 
