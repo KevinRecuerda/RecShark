@@ -566,9 +566,9 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
                                      {
                                          ("Id", "d.id"),
                                          ("Result", "(d.data ->> 'Result')::integer * 10"),
-                                         ("Type", "item_id.data ->> 'Type'"),
-                                         ("Name", "item_id.data ->> 'Name'"),
-                                         ("Item", "item_id.data")
+                                         ("Type", "ItemId_.data ->> 'Type'"),
+                                         ("Name", "ItemId_.data ->> 'Name'"),
+                                         ("Item", "ItemId_.data")
                                      });
 
             var aggregate1 = new Aggregate {Id = controls[1].Id, Result = 200, Type = ItemType.A, Name = "test 2", Item = items[1]};

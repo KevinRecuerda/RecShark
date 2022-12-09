@@ -15,6 +15,7 @@ using System.Collections;
 using System.Reflection;
 using RecShark.Extensions;
 using Weasel.Postgresql;
+using CommandExtensions = Weasel.Postgresql.CommandExtensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
@@ -36,17 +37,8 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             var includes = GetIncludes(queryable);
 
             var joins = "";
-            foreach (var (include, i) in includes.Select((v, i) => (v, i)))
-            {
-                var connectingField = GetPropValue<DuplicatedField>(include, "ConnectingField");
-                var locator         = connectingField.TypedLocator;
-                var storage         = GetStorage(include);
-                var table           = storage.TableName;
-
-                //TODO: check if may need to OUTER JOIN (add parameter ?)
-                var joinType = leftOuter ? "LEFT OUTER JOIN" : "INNER JOIN";
-                joins += $" {joinType} {table.QualifiedName} as {connectingField.ColumnName} on {locator} = {connectingField.ColumnName}.{MartenDefaultIdCol}";
-            }
+            foreach (var include in includes)
+                joins += BuildJoin(include, null, leftOuter).join;
 
             var commandText = command.CommandText;
             if (commandText.Contains("create temp table"))
@@ -75,6 +67,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
         }
 
         //TODO make it works with includes ?
+
         public static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
             this IQueryable<T>                       source,
             IDocumentSession                         session,
@@ -113,7 +106,7 @@ from cte
 where cte.data -> '{arrayCol}' != '[]'::jsonb";
 
             // parameters
-            command.AddNamedParameter("arrayParams", parameters);
+            CommandExtensions.AddNamedParameter(command, "arrayParams", parameters);
             command.CommandText = sql;
 
             return RunCommand<T>(session, command);
@@ -125,29 +118,25 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
             IQuerySession                    session,
             int                              includeIndex = 0)
         {
-            const string includeTableAliasPrefix = "incl";
+            const string sourceTableAlias = "src";
 
-            var (_, _, condition, parameters) = GetEntityNames<TInclude>(session, predicate);
+            var (_, _, condition, parameters) = GetEntityNames(session, predicate);
             var (sourceTable, sourceId, _, _) = GetEntityNames<TSource>(session);
             var includes = GetIncludes(source);
 
-            //TODO: check if includes are always in same order
-            //TODO: optimize query when multiple Where<,>: apply all conditions on a single in ()
-            var include         = includes.Where(IsIncludeOfType<TInclude>).ElementAt(includeIndex);
-            var connectingField = GetPropValue<IField>(include, "ConnectingField");
-            var locator         = connectingField.TypedLocator.Replace(MartenDefaultTableAlias, "src.");
-            var table           = GetStorage(include).TableName;
+            //TODO: optimize query when multiple Where<,>: apply all conditions on a single in () ?
+            //TODO: Where<> must be applied as last condition ?
+            var include = includes.Where(IsIncludeOfType<TInclude>).ElementAt(includeIndex);
+            var (join, includeTableAliasPrefix) = BuildJoin(include, sourceTableAlias);
 
-            //TODO: check if may need to OUTER JOIN
-            var joins = $" INNER JOIN {table} as {includeTableAliasPrefix} on {locator} = {includeTableAliasPrefix}.{MartenDefaultIdCol}";
+            //var join = $" INNER JOIN {table} as {includeTableAliasPrefix} on {locator} = {includeTableAliasPrefix}.{MartenDefaultIdCol}";
 
             condition = condition.Replace(MartenDefaultTableAlias, $"{includeTableAliasPrefix}.");
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
-            // TODO: check if there is a limit on number of elements of "in" list
             var matchSql = @$"{MartenDefaultTableAlias}{sourceId} in (
 select src.{sourceId} 
-from {sourceTable} as src {joins} 
+from {sourceTable} as {sourceTableAlias} {join} 
 where {condition}
 )";
 
@@ -180,18 +169,17 @@ where {condition}
             var (sourceTable, _, _, _)  = GetEntityNames<TSource>(session);
             var (includeTable, _, _, _) = GetEntityNames<TInclude>(session);
 
-            var includes  = GetIncludes(source);
-            var myInclude = includes.FirstOrDefault(IsIncludeOfType<TInclude>);
+            var include = GetIncludes(source).FirstOrDefault(IsIncludeOfType<TInclude>);
 
             // connectorField.TypedLocator contains d. prefix
-            var connectorField = GetPropValue<IField>(myInclude, "ConnectingField");
+            var connectorField = GetPropValue<IField>(include, "ConnectingField");
 
             var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
             var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
 
             var joinNeeded = sourceTable != includeTable;
 
-            var whereCondition = GetWhereCondition(command, includes);
+            var whereCondition = GetWhereCondition(command, GetIncludes(source));
 
             var groupByFieldSelect = joinNeeded
                                          ? $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})"
@@ -209,14 +197,31 @@ where {condition}
             var inQuery = @$"(
 select {groupByAliased}, max({maxAliased})
 from {sourceTable} as {srcLatestAlias} {join}
-where {whereCondition.Replace(MartenDefaultTableAlias, $"{srcLatestAlias}.")}
+where {whereCondition.Replace($"{MartenDefaultTableAlias}", $"{srcLatestAlias}.")}
 group by {groupByAliased}
 )";
 
             var condition = $"({groupByFieldSelect}, {maxFieldSelect}) in {inQuery}";
             condition = Regex.Replace(condition, @":p(\d+)", "?");
 
-            return source.Where(x => x.MatchesSql(condition, parameters));
+            var queryable = source.Where(x => x.MatchesSql(condition, parameters));
+            return queryable;
+        }
+
+        private static (string join, string includeTableAlias) BuildJoin(object include, string sourceTableAlias = null, bool leftOuter = false)
+        {
+            var connectingField   = GetPropValue<IField>(include, "ConnectingField");
+            
+            var locator           = connectingField.TypedLocator;
+            var includeTable      = GetStorage(include).TableName;
+            var includeTableAlias = $"{connectingField.Members.Last().Name}_"; // avoid table alias ending by d
+
+            if (sourceTableAlias != null)
+                locator = locator.Replace(MartenDefaultTableAlias, $"{sourceTableAlias}.");
+
+            var joinType = leftOuter ? "LEFT OUTER JOIN" : "INNER JOIN";
+            var join     = $" {joinType} {includeTable.QualifiedName} as {includeTableAlias} on {locator} = {includeTableAlias}.{MartenDefaultIdCol}";
+            return (join, includeTableAlias);
         }
 
         private static bool IsIncludeOfType<TInclude>(object i)
