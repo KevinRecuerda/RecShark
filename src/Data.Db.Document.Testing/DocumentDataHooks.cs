@@ -27,14 +27,6 @@ namespace RecShark.Data.Db.Document.Testing
     {
         public DocumentStoreFactoryTesting(BaseDocumentStoreFactory innerFactory)
         { 
-            /*
-             * TODO: this a workaround to avoid below error
-             * Cannot write DateTimeOffset with Offset=01:00:00 to PostgreSQL type 'timestamp with time zone', only offset 0 (UTC) is supported.
-             * Other solution: set app TZ to UTC ?
-             * //TODO: check where should call this
-             */
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-            
             InnerFactory = innerFactory;
 
             InnerFactory.Schema += "_tests";

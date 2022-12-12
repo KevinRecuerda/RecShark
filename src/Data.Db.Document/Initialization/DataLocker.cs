@@ -45,7 +45,7 @@ namespace RecShark.Data.Db.Document.Initialization
 
                 using (var session = DocumentStore.OpenSession())
                 {
-                    session.DeleteWhere<DataLock>(l => l.ModifiedBefore(DateTimeOffset.Now.Subtract(this.MaxLockTime)));
+                    session.DeleteWhere<DataLock>(l => l.ModifiedBefore(DateTimeOffset.Now.UtcDateTime.Subtract(this.MaxLockTime)));
                     session.Insert(@lock);
                     await session.SaveChangesAsync();
                 }
