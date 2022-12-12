@@ -6,7 +6,7 @@
     <IsPackable>true</IsPackable>
     <Description>Provide api extensions.</Description>
     <PackageTags>$(PackageTags);aspnetcore;api;extensions</PackageTags>
-    <Version>2.0.0-beta4</Version>
+    <Version>2.0.0</Version>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
 
