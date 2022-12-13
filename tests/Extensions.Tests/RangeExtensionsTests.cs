@@ -92,23 +92,23 @@ namespace RecShark.Extensions.Tests
         }
 
         [Fact]
-        public void In__Should_return_true_when_contained_by_items()
+        public void IsIn__Should_return_true_when_contained_by_items()
         {
-            Gender.Male.In(Gender.Male).Should().BeTrue();
-            Gender.Male.In(Gender.Female, Gender.Male).Should().BeTrue();
+            Gender.Male.IsIn(Gender.Male).Should().BeTrue();
+            Gender.Male.IsIn(Gender.Female, Gender.Male).Should().BeTrue();
         }
 
         [Fact]
-        public void In__Should_return_false_when_not_contained_by_items()
+        public void IsIn__Should_return_false_when_not_contained_by_items()
         {
-            Gender.Male.In(Gender.Female).Should().BeFalse();
-            Gender.Male.In().Should().BeFalse();
+            Gender.Male.IsIn(Gender.Female).Should().BeFalse();
+            Gender.Male.IsIn().Should().BeFalse();
         }
 
         [Fact]
-        public void In__Should_return_false_when_no_items()
+        public void IsIn__Should_return_false_when_no_items()
         {
-            Gender.Male.In().Should().BeFalse();
+            Gender.Male.IsIn().Should().BeFalse();
         }
     }
 

@@ -20,7 +20,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             var doc     = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
             var locator = doc.FieldFor(members).SqlLocator;
 
-            var sql = " d where 1=1";
+            var sql = " where 1=1";
             sql += $" order by {locator} <-> :{nameof(search)}";
             sql += $" limit :{nameof(top)}";
 

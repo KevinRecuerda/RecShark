@@ -88,7 +88,7 @@ namespace RecShark.AspNetCore.Configurator
 
         public static void ConfigureJson(JsonOptions options)
         {
-            options.JsonSerializerOptions.IgnoreNullValues = true;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
 
             // options.JsonSerializerOptions.DictionaryKeyPolicy  =  JsonNamingPolicy.CamelCase; => KO: rename data keys as "MY_DATA"

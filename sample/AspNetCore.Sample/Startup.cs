@@ -37,8 +37,7 @@ namespace RecShark.AspNetCore.Sample
                      // .AddSecurity()
                     .AddException()
                     .AddOA3Swagger<CustomSwaggerOptions>()
-                    .AddOA3Mvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                    .AddOA3Mvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
