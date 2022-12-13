@@ -9,8 +9,6 @@ using RecShark.Extensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
-
-
     public class IsIn : IMethodCallParser
     {
         public bool Matches(MethodCallExpression expression)
