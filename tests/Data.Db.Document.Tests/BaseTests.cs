@@ -55,7 +55,7 @@ namespace RecShark.Data.Db.Document.Tests
             options.Schema.For<Item>().DatabaseSchemaName(Schema);
             options.Schema.For<Control>()
                    .ForeignKey<Item>(c => c.ItemId)
-                   //.Index(c => c.Date)
+                   .Index(c => c.Date)
                    .DatabaseSchemaName(Schema);
 
             options.Storage.Add<Views>();
