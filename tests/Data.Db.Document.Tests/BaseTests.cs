@@ -11,6 +11,8 @@ using Xunit;
 
 namespace RecShark.Data.Db.Document.Tests
 {
+    using Weasel.Postgresql.Tables;
+
     [CollectionDefinition(nameof(DataLockCollection), DisableParallelization = true)]
 
     [Collection(nameof(DataLockCollection))]
@@ -52,13 +54,19 @@ namespace RecShark.Data.Db.Document.Tests
             
             options.Schema.For<ObjectForTests>().DatabaseSchemaName(Schema);
 
-            options.Schema.For<Item>().DatabaseSchemaName(Schema);
-            options.Schema.For<Control>()
+            options.Schema.For<Item>()
+                   //.Index(i => i.Categories, c => c.Method = IndexMethod.gin)
+                   .DatabaseSchemaName(Schema);
+            
+            options.Schema.For<Control>()   
                    .ForeignKey<Item>(c => c.ItemId)
                    .Index(c => c.Date)
                    .DatabaseSchemaName(Schema);
 
             options.Storage.Add<Views>();
+            
+            //TODO: try to get table Name from Type mapping ?
+            options.Storage.Add(new FeatureSchemaIndex(options, "idx_item_categories", "mt_doc_item", "gin ((((data ->> 'Categories'::text))::jsonb))"));
         }
     }
 }
