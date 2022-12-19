@@ -21,7 +21,7 @@ namespace RecShark.Data.Db.Document.MartenExtensions
 {
     public static class MartenQueryableExtensions
     {
-        private const string MartenDefaultIdCol      = "id"; //duplicated id column is always named id
+        private const string MartenDefaultIdCol      = "id";
         private const string MartenDefaultTableAlias = "d";
 
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
@@ -65,8 +65,6 @@ namespace RecShark.Data.Db.Document.MartenExtensions
             command.CommandText = sql;
             return RunCommand<TOut>(session, command);
         }
-
-        //TODO make it works with includes ?
 
         public static IReadOnlyList<T> WhereArray<T, TArray, TFilter>(
             this IQueryable<T>                       source,
@@ -124,12 +122,8 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb";
             var (sourceTable, sourceId, _, _) = GetEntityNames<TSource>(session);
             var includes = GetIncludes(source);
 
-            //TODO: optimize query when multiple Where<,>: apply all conditions on a single in () ?
-            //TODO: Where<> must be applied as last condition ?
             var include = includes.Where(IsIncludeOfType<TInclude>).ElementAt(includeIndex);
             var (join, includeTableAliasPrefix) = BuildJoin(include, sourceTableAlias);
-
-            //var join = $" INNER JOIN {table} as {includeTableAliasPrefix} on {locator} = {includeTableAliasPrefix}.{MartenDefaultIdCol}";
 
             condition = RenameAlias(condition, MartenDefaultTableAlias, includeTableAliasPrefix);
             condition = Regex.Replace(condition, @":p(\d+)", "?");
