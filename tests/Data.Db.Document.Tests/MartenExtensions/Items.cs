@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 {
+
     public enum ItemType
     {
         A,
@@ -16,6 +18,8 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
 
         public Guid FirstControlId { get; set; }
         public Guid LastControlId  { get; set; }
+        
+        public HashSet<string> Categories { get; set; }
     }
 
     public class Control
@@ -30,10 +34,10 @@ namespace RecShark.Data.Db.Document.Tests.MartenExtensions
             Logs   = logs;
         }
 
-        public Guid     Id     { get; set; }
-        public DateTime Date   { get; set; }
-        public string   ItemId { get; set; }
-        public int      Result { get; set; }
+        public Guid           Id         { get; set; }
+        public DateTime       Date       { get; set; }
+        public string         ItemId     { get; set; }
+        public int            Result     { get; set; }
 
         public Log[] Logs { get; set; }
 

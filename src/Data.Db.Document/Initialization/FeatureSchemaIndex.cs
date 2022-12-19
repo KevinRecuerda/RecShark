@@ -10,13 +10,14 @@ using Weasel.Core;
 using Weasel.Core.Migrations;
 using DbCommandBuilder = Weasel.Core.DbCommandBuilder;
 
-public class FeatureSchemaIndex : FeatureSchemaBase
+public class FeatureSchemaIndex<T> : FeatureSchemaBase
 {
     private readonly Lazy<SchemaIndexes> schemaIndex;
 
     public FeatureSchemaIndex(StoreOptions options, string indexName, string table, string definition)
         : base($"{options.DatabaseSchemaName}._index_{indexName}", options.Advanced.Migrator)
     {
+        options.Schema.For<T>().IgnoreIndex(indexName);
         schemaIndex = new Lazy<SchemaIndexes>(() => new SchemaIndexes(indexName, options.DatabaseSchemaName, table, definition));
     }
 
@@ -37,20 +38,19 @@ public class SchemaIndexes : ISchemaObject
         this.Identifier      = new DbObjectName(schema, indexName);
         this.table           = table;
         this.definition      = definition;
-        this.createStatement = $@"CREATE INDEX {indexName} ON {schema}.{this.table} USING {this.definition}";
+        this.createStatement = $@"CREATE INDEX {indexName} ON {schema}.{this.table} USING {this.definition};";
     }
 
     public DbObjectName Identifier { get; }
 
     public void WriteCreateStatement(Migrator migrator, TextWriter writer)
     {
-        //writer.WriteLine(this.createStatement);
+        writer.WriteLine(this.createStatement);
     }
 
     public void WriteDropStatement(Migrator migrator, TextWriter writer)
     {
-        // Drop statement is automatically done ?
-        //writer.WriteLine($"DROP INDEX {this.indexName}");
+        writer.WriteLine($"DROP INDEX {this.Identifier.QualifiedName};");
     }
 
     public void ConfigureQueryCommand(DbCommandBuilder builder)
@@ -88,7 +88,7 @@ WHERE
             indexes[dbName] = dbDefinition;
         }
 
-        if (!indexes.TryGetValue(this.Identifier.Schema, out var definition))
+        if (!indexes.TryGetValue(this.Identifier.Name, out var definition))
             return SchemaPatchDifference.Create;
 
         var actual   = definition.CanonicalizeSql();
