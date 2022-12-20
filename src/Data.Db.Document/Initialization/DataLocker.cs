@@ -45,14 +45,14 @@ namespace RecShark.Data.Db.Document.Initialization
 
                 using (var session = DocumentStore.OpenSession())
                 {
-                    session.DeleteWhere<DataLock>(l => l.ModifiedBefore(DateTimeOffset.Now.Subtract(this.MaxLockTime)));
+                    session.DeleteWhere<DataLock>(l => l.ModifiedBefore(DateTimeOffset.Now.UtcDateTime.Subtract(this.MaxLockTime)));
                     session.Insert(@lock);
                     await session.SaveChangesAsync();
                 }
 
                 return true;
             }
-            catch (Marten.Exceptions.MartenCommandException e) when (e.Message.Contains("duplicate key value violates"))
+            catch (Marten.Exceptions.DocumentAlreadyExistsException)
             {
                 return false;
             }

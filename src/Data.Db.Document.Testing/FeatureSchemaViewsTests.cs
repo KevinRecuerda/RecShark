@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using Marten;
-using Marten.Schema;
-using Marten.Storage;
 using RecShark.Data.Db.Document.Initialization;
+using Weasel.Core;
 
 namespace RecShark.Data.Db.Document.Testing
 {
@@ -16,7 +15,7 @@ namespace RecShark.Data.Db.Document.Testing
             var views = CreateViews(documentStore.Options);
 
             // Act
-            var schemaViews = (SchemaViews)views.Objects.First();
+            var schemaViews = (SchemaViews) views.Objects.First();
 
             // Assert
             schemaViews.Views.Count.Should().Be(viewsCount);
@@ -26,32 +25,27 @@ namespace RecShark.Data.Db.Document.Testing
         {
             // Arrange
             var views = CreateViews(documentStore.Options);
-
-            documentStore.Schema.ApplyAllConfiguredChangesToDatabase();
+            documentStore.Schema.ApplyAllConfiguredChangesToDatabaseAsync().Wait();
 
             // Act
-            var patch = new SchemaPatch(documentStore.Options.DdlRules);
-            using (var session = documentStore.OpenSession())
-            {
-                patch.Apply(session.Connection, documentStore.Options.AutoCreateSchemaObjects, views.Objects);
-            }
+            var patch = documentStore.Schema.CreateMigrationAsync().Result;
 
             // Assert
-            var actual = patch.Migrations.Single(m => m.SchemaObject.Identifier.Name == views.Identifier);
+            var actual = patch.Deltas.Single(d => d.SchemaObject.Identifier.Name == views.Identifier);
             actual.Difference.Should().Be(SchemaPatchDifference.None);
         }
 
         private static T CreateViews(StoreOptions options)
         {
-            var views = (T)options.Storage.FindFeature(typeof(T));
+            var views = (T) options.Storage.FindFeature(typeof(T));
 
-            var schemaViews = (SchemaViews)views.Objects.First();
+            var schemaViews = (SchemaViews) views.Objects.First();
 
             // Adapt schema
-            var schema = schemaViews.Schema.Replace("_tests", "");
+            var schema = schemaViews.Identifier.Schema.Replace("_tests", "");
             foreach (var view in schemaViews.Views.ToList())
             {
-                schemaViews.Views[view.Key] = view.Value.Replace(schema + ".", schemaViews.Schema + ".");
+                schemaViews.Views[view.Key] = view.Value.Replace(schema + ".", schemaViews.Identifier.Schema + ".");
             }
 
             return views;

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Marten;
+using Marten.Internal.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Document.Initialization;
 using RecShark.Data.Db.Document.Testing;
@@ -29,8 +30,8 @@ namespace RecShark.Data.Db.Document.Tests
         {
             var actual = (DocumentStore) factory.CreateDocumentStore();
 
-            actual.Storage.MappingFor(typeof(DataChange)).DatabaseSchemaName.Should().Be(factory.Schema);
-            actual.Storage.MappingFor(typeof(DataLock)).DatabaseSchemaName.Should().Be(factory.Schema);
+            ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataChange)).TableName.Schema.Should().Be(factory.Schema);
+            ((QuerySession) actual.QuerySession()).StorageFor(typeof(DataLock)).TableName.Schema.Should().Be(factory.Schema);
         }
 
         [Fact]
@@ -38,7 +39,7 @@ namespace RecShark.Data.Db.Document.Tests
         {
             factory.CreateDocumentStore();
 
-            var innerFactory = (DocumentStoreFactory)((DocumentStoreFactoryTesting) factory).InnerFactory;
+            var innerFactory = (DocumentStoreFactory) ((DocumentStoreFactoryTesting) factory).InnerFactory;
             innerFactory.ConfigureCalled.Should().BeTrue();
         }
     }

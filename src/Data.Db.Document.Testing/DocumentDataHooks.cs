@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Marten;
 using Marten.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using RecShark.Data.Db.Document.Initialization;
 using RecShark.DependencyInjection;
 using RecShark.Testing.DependencyInjection;
+using Weasel.Core;
 
 namespace RecShark.Data.Db.Document.Testing
 {
@@ -24,7 +26,7 @@ namespace RecShark.Data.Db.Document.Testing
     public class DocumentStoreFactoryTesting : IDocumentStoreFactory
     {
         public DocumentStoreFactoryTesting(BaseDocumentStoreFactory innerFactory)
-        {
+        { 
             InnerFactory = innerFactory;
 
             InnerFactory.Schema += "_tests";

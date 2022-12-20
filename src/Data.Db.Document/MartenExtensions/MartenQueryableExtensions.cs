@@ -1,49 +1,68 @@
-﻿using System;
+﻿using Baseline.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Baseline;
 using Marten;
-using Marten.Linq;
 using Marten.Linq.MatchesSql;
-using Marten.Schema;
-using Marten.Services.Includes;
-using Marten.Util;
+using Marten.Internal.Storage;
+using Marten.Linq.Fields;
+using Marten.Linq.Parsing;
 using Npgsql;
+using System.Collections;
+using System.Reflection;
 using RecShark.Extensions;
+using Weasel.Postgresql;
+using CommandExtensions = Weasel.Postgresql.CommandExtensions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
     public static class MartenQueryableExtensions
     {
+        private const string MartenDefaultIdCol      = "id";
+        private const string MartenDefaultTableAlias = "d";
+
         public static IReadOnlyList<TOut> SelectFields<TIn, TOut>(
             this IQueryable<TIn> queryable,
             IDocumentSession     session,
+            bool                 leftOuter,
             (string, string)[]   fields,
             params object[]      parameters)
         {
-            var command = queryable.Explain().Command;
-
-            // sql
+            var command    = queryable.ToCommand();
             var jsonFields = string.Join(",", fields.Select(f => $"'{f.Item1}', {f.Item2}"));
-            var baseSql    = command.CommandText.Substring(command.CommandText.IndexOf("from"));
-            var sql        = $"select json_build_object({jsonFields}) as data {baseSql}";
 
-            // parameters
+            var includes = GetIncludes(queryable);
+
+            var joins = "";
+            foreach (var include in includes)
+                joins += BuildJoin(include, null, leftOuter).join;
+
+            var commandText = command.CommandText;
+            if (commandText.Contains("create temp table"))
+            {
+                var indexOfSelect   = commandText.IndexOf("select");
+                var indexOfEndQuery = commandText.IndexOf(");");
+                commandText = commandText.Substring(indexOfSelect, indexOfEndQuery - indexOfSelect);
+                commandText = commandText.Replace(" as d ", $" as d {joins}");
+            }
+
+            var indexOfFrom = commandText.IndexOf("from");
+            var baseSql     = commandText.Substring(indexOfFrom);
+            var sql         = $"select json_build_object({jsonFields}) as data {baseSql}";
+
+            var builder = new CommandBuilder(command);
             foreach (var parameter in parameters)
             {
                 if (parameter.IsAnonymousType())
-                    command.AddParameters(parameter);
+                    builder.AddParameters(parameter);
                 else
-                {
-                    var npgParameter = command.AddParameter(parameter);
-                    sql.UseParameter(npgParameter);
-                }
+                    builder.AddParameter(parameter);
             }
 
             command.CommandText = sql;
-
             return RunCommand<TOut>(session, command);
         }
 
@@ -65,8 +84,8 @@ namespace RecShark.Data.Db.Document.MartenExtensions
                 parameters     = parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray();
             }
 
-            var arrayCol  = SelectorToField(session, arraySelector).MemberName;
-            var filterCol = SelectorToField(session, filterSelector).MemberName;
+            var arrayCol  = GetMemberInfos(arraySelector).Single().Name;
+            var filterCol = GetMemberInfos(filterSelector).Single().Name;
 
             // sql
             var pivot = $@"
@@ -82,11 +101,10 @@ where arr ->> '{filterCol}' {filterOperator} ANY (:arrayParams)
 with cte as ({sql})
 select *
 from cte
-where cte.data -> '{arrayCol}' != '[]'::jsonb
-";
+where cte.data -> '{arrayCol}' != '[]'::jsonb";
 
             // parameters
-            command.AddNamedParameter("arrayParams", parameters);
+            CommandExtensions.AddNamedParameter(command, "arrayParams", parameters);
             command.CommandText = sql;
 
             return RunCommand<T>(session, command);
@@ -98,20 +116,26 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             IQuerySession                    session,
             int                              includeIndex = 0)
         {
-            var command    = session.Query<TInclude>().Where(predicate).ToCommand();
-            var parameters = command.Parameters.Select(p => p.Value).ToArray();
+            const string sourceTableAlias = "src";
 
-            var query       = command.CommandText;
-            var whereClause = query.Substring(query.IndexOf("where ") + 5);
+            var (_, _, condition, parameters) = GetEntityNames(session, predicate);
+            var (sourceTable, sourceId, _, _) = GetEntityNames<TSource>(session);
+            var includes = GetIncludes(source);
 
-            var executor = source.As<MartenQueryable<TSource>>().Executor;
-            var includes = executor.Includes.OfType<IncludeJoin<TInclude>>().ToArray();
-            var include  = includes[includeIndex];
+            var include = includes.Where(IsIncludeOfType<TInclude>).ElementAt(includeIndex);
+            var (join, includeTableAliasPrefix) = BuildJoin(include, sourceTableAlias);
 
-            whereClause = whereClause.Replace("d.", include.TableAlias + ".");
-            whereClause = Regex.Replace(whereClause, @":arg(\d+)", "?");
+            condition = RenameAlias(condition, MartenDefaultTableAlias, includeTableAliasPrefix);
+            condition = Regex.Replace(condition, @":p(\d+)", "?");
 
-            return source.Where(x => x.MatchesSql(whereClause, parameters));
+            var matchSql = @$"{MartenDefaultTableAlias}.{sourceId} in (
+select src.{sourceId} 
+from {sourceTable} as {sourceTableAlias} {join} 
+where {condition}
+)";
+
+            var queryable = source.Where(x => x.MatchesSql(matchSql, parameters));
+            return queryable;
         }
 
         public static IQueryable<T> Latest<T>(
@@ -129,33 +153,128 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             Expression<Func<TInclude, object>>          maxSelector,
             params Expression<Func<TInclude, object>>[] groupBySelectors)
         {
+            const string grpAlias       = "grp";
+            const string srcLatestAlias = "srclast";
+            const string incAlias       = "inclast";
+
             var command    = source.ToCommand();
             var parameters = command.Parameters.Select(p => p.Value).ToArray();
 
-            var includes     = source.As<MartenQueryable<TSource>>().Executor.Includes.ToList();
-            var includeAlias = includes.OfType<IncludeJoin<TInclude>>().FirstOrDefault()?.TableAlias;
+            var (sourceTable, _, _, _)  = GetEntityNames<TSource>(session);
+            var (includeTable, _, _, _) = GetEntityNames<TInclude>(session);
 
-            var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, includeAlias)).Join(",");
-            var max     = SelectorToSqlSafely(session, maxSelector, includeAlias);
+            var groupBy = groupBySelectors.Select(g => SelectorToSqlSafely(session, g, grpAlias)).Join(",");
+            var max     = SelectorToSqlSafely(session, maxSelector, grpAlias);
 
-            var query = command.CommandText;
-            query = $"SELECT {groupBy}, max({max}) {query.Substring(query.IndexOf("from "))} GROUP BY {groupBy}";
-            query = Regex.Replace(query, @":arg(\d+)", "?");
-
-            var aliases = includes.Select(i => i.TableAlias).ToList();
-            aliases.Insert(0, "d");
-
-            foreach (var alias in aliases)
+            string groupByFieldSelect, maxFieldSelect;
+            string groupByAliased,     maxAliased, join = "";
+            if (sourceTable != includeTable)
             {
-                var latestAlias = $"{alias}_latest";
-                query = query.Replace($" {alias}.", $" {latestAlias}.");
-                query = query.Replace($",{alias}.", $",{latestAlias}.");
-                query = query.Replace($"({alias}.", $"({latestAlias}.");
-                query = query.Replace($" {alias} ", $" {latestAlias} ");
+                var include = GetIncludes(source).FirstOrDefault(IsIncludeOfType<TInclude>);
+
+                // connectorField.TypedLocator contains d. prefix
+                var connectorField = GetPropValue<IField>(include, "ConnectingField");
+
+                groupByFieldSelect =
+                    $"(select {groupBy} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})";
+                maxFieldSelect =
+                    $"(select {max} from {includeTable} as {grpAlias} where {grpAlias}.{MartenDefaultIdCol} = {connectorField.TypedLocator})";
+
+                groupByAliased = RenameAlias(groupBy, grpAlias, incAlias);
+                maxAliased     = RenameAlias(max,     grpAlias, incAlias);
+
+                var joinId = RenameAlias(connectorField.TypedLocator, MartenDefaultTableAlias, srcLatestAlias);
+                join = $"inner join {includeTable} as {incAlias} on {incAlias}.{MartenDefaultIdCol} = {joinId}";
+            }
+            else
+            {
+                groupByFieldSelect = RenameAlias(groupBy, grpAlias, MartenDefaultTableAlias);
+                maxFieldSelect     = RenameAlias(max,     grpAlias, MartenDefaultTableAlias);
+                groupByAliased     = RenameAlias(groupBy, grpAlias, srcLatestAlias);
+                maxAliased         = RenameAlias(max,     grpAlias, srcLatestAlias);
             }
 
-            var whereClause = $"({groupBy}, {max}) in ({query})";
-            return source.Where(x => x.MatchesSql(whereClause, parameters));
+            var whereCondition = GetWhereCondition(command, GetIncludes(source));
+
+            // TODO! need to replace all aliases !
+            whereCondition = RenameAlias(whereCondition, MartenDefaultTableAlias, srcLatestAlias);
+
+            var inQuery = @$"(
+select {groupByAliased}, max({maxAliased})
+from {sourceTable} as {srcLatestAlias} {join}
+where {whereCondition}
+group by {groupByAliased}
+)";
+
+            var condition = $"({groupByFieldSelect}, {maxFieldSelect}) in {inQuery}";
+            condition = Regex.Replace(condition, @":p(\d+)", "?");
+
+            var queryable = source.Where(x => x.MatchesSql(condition, parameters));
+            return queryable;
+        }
+
+        private static string RenameAlias(string expression, string alias, string newAlias)
+        {
+            return expression.Replace($"{alias}.", $"{newAlias}.");
+        }
+
+        private static (string join, string includeTableAlias) BuildJoin(object include, string sourceTableAlias = null, bool leftOuter = false)
+        {
+            var connectingField = GetPropValue<IField>(include, "ConnectingField");
+
+            var locator           = connectingField.TypedLocator;
+            var includeTable      = GetStorage(include).TableName;
+            var includeTableAlias = $"{connectingField.Members.Last().Name}_"; // avoid table alias ending by d
+
+            if (sourceTableAlias != null)
+                locator = RenameAlias(locator, MartenDefaultTableAlias, sourceTableAlias);
+
+            var joinType = leftOuter ? "LEFT OUTER JOIN" : "INNER JOIN";
+            var join     = $" {joinType} {includeTable.QualifiedName} as {includeTableAlias} on {locator} = {includeTableAlias}.{MartenDefaultIdCol}";
+            return (join, includeTableAlias);
+        }
+
+        private static (string tableName, string idName, string whereClause, object[] parameters) GetEntityNames<T>(
+            IQuerySession             session,
+            Expression<Func<T, bool>> predicate = null)
+        {
+            // generated query template:
+            // select d.id, d.data from schema.table as d where condition
+            IQueryable<T> query = session.Query<T>();
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            var command    = query.ToCommand();
+            var parameters = command.Parameters.Select(p => p.Value).ToArray();
+
+            var commandText    = command.CommandText;
+            var indexStartFrom = commandText.IndexOf("from ") + 5;
+            var indexEndFrom   = commandText.IndexOf(" as d");
+
+            var tableName      = commandText.Substring(indexStartFrom, indexEndFrom             - indexStartFrom);
+            var idColumn       = commandText.Substring(9,              commandText.IndexOf(",") - 9);
+            var whereCondition = commandText.Substring(commandText.IndexOf("where ")            + 5);
+
+            return (tableName, idColumn, whereCondition, parameters);
+        }
+
+        private static string GetWhereCondition(NpgsqlCommand command, IEnumerable<object> includes)
+        {
+            // generated queries templates
+            //  - when includes
+            // drop temp table temp0; create temp table temp0 as (select id, ... from table where condition);select ...
+            // - without includes
+            // select id,... from table where condition
+            var query             = command.CommandText;
+            var indexOfFirstWhere = query.IndexOf("where ");
+            var endOfFirstQuery   = includes.Any() ? query.IndexOf(");") : query.Length; // when no includes => single query 
+
+            if (indexOfFirstWhere == -1 || indexOfFirstWhere >= endOfFirstQuery)
+                return "1 = 1";
+
+            var whereCondition = query.Substring(indexOfFirstWhere + 6, endOfFirstQuery - indexOfFirstWhere - 6);
+
+            return whereCondition;
         }
 
         private static string SelectorToSqlSafely<T, TResult>(IDocumentSession session, Expression<Func<T, TResult>> selector, string alias = null)
@@ -164,22 +283,29 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
 
             var field       = SelectorToField(session, selector);
             var sqlSelector = field.LocatorFor(alias);
-            return field.MemberType.IsNullableType() ? $"COALESCE({sqlSelector},'')" : sqlSelector;
+
+            return field.FieldType.IsNullableType() ? $"COALESCE({sqlSelector},'')" : sqlSelector;
         }
 
         private static IField SelectorToField<T, TResult>(IDocumentSession session, Expression<Func<T, TResult>> selector)
         {
+            var members     = GetMemberInfos(selector);
+            var docProvider = session.Database.Providers.StorageFor<T>();
+            var field       = docProvider.Lightweight.Fields.FieldFor(members);
+            return field;
+        }
+
+        private static IList<MemberInfo> GetMemberInfos<T, TResult>(Expression<Func<T, TResult>> selector)
+        {
             var findMembers = new FindMembers();
             findMembers.Visit(selector);
-            var members = findMembers.Members.ToArray();
-
-            var mapping = ((DocumentStore) session.DocumentStore).Options.Storage.MappingFor(typeof(T));
-            var field   = mapping.FieldFor(members);
-            return field;
+            return findMembers.Members;
         }
 
         private static IReadOnlyList<T> RunCommand<T>(IDocumentSession session, NpgsqlCommand command)
         {
+            command.Connection = session.Connection;
+
             var reader = command.ExecuteReader();
 
             var serializer = (session.DocumentStore as DocumentStore).Serializer;
@@ -187,11 +313,47 @@ where cte.data -> '{arrayCol}' != '[]'::jsonb
             var results = new List<T>();
             while (reader.Read())
             {
-                var result = serializer.FromJson<T>(reader.GetTextReader(0));
+                var result = serializer.FromJson<T>(reader.GetStream(0));
                 results.Add(result);
             }
 
             return results;
+        }
+
+        private static bool IsIncludeOfType<TInclude>(object include)
+        {
+            return GetPropValue<Type>(include, "DocumentType") == typeof(TInclude);
+        }
+
+        private static IEnumerable<object> GetIncludes(IQueryable source)
+        {
+            var provider = GetPropValue<object>(source, "MartenProvider");
+            var includes = GetPrivatePropValue<ICollection>(provider, "AllIncludes");
+            return includes?.Cast<object>();
+        }
+
+        private static IDocumentStorage GetStorage(object includePlan)
+        {
+            return GetPrivateField<IDocumentStorage>(includePlan, "_storage");
+        }
+
+        private static T GetPropValue<T>(object includePlan, string propName)
+        {
+            return (T) includePlan?.GetType().GetProperty(propName)?.GetValue(includePlan);
+        }
+
+        private static T GetPrivatePropValue<T>(object o, string propName)
+        {
+            return (T) o.GetType()
+                        .GetProperty(propName, BindingFlags.NonPublic|BindingFlags.Instance)
+                       ?.GetValue(o);
+        }
+
+        private static T GetPrivateField<T>(object o, string fieldName)
+        {
+            return (T) o?.GetType()
+                         .GetField(fieldName, BindingFlags.NonPublic|BindingFlags.Instance)
+                        ?.GetValue(o);
         }
     }
 }

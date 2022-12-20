@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Marten;
+using Marten.Internal.Sessions;
 
 namespace RecShark.Data.Db.Document.MartenExtensions
 {
@@ -7,10 +8,10 @@ namespace RecShark.Data.Db.Document.MartenExtensions
     {
         public static void RenameColumn<T>(this IDocumentSession session, string oldName, string newName)
         {
-            var doc = session.DocumentStore.Tenancy.Default.MappingFor(typeof(T)).ToQueryableDocument();
+            var doc = ((QuerySession) session.DocumentStore.QuerySession()).StorageFor(typeof(T));
 
             var query = $@"
-update {doc.Table.Schema}.{doc.Table.Name}
+update {doc.TableName.Schema}.{doc.TableName.Name}
 set data = data - '{oldName}' || jsonb_build_object('{newName}', data->'{oldName}')
 where data ? '{oldName}'
 ";

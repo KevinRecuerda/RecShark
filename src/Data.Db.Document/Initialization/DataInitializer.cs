@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
-using Marten.Schema;
+using Marten.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace RecShark.Data.Db.Document.Initialization
 {
-    using System.Threading;
-
     public class DataInitializer : IDataInitializer
     {
         private readonly ILogger               logger;
@@ -35,7 +34,7 @@ namespace RecShark.Data.Db.Document.Initialization
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PreSchemaChanges, token);
 
                 logger.LogInformation("applying auto schema change ...");
-                store.Schema.ApplyAllConfiguredChangesToDatabase();
+                await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync();
 
                 await ApplyChanges(store, factory.DataChanges, ExecutionMode.PostSchemaChanges, token);
             }
@@ -67,6 +66,7 @@ namespace RecShark.Data.Db.Document.Initialization
                     session.Store(change.ToLog());
                     session.SaveChanges();
                 }
+
                 token?.ThrowIfCancellationRequested();
             }
         }

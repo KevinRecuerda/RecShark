@@ -13,7 +13,7 @@ public class SearchSimilarExtensionsTests : BaseDocTests
 
     public override void Dispose()
     {
-        Hooks.Cleaner.DeleteDocumentsFor(typeof(Item));
+        Hooks.Cleaner.CompletelyRemove(typeof(Item));
     }
 
     [Fact(Skip="postgresql extension pg_trgm not installed")]

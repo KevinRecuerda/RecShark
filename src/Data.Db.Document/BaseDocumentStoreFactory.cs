@@ -1,6 +1,8 @@
-﻿using Marten;
+﻿using System;
+using Marten;
 using RecShark.Data.Db.Document.Initialization;
 using RecShark.Data.Db.Document.MartenExtensions;
+using Weasel.Core;
 
 namespace RecShark.Data.Db.Document
 {
@@ -34,9 +36,10 @@ namespace RecShark.Data.Db.Document
             options.Linq.MethodCallParsers.Add(new IsIn());
             options.Linq.MethodCallParsers.Add(new SmartMatchAny());
             options.UseDefaultSerialization(EnumStorage.AsString);
-            options.HiloSequenceDefaults.MaxLo = 10;
+            options.Advanced.HiloSequenceDefaults.MaxLo = 10;
 
-            options.PLV8Enabled = false;
+            // TODO: check if need to enable PLV8 https://martendb.io/documents/plv8.html
+            //options.Advanced.PLV8Enabled = false;
 
             options.Schema.For<DataChangeLog>().DatabaseSchemaName(Schema);
             options.Schema.For<DataLock>().DatabaseSchemaName(Schema);

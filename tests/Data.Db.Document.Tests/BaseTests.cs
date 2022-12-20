@@ -12,7 +12,6 @@ using Xunit;
 namespace RecShark.Data.Db.Document.Tests
 {
     [CollectionDefinition(nameof(DataLockCollection), DisableParallelization = true)]
-
     [Collection(nameof(DataLockCollection))]
     public class BaseDocTests : IntegrationTests<DocHooks>
     {
@@ -52,13 +51,20 @@ namespace RecShark.Data.Db.Document.Tests
 
             options.Schema.For<ObjectForTests>().DatabaseSchemaName(Schema);
 
-            options.Schema.For<Item>().DatabaseSchemaName(Schema);
+            options.Schema.For<Item>()
+                   .DatabaseSchemaName(Schema);
+
             options.Schema.For<Control>()
                    .ForeignKey<Item>(c => c.ItemId)
                    .Index(c => c.Date)
                    .DatabaseSchemaName(Schema);
 
             options.Storage.Add<Views>();
+
+            //TODO: try to get table Name from Type mapping ?
+            options.Storage.Add(
+                new FeatureSchemaIndexes<Item>(options, "mt_doc_item", ("idx_item_categories", "gin ((((data ->> 'Categories'::text))::jsonb))")));
+            
         }
     }
 }
