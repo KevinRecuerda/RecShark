@@ -84,8 +84,8 @@ namespace RecShark.Data.Db.Document.MartenExtensions
                 parameters     = parameters.Cast<string>().Select(x => x.Replace("*", "%")).Cast<TFilter>().ToArray();
             }
 
-            var arrayCol  = SelectorToFieldLight(session, arraySelector);
-            var filterCol = SelectorToFieldLight(session, filterSelector);
+            var arrayCol  = GetMemberInfos(arraySelector).Single().Name;
+            var filterCol = GetMemberInfos(filterSelector).Single().Name;
 
             // sql
             var pivot = $@"
@@ -234,30 +234,6 @@ group by {groupByAliased}
             return (join, includeTableAlias);
         }
 
-        private static bool IsIncludeOfType<TInclude>(object i)
-        {
-            return i.GetType().GetProperty("DocumentType").GetValue(i) as Type == typeof(TInclude);
-        }
-
-        private static T GetPropValue<T>(object includePlan, string propName)
-        {
-            return (T) includePlan?.GetType().GetProperty(propName).GetValue(includePlan);
-        }
-
-        private static IEnumerable<object> GetIncludes(IQueryable source)
-        {
-            var provider = source.GetType().GetProperty("MartenProvider").GetValue(source);
-            var includes = (ICollection) provider.GetType()
-                                                 .GetProperty("AllIncludes", BindingFlags.NonPublic|BindingFlags.Instance)
-                                                 .GetValue(provider);
-            return includes.Cast<object>();
-        }
-
-        private static IDocumentStorage GetStorage(object includePlan)
-        {
-            return (IDocumentStorage) includePlan?.GetType().GetField("_storage", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(includePlan);
-        }
-
         private static (string tableName, string idName, string whereClause, object[] parameters) GetEntityNames<T>(
             IQuerySession             session,
             Expression<Func<T, bool>> predicate = null)
@@ -308,34 +284,22 @@ group by {groupByAliased}
             var field       = SelectorToField(session, selector);
             var sqlSelector = field.LocatorFor(alias);
 
-            // TODO: field.MemberType -> FieldType ?
             return field.FieldType.IsNullableType() ? $"COALESCE({sqlSelector},'')" : sqlSelector;
-        }
-
-        // TODO: find a way to access MappingFor<> , document Mappings
-        private static string SelectorToFieldLight<T, TResult>(IDocumentSession session, Expression<Func<T, TResult>> selector)
-        {
-            var findMembers = new FindMembers();
-            findMembers.Visit(selector);
-            var members = findMembers.Members.ToArray();
-            return members.Single().Name;
         }
 
         private static IField SelectorToField<T, TResult>(IDocumentSession session, Expression<Func<T, TResult>> selector)
         {
-            var findMembers = new FindMembers();
-            findMembers.Visit(selector);
-            var members = findMembers.Members.ToArray();
-
-            //TODO check if ok
+            var members     = GetMemberInfos(selector);
             var docProvider = session.Database.Providers.StorageFor<T>();
             var field       = docProvider.Lightweight.Fields.FieldFor(members);
             return field;
+        }
 
-            //var mapping     = ((QuerySession) session.DocumentStore.QuerySession()).StorageFor(typeof(T));
-            //var mapping = ((DocumentStore) session.DocumentStore).Options.Storage.MappingFor(typeof(T));
-            //var field = mapping.Fields.FieldFor(members);
-            //return field;
+        private static IList<MemberInfo> GetMemberInfos<T, TResult>(Expression<Func<T, TResult>> selector)
+        {
+            var findMembers = new FindMembers();
+            findMembers.Visit(selector);
+            return findMembers.Members;
         }
 
         private static IReadOnlyList<T> RunCommand<T>(IDocumentSession session, NpgsqlCommand command)
@@ -354,6 +318,42 @@ group by {groupByAliased}
             }
 
             return results;
+        }
+
+        private static bool IsIncludeOfType<TInclude>(object include)
+        {
+            return GetPropValue<Type>(include, "DocumentType") == typeof(TInclude);
+        }
+
+        private static IEnumerable<object> GetIncludes(IQueryable source)
+        {
+            var provider = GetPropValue<object>(source, "MartenProvider");
+            var includes = GetPrivatePropValue<ICollection>(provider, "AllIncludes");
+            return includes?.Cast<object>();
+        }
+
+        private static IDocumentStorage GetStorage(object includePlan)
+        {
+            return GetPrivateField<IDocumentStorage>(includePlan, "_storage");
+        }
+
+        private static T GetPropValue<T>(object includePlan, string propName)
+        {
+            return (T) includePlan?.GetType().GetProperty(propName)?.GetValue(includePlan);
+        }
+
+        private static T GetPrivatePropValue<T>(object o, string propName)
+        {
+            return (T) o.GetType()
+                        .GetProperty(propName, BindingFlags.NonPublic|BindingFlags.Instance)
+                       ?.GetValue(o);
+        }
+
+        private static T GetPrivateField<T>(object o, string fieldName)
+        {
+            return (T) o?.GetType()
+                         .GetField(fieldName, BindingFlags.NonPublic|BindingFlags.Instance)
+                        ?.GetValue(o);
         }
     }
 }
