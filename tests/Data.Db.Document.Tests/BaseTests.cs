@@ -58,11 +58,13 @@ namespace RecShark.Data.Db.Document.Tests
                    .ForeignKey<Item>(c => c.ItemId)
                    .Index(c => c.Date)
                    .DatabaseSchemaName(Schema);
-                    
+
             options.Storage.Add<Views>();
-            
+
             //TODO: try to get table Name from Type mapping ?
-            options.Storage.Add(new FeatureSchemaIndex<Item>(options, "idx_item_categories", "mt_doc_item", "gin ((((data ->> 'Categories'::text))::jsonb))"));
+            options.Storage.Add(
+                new FeatureSchemaIndexes<Item>(options, "mt_doc_item", ("idx_item_categories", "gin ((((data ->> 'Categories'::text))::jsonb))")));
+            
         }
     }
 }
