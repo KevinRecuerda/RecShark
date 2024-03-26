@@ -44,8 +44,14 @@ namespace RecShark.Extensions
         public static string AsFirstName(this Type type)
         {
             var name = type.Name;
-            if (type.IsGenericType)
-                name = name[..name.IndexOf('`')];
+            if (type.IsGenericType) 
+            {
+                #if (NET6_0_OR_GREATER || NETSTANDARD2_0_OR_GREATER)
+                    name = name[..name.IndexOf('`')];
+                #else
+                    name = name.Substring(0, name.IndexOf('`'));
+                #endif
+            }
 
             return name;
         }

@@ -112,8 +112,13 @@ namespace RecShark.Extensions
             this Dictionary<TKey, TValue> source,
             Dictionary<TKey, TValue>      other)
         {
-            foreach (var (key, value) in other)
-                source[key] = value;
+            #if (NET6_0_OR_GREATER || NETSTANDARD2_0_OR_GREATER)
+                foreach (var (key, value) in other)
+                    source[key] = value;
+            #else
+                foreach (var data in other)
+                    source[data.Key] = data.Value;
+            #endif
 
             return source;
         }
